@@ -2,322 +2,474 @@ import cv2
 import mediapipe as mp
 import math
 
+
 # =====================================================
-# حساب المسافة بين نقطتين
+# Distance
 # =====================================================
 
 def distance(p1, p2):
 
     return math.sqrt(
-        (p1[0] - p2[0])**2 +
-        (p1[1] - p2[1])**2
+        (p1[0]-p2[0])**2 +
+        (p1[1]-p2[1])**2
     )
 
-# =====================================================
-# حساب ميل العين
-# =====================================================
 
-def calculate_slope(p1, p2):
-
-    x1, y1 = p1
-    x2, y2 = p2
-
-    dx = x2 - x1
-    dy = y2 - y1
-
-    if dx == 0:
-        return 0
-
-    return dy / dx
 
 # =====================================================
-# قراءة الصورة
+# Landmarks
 # =====================================================
 
-image = cv2.imread("pictures2/photo_2026-06-04_11-19-47.jpg")
+
+EYE_POINTS = {
+
+    "left_corner": 33,
+    "right_corner": 133,
+
+    "upper_lid": 159,
+    "lower_lid": 145,
+
+    "iris_top": 474,
+    "iris_bottom": 477,
+
+}
+
+
+
+BROW_POINTS = [
+
+    70,
+    63,
+    105,
+    66,
+    107
+
+]
+
+
+
+FACE_POINTS = {
+
+    "face_left":234,
+    "face_right":454
+
+}
+
+
+
+# =====================================================
+# Load Image
+# =====================================================
+
+
+image = cv2.imread(
+    "pictures2/photo_2026-06-04_11-19-15.jpg"
+)
+
 
 if image is None:
 
     print("Image not found")
     exit()
 
+
+
+rgb = cv2.cvtColor(
+    image,
+    cv2.COLOR_BGR2RGB
+)
+
+
+
 # =====================================================
-# تحويل RGB
+# MediaPipe
 # =====================================================
 
-rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-# =====================================================
-# MediaPipe FaceMesh
-# =====================================================
 
 mp_face_mesh = mp.solutions.face_mesh
 
-# =====================================================
-# نقاط العين
-# =====================================================
 
-LEFT_EYE = {
-
-    # زوايا العين
-    "left_corner": 33,
-    "right_corner": 133,
-
-    # أعلى وأسفل العين
-    "top": 159,
-    "bottom": 145,
-
-    # الجفن
-    "upper_lid": 158,
-
-    # الحاجب
-    "brow": 70
-}
-
-# =====================================================
-# تشغيل التحليل
-# =====================================================
 
 with mp_face_mesh.FaceMesh(
+
     static_image_mode=True,
     max_num_faces=1,
     refine_landmarks=True
-) as face_mesh:
 
-    results = face_mesh.process(rgb)
+) as mesh:
 
-    # =====================================================
-    # إذا لم يتم اكتشاف وجه
-    # =====================================================
 
-    if not results.multi_face_landmarks:
+
+    result = mesh.process(rgb)
+
+
+
+    if not result.multi_face_landmarks:
 
         print("No face detected")
         exit()
 
-    face_landmarks = results.multi_face_landmarks[0]
 
-    h, w, _ = image.shape
+
+    face = result.multi_face_landmarks[0]
+
+
+    h,w,_ = image.shape
+
+
 
     points = {}
 
-    # =====================================================
-    # استخراج النقاط
-    # =====================================================
 
-    for name, idx in LEFT_EYE.items():
 
-        landmark = face_landmarks.landmark[idx]
+    # -------------------------
+    # Eye + Face points
+    # -------------------------
 
-        x = int(landmark.x * w)
-        y = int(landmark.y * h)
+    needed = {}
 
-        points[name] = (x, y)
+    needed.update(EYE_POINTS)
+    needed.update(FACE_POINTS)
 
-        # رسم النقاط
+
+
+    for name,idx in needed.items():
+
+        lm = face.landmark[idx]
+
+
+        points[name] = (
+
+            int(lm.x*w),
+            int(lm.y*h)
+
+        )
+
+
+
+    # -------------------------
+    # Brow
+    # -------------------------
+
+    brow_points=[]
+
+
+    for idx in BROW_POINTS:
+
+        lm = face.landmark[idx]
+
+        brow_points.append(
+            (
+            int(lm.x*w),
+            int(lm.y*h)
+            )
+        )
+
+
+
+    brow_top = min(
+        brow_points,
+        key=lambda p:p[1]
+    )
+
+
+
+    # Drawing
+
+    for p in points.values():
+
         cv2.circle(
             image,
-            (x, y),
+            p,
             4,
             (0,255,0),
             -1
         )
 
 
-# =====================================================
-# الحسابات الأساسية
-# =====================================================
-
-    # عرض العين
-    eye_width = distance(
-        points["left_corner"],
-        points["right_corner"]
-    )
-
-    # ارتفاع العين
-    eye_height = distance(
-        points["top"],
-        points["bottom"]
-    )
-
-    # ارتفاع الجفن
-    eyelid_height = distance(
-        points["top"],
-        points["upper_lid"]
-    )
-
-    # المسافة للحاجب
-    brow_distance = distance(
-        points["top"],
-        points["brow"]
-    )
 
 # =====================================================
-# الحسابات النهائية
+# Feature Extraction
 # =====================================================
 
-    # نسبة ارتفاع العين
-    eye_ratio = eye_height / eye_width
 
-    # نسبة الجفن
-    eyelid_ratio = eyelid_height / eye_width
+face_width = distance(
+    points["face_left"],
+    points["face_right"]
+)
 
-    # نسبة الحاجب
-    brow_ratio = brow_distance / eye_width
 
-    # ميل العين
-    eye_slope = calculate_slope(
-        points["left_corner"],
-        points["right_corner"]
-    )
 
-    # فرق الزوايا الحقيقي
-    corner_difference_ratio = (
+eye_width = distance(
+    points["left_corner"],
+    points["right_corner"]
+)
 
-        points["right_corner"][1]
-        - points["left_corner"][1]
 
-    ) / eye_width
 
-# =====================================================
-# طباعة النتائج
-# =====================================================
+eye_height = distance(
+    points["upper_lid"],
+    points["lower_lid"]
+)
 
-    print("\n========== FEATURES ==========")
 
-    print("Eye Ratio:", eye_ratio)
 
-    print("Eyelid Ratio:", eyelid_ratio)
+# طول العين
 
-    print("Brow Ratio:", brow_ratio)
+eye_length_ratio = (
+    eye_width / eye_height
+)
 
-    print("Eye Slope:", eye_slope)
 
-    print(
-        "Corner Difference Ratio:",
-        corner_difference_ratio
-    )
 
-# =====================================================
-# التصنيفات
-# =====================================================
+# نسبة العين للوجه
 
-    eye_features = []
+eye_height_ratio = (
+    eye_height / face_width
+)
 
-# =====================================================
-# HOODED EYES
-# =====================================================
 
-    """
-    العين المبطنة:
-    - ارتفاع العين أصغر
-    - الجفن أصغر
-    """
 
-    if (
+eye_width_ratio = (
+    eye_width / face_width
+)
 
-        eye_ratio < 0.34
 
-        and eyelid_ratio < 0.20
 
-    ):
+# اتجاه العين
 
-        eye_features.append("Hooded")
+corner_tilt = (
 
-# =====================================================
-# ROUND EYES
-# =====================================================
+    points["right_corner"][1]
+    -
+    points["left_corner"][1]
 
-    """
-    العين المدورة:
-    - ارتفاع العين كبير
-    """
+) / face_width
 
-    if eye_ratio > 0.375:
 
-        eye_features.append("Round")
 
-# =====================================================
-# ALMOND EYES
-# =====================================================
+# الحاجب
 
-    """
-    العين اللوزية:
-    - ميل للأعلى
-    - زاوية خارجية مرتفعة
-    """
+brow_distance = distance(
+    points["upper_lid"],
+    brow_top
+)
 
-    if (
 
-        eye_slope > 0.05
 
-        and corner_difference_ratio > 0.08
+brow_eye_ratio = (
 
-    ):
+    brow_distance / eye_height
 
-        eye_features.append("Almond")
+)
 
-# =====================================================
-# DROOPY EYES
-# =====================================================
-
-    """
-    العين الناعسة:
-    - نزول الزاوية الخارجية
-    """
-
-    if (
-
-        eye_slope < -0.02
-
-        or corner_difference_ratio < 0
-
-    ):
-
-        eye_features.append("Droopy")
-
-# =====================================================
-# BIG EYES
-# =====================================================
-
-    if eye_ratio > 0.41:
-
-        eye_features.append("Big Eyes")
-
-# =====================================================
-# SMALL EYES
-# =====================================================
-
-    if eye_ratio < 0.28:
-
-        eye_features.append("Small Eyes")
-
-# =====================================================
-# إذا لم يوجد تصنيف
-# =====================================================
-
-    if len(eye_features) == 0:
-
-        eye_features.append("Normal")
-
-# =====================================================
-# النتيجة النهائية
-# =====================================================
-
-    final_result = ", ".join(eye_features)
-
-    print("\n========== RESULT ==========")
-
-    print(final_result)
 
 
 # =====================================================
-# حفظ الصورة
+# New Hooded Features
 # =====================================================
+
+
+upper_lid_gap = distance(
+
+    points["upper_lid"],
+    points["iris_top"]
+
+)
+
+
+lower_lid_gap = distance(
+
+    points["iris_bottom"],
+    points["lower_lid"]
+
+)
+
+
+
+upper_visibility = (
+
+    upper_lid_gap / eye_height
+
+)
+
+
+
+lower_visibility = (
+
+    lower_lid_gap / eye_height
+
+)
+
+
+
+# =====================================================
+# Classification
+# =====================================================
+
+
+# -------------------------
+# Eye Shape
+# -------------------------
+
+
+if eye_length_ratio >= 2.4:
+
+    eye_shape = "Almond"
+
+
+elif eye_length_ratio <= 1.9:
+
+    eye_shape = "Round"
+
+
+else:
+
+    eye_shape = "Average"
+
+
+
+# -------------------------
+# Eye Size
+# -------------------------
+
+
+if eye_height_ratio >= 0.095:
+
+    eye_size="Large"
+
+
+elif eye_height_ratio <= 0.065:
+
+    eye_size="Small"
+
+
+else:
+
+    eye_size="Normal"
+
+
+
+# -------------------------
+# Corner
+# -------------------------
+
+
+if corner_tilt > 0.02:
+
+    eye_corner="Downturned"
+
+
+elif corner_tilt < -0.02:
+
+    eye_corner="Upturned"
+
+
+else:
+
+    eye_corner="Neutral"
+
+
+
+# -------------------------
+# Eyelid
+# -------------------------
+
+
+if (
+
+    upper_visibility < 0.20
+
+    or brow_eye_ratio < 2.5
+
+):
+
+    eyelid_type="Hooded"
+
+
+else:
+
+    eyelid_type="Open"
+
+
+
+# =====================================================
+# Output
+# =====================================================
+
+
+print("\n========== FEATURES ==========")
+
+
+print(
+"Eye length ratio:",
+round(eye_length_ratio,3)
+)
+
+
+print(
+"Eye height ratio:",
+round(eye_height_ratio,3)
+)
+
+
+print(
+"Eye width ratio:",
+round(eye_width_ratio,3)
+)
+
+
+print(
+"Corner tilt:",
+round(corner_tilt,3)
+)
+
+
+print(
+"Brow/Eye:",
+round(brow_eye_ratio,3)
+)
+
+
+print(
+"Upper lid visibility:",
+round(upper_visibility,3)
+)
+
+
+
+print("\n========== RESULT ==========")
+
+
+print(
+"Shape:",
+eye_shape
+)
+
+
+print(
+"Size:",
+eye_size
+)
+
+
+print(
+"Corner:",
+eye_corner
+)
+
+
+print(
+"Lid:",
+eyelid_type
+)
+
+
 
 cv2.imwrite(
-    "eye_analysis_result.jpg",
+    "eye_final_analysis.jpg",
     image
 )
 
-print("\nResult saved")
+
+print("\nSaved")
