@@ -28,6 +28,29 @@ import mediapipe as mp
 import math
 import numpy as np
 
+from eye_makeup_rules import get_eye_makeup_recommendation, print_eye_recommendation
+from brow_makeup_rules import get_brow_recommendation, print_brow_recommendation
+from nose_makeup_rules import get_nose_makeup_recommendation, print_nose_recommendation
+from face_makeup_rules import get_face_contour_blush_recommendation, print_face_contour_blush_recommendation
+from lip_makeup_rules import get_lip_makeup_recommendation, print_lip_recommendation
+
+
+# ══════════════════════════════════════════════════════
+# جدول تحويل تسمية المناسبة (occasion) بين الأنظمة الخبيرة
+# ══════════════════════════════════════════════════════
+# نظام العيون/البلاشر/الشفاه يستخدم: work / evening / photo / wedding
+# نظام الحواجب يستخدم تسمية مختلفة:  work / party / photography / wedding
+# التحويل عبر جدول بحث ثابت (بدون if) لضمان التناسق بين كل الأنظمة
+# عند تمرير مناسبة واحدة فقط من main().
+
+OCCASION_TO_BROW_OCCASION = {
+    "work":    "work",
+    "evening": "party",
+    "photo":   "photography",
+    "wedding": "wedding",
+}
+BROW_OCCASION_DEFAULT = "work"
+
 
 # ══════════════════════════════════════════════════════
 # DISTANCE
@@ -396,6 +419,17 @@ def analyze_eyes(lm, w, h, face_width, face_height, brow_gap_L, brow_gap_R):
     return {"Left": (mL, rL), "Right": (mR, rR)}
 
 
+def compute_inter_eye_ratio(lm, w, h, face_width):
+    """
+    نسبة المسافة بين الزاويتين الداخليتين للعينين (مدمعي العين) / عرض الوجه.
+    تُغذّي قاعدة "تصحيح المسافة بين العينين" بالنظام الخبير لمكياج العيون
+    (eye_makeup_rules.classify_eye_spacing).
+    """
+    inner_L = get_pt(lm, L_EYE["inner"], w, h)
+    inner_R = get_pt(lm, R_EYE["inner"], w, h)
+    return distance(inner_L, inner_R) / (face_width + 1e-6)
+
+
 def draw_one_eye(img, m, res, label):
     if m is None: return
     pts = m["pts"]
@@ -760,7 +794,12 @@ def row(label, value, w=28):
 # MAIN
 # ══════════════════════════════════════════════════════
 
-def main(image_path: str, output_path: str = "face_analysis_result.jpg"):
+def main(image_path: str, output_path: str = "face_analysis_result.jpg",
+         occasion: str = "work",
+         skin_undertone: str = "Warm",
+         skin_depth: str = "Medium",
+         eye_makeup_strategy: str = "Monochromatic",
+         face_fullness: str = "Full"):
     image = cv2.imread(image_path)
     if image is None:
         print(f"[ERROR] Image not found: {image_path}"); return
@@ -785,6 +824,7 @@ def main(image_path: str, output_path: str = "face_analysis_result.jpg"):
         eye_res            = analyze_eyes(lm, w, h, face_width, face_height,
                                           brow_res["brow_eye_gap_L"],
                                           brow_res["brow_eye_gap_R"])
+        inter_eye_ratio     = compute_inter_eye_ratio(lm, w, h, face_width)
         face_res           = analyze_face_shape(lm, w, h, face_width, face_height)
         lip_feats, lip_res = analyze_lips(lm, w, h, face_width, face_height)
         nose_res           = analyze_nose(lm, w, h, face_width, face_height,
@@ -881,12 +921,78 @@ def main(image_path: str, output_path: str = "face_analysis_result.jpg"):
         row("Lip Balance",    lip_res.get("Balance","N/A"))
         row("Lip Correction", lip_res.get("Correction","N/A"))
 
+        # ══ النظام الخبير — قواعد مكياج العيون ══
+        section(f"★ MAKEUP EXPERT — EYES  (occasion = {occasion})")
+        row("inter_eye_ratio", f"{inter_eye_ratio:.4f}  (<0.32=Close-set, >0.42=Wide-set)")
+
+        eye_recommendation_lookup = {
+            "Left":  eye_L_res,
+            "Right": eye_R_res,
+        }
+        eye_recommendations = {
+            side: get_eye_makeup_recommendation(r, occasion=occasion, inter_eye_ratio=inter_eye_ratio)
+            for side, r in eye_recommendation_lookup.items() if r is not None
+        }
+        list(map(lambda kv: print_eye_recommendation(kv[0], kv[1]), eye_recommendations.items()))
+
+        # ══ النظام الخبير — قواعد مكياج الحواجب ══
+        brow_occasion_lookup = {True: OCCASION_TO_BROW_OCCASION.get(occasion, BROW_OCCASION_DEFAULT),
+                                 False: BROW_OCCASION_DEFAULT}
+        brow_occasion = brow_occasion_lookup[occasion in OCCASION_TO_BROW_OCCASION]
+
+        section(f"★ MAKEUP EXPERT — BROWS  (occasion = {brow_occasion})")
+        brow_recommendation = get_brow_recommendation(
+            brow_classification=brow_res["classification"],
+            face_shape=face_res["shape"],
+            occasion=brow_occasion,
+            skin_tone=skin_undertone.lower(),
+        )
+        print_brow_recommendation("Brows", brow_recommendation)
+
+        # ══ النظام الخبير — قواعد مكياج الأنف ══
+        section("★ MAKEUP EXPERT — NOSE")
+        nose_recommendation = get_nose_makeup_recommendation(
+            nose_res, skin_undertone=skin_undertone, skin_depth=skin_depth,
+        )
+        print_nose_recommendation(nose_recommendation)
+
+        # ══ النظام الخبير — قواعد الكونتور/البلاشر حسب شكل الوجه ══
+        section(f"★ MAKEUP EXPERT — FACE (CONTOUR/BLUSH)  (occasion = {occasion})")
+        face_contour_recommendation = get_face_contour_blush_recommendation(
+            face_res, fullness=face_fullness,
+            skin_undertone=skin_undertone, skin_depth=skin_depth,
+            eye_strategy=eye_makeup_strategy, occasion=occasion,
+        )
+        print_face_contour_blush_recommendation(face_contour_recommendation)
+
+        # ══ النظام الخبير — قواعد مكياج الشفاه ══
+        section(f"★ MAKEUP EXPERT — LIPS  (occasion = {occasion})")
+        lip_recommendation = get_lip_makeup_recommendation(
+            lip_res, skin_undertone=skin_undertone, occasion=occasion,
+        )
+        print_lip_recommendation(lip_recommendation)
+
+        # ══ ملخص نهائي شامل لكل أنظمة الخبرة ══
+        section("★ FULL EXPERT SUMMARY")
+        row("Face → Sculpt",     face_contour_recommendation["sculpt"]["placement"])
+        row("Face → Blush",      face_contour_recommendation["blush"]["placement"])
+        row("Face → Blush Color", face_contour_recommendation["blush_color"]["base_color"])
+        row("Brows → Style",     brow_recommendation["style"])
+        row("Nose → Technique",  nose_recommendation["rule_category_ar"])
+        row("Lips → Correction", lip_recommendation["rule_category_ar"])
+        row("Lips → Color",      lip_recommendation["color_recommendation"]["colors"])
+
     cv2.imwrite(output_path, image)
     print(f"\n[OK] Saved → {output_path}")
 
 
 if __name__ == "__main__":
     main(
-        image_path  = "pictures2/photo_2026-06-04_11-18-37.jpg",
+        image_path  = "pictures2/photo_2026-06-04_11-19-31.jpg",
         output_path = "face_analysis_result.jpg",
+        occasion            = "work",       # work | evening | photo | wedding
+        skin_undertone      = "Warm",        # Warm | Cool
+        skin_depth          = "Medium",      # Fair | Medium | Dark
+        eye_makeup_strategy = "Monochromatic",  # Monochromatic | Complementary-Split | Triadic | Earth-Toned
+        face_fullness       = "Full",        # Full | Slim  (يؤثر فقط على أسلوب دمج الوجه البيضاوي)
     )
