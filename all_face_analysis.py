@@ -28,6 +28,7 @@ import mediapipe as mp
 import math
 import numpy as np
 
+from skin_analysis import analyze_skin
 from eye_makeup_rules import get_eye_makeup_recommendation, print_eye_recommendation
 from brow_makeup_rules import get_brow_recommendation, print_brow_recommendation
 from nose_makeup_rules import get_nose_makeup_recommendation, print_nose_recommendation
@@ -796,15 +797,38 @@ def row(label, value, w=28):
 
 def main(image_path: str, output_path: str = "face_analysis_result.jpg",
          occasion: str = "work",
-         skin_undertone: str = "Warm",
-         skin_depth: str = "Medium",
+        #  skin_undertone: str = "Warm",
+        #  skin_depth: str = "Medium",
          eye_makeup_strategy: str = "Monochromatic",
          face_fullness: str = "Full"):
     image = cv2.imread(image_path)
+
+    if image is None:
+        print(f"[ERROR] Image not found: {image_path}")
+        return
+
+
+    skin_result = analyze_skin(image)
+    
+    if "error" in skin_result:
+        print(skin_result["error"])
+        return
+
+    skin_depth = skin_result["skin_depth"]
+    skin_undertone = skin_result["undertone"]
+    
+    print("\n" + "=" * 60)
+    print("  SKIN ANALYSIS")
+    print("=" * 60)
+    print(f"  Skin Depth : {skin_depth}")
+    print(f"  Undertone  : {skin_undertone}")
+    print("=" * 60)
+    
     if image is None:
         print(f"[ERROR] Image not found: {image_path}"); return
 
     h, w, _ = image.shape
+    
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     with mp.solutions.face_mesh.FaceMesh(
@@ -988,11 +1012,9 @@ def main(image_path: str, output_path: str = "face_analysis_result.jpg",
 
 if __name__ == "__main__":
     main(
-        image_path  = "pictures2/photo_2026-06-04_11-19-31.jpg",
+        image_path  = "pictures3/cool9.jpg",
         output_path = "face_analysis_result.jpg",
         occasion            = "work",       # work | evening | photo | wedding
-        skin_undertone      = "Warm",        # Warm | Cool
-        skin_depth          = "Medium",      # Fair | Medium | Dark
         eye_makeup_strategy = "Monochromatic",  # Monochromatic | Complementary-Split | Triadic | Earth-Toned
         face_fullness       = "Full",        # Full | Slim  (يؤثر فقط على أسلوب دمج الوجه البيضاوي)
     )
