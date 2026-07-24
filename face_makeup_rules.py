@@ -1,289 +1,380 @@
 # -*- coding: utf-8 -*-
 """
-face_makeup_rules.py — Pure Rule-Based Expert System (No if / No for)
-=======================================================================
-نظام خبير قائم بالكامل على جداول البحث (Lookup Tables) وقواميس الإرسال
-(Dispatch Dictionaries / Lambda Dispatch) دون استخدام أي جملة "if" أو حلقة
-"for" في منطق القرار (بنفس أسلوب eye_makeup_rules.py و brow_makeup_rules.py).
-
-يغطي هذا الملف:
-  1) خرائط الكونتور/البلاشر/الهاياليت حسب شكل الوجه (صفحات 9-10):
-     Rectangular / Round / Oval
-  2) قاعدة اختيار لون البلاشر (5 خطوات — صفحة 11-12):
-     Hue range + مصفوفة أرضية (Undertone×Depth) + تعديل حسب استراتيجية
-     العين + فلتر المناسبة (Texture) + إزاحة الأندرتون النهائية
-
-القيم المدخلة متوافقة مع all_face_analysis.py::analyze_face_shape()
-(القيم الممكنة: "Oval" / "Round" / "Rectangular").
+face_makeup_rules.py — Experta-based Expert System (Face Contour / Blush / Highlight)
+======================================================================================
+مبني على "الخبرة النهائية": يحدد شكل الوجه، ثم يبني توصية النحت والبلاشر والهاياليت،
+ثم يلوّن البلاشر حسب البشرة، ثم يضبط الشفافية حسب المناسبة واستراتيجية العين.
 """
 
+# ✅ MUST BE FIRST: Python 3.10+ Compatibility Fix
+import compat_fix
 
-# ══════════════════════════════════════════════════════
-# RULE SET 1 — خرائط الكونتور/البلاشر/الهاياليت حسب شكل الوجه
-# ══════════════════════════════════════════════════════
-
-FACE_CONTOUR_BLUSH_RULES = {
-    "Rectangular": {
-        "name_ar": "الوجه المستطيل (Face Rectangular)",
-        "goal": "Shorten the vertical span and add illusory width to approximate an oval shape.",
-        "sculpt": {
-            "placement": "A clean horizontal line from the middle of the ear to the middle of the cheek.",
-            "purpose": "Breaks the vertical length of the face.",
-        },
-        "blush": {
-            "placement": "Applied horizontally beside the contour line.",
-            "purpose": "Visually increases the width of the face.",
-        },
-        "highlight": {
-            "placement": "Center of the forehead and the chin only.",
-            "purpose": "Draws attention to the center and avoids the edges.",
-        },
-        "extra": {
-            "placement": "Soft shading at the hairline (top of the forehead) and under the chin only.",
-            "purpose": "Shortens the face.",
-        },
-    },
-    "Round": {
-        "name_ar": "الوجه الدائري (Face Round)",
-        "goal": "Break the roundness, reduce width, and give an impression of length and sharpness.",
-        "sculpt": {
-            "placement": "A sharp downward-angled contour from the ear to the corner under the mouth, defining the jaw (jawline snatch/Texas contour).",
-            "purpose": "Defines the jawbone.",
-        },
-        "blush": {
-            "placement": "Directly under the eye, pulled upward and blended with the eye shadow.",
-            "purpose": "Lifts the features of the face.",
-        },
-        "highlight": {
-            "placement": "The tops of the cheeks (highest point) and the chin.",
-            "purpose": "Increases the vertical span of the face.",
-        },
-        "extra": {
-            "placement": "Standard contour from the middle of the ear to the middle of the cheek, pulled from the side of the nose toward the outer eye corner.",
-            "purpose": "Defines the natural bone structure without harshness; enhances the natural cheekbone projection just above it.",
-        },
-    },
-    "Oval": {
-        "name_ar": "الوجه البيضاوي (Face Oval)",
-        "goal": "Maintain the ideal balance and define the features.",
-        "sculpt": {
-            "placement": "Very light contour just above the blush (on the cheekbone).",
-            "purpose": "Defines the features and adds three-dimensionality.",
-        },
-        "blush": {
-            "placement": "On the apples of the cheeks only.",
-            "purpose": "Adds a healthy, three-dimensional glow.",
-        },
-        "highlight": {
-            "placement": "Under the cheekbone.",
-            "purpose": "Defines the features.",
-        },
-        "extra": {
-            "placement": (
-                "Full: dark contour is replaced with a very light warm bronzer to prevent a "
-                "\"sunken face\" look. Blend style — for a fuller face: an upward blending arrow "
-                "toward the ear (lift); for a slimmer face: circular blending at the center (adds "
-                "vitality/volume). A very subtle touch of the same blush color is added to the "
-                "nose bridge; contour is used in the hollows of the cheeks and under the eyes to "
-                "pull sunken areas forward."
-            ),
-            "purpose": "Prevents a hollow/sunken appearance while keeping the balance ideal.",
-        },
-    },
-}
-
-# نظام "امتلاء الوجه" (Full/Slim) يُستخدم فقط لاختيار أسلوب الدمج للوجه
-# البيضاوي (Oval) بحسب النص الأصلي — يُمرَّر اختيارياً من المستخدم/التحليل
-FACE_FULLNESS_BLEND_STYLE = {
-    "Full": "Upward blending arrow toward the ear (lift).",
-    "Slim": "Circular blending at the center (adds volume/vitality).",
-}
-FACE_FULLNESS_DEFAULT = "Full"
+from experta import *
+import json
 
 
 # ══════════════════════════════════════════════════════
-# RULE SET 2 — قاعدة اختيار لون البلاشر (5 خطوات)
+# FACTS
 # ══════════════════════════════════════════════════════
 
-# الخطوة 1: عجلة الألوان مقيدة بمدى Hue محدد (330°→30°) والبني ممنوع كلياً
-BLUSH_HUE_RULE = {
-    "allowed_hue_range_deg": (330, 30),  # يلتف عبر الصفر (Red/Pink/Peach)
-    "forbidden_color": "Brown",
-    "forbidden_reason": "Brown is a matte/dead color reserved for contour, not blush.",
-    "family": "RCW (Red, Coral, White-pink tones) — reflects the natural blood vessels under the skin.",
-}
-
-# الخطوة 2: مصفوفة الألوان الأرضية (Undertone × Depth) → اللون الخام
-BLUSH_BASE_COLOR_MATRIX = {
-    ("Warm", "Fair"):   "Gold Peach",
-    ("Warm", "Medium"): "Coral",
-    ("Warm", "Dark"):   "Burnt Orange",
-    ("Cool", "Fair"):   "Mauve",
-    ("Cool", "Medium"): "Dusty Rose",
-    ("Cool", "Dark"):   "Raspberry",
-}
-
-# الخطوة 3: التعديل حسب استراتيجية مكياج العين المختارة
-BLUSH_EYE_STRATEGY_ADJUSTMENT = {
-    "Monochromatic": {
-        "rule": "Choose the color from the matrix that leans toward the same warmth as both the eye shadow and the skin tone.",
-        "opacity": "Standard",
-    },
-    "Complementary-Split": {
-        "rule": "Neutralize the color — take it from the matrix and make it very sheer/transparent (80% Sheer) so the eye remains the focal point.",
-        "opacity": "Sheer 80%",
-    },
-    "Triadic": {
-        "rule": "Neutralize the color — take it from the matrix and make it very sheer/transparent (80% Sheer) so the eye remains the focal point.",
-        "opacity": "Sheer 80%",
-    },
-    "Earth-Toned": {
-        "rule": "Choose the most vivid/vibrant version of the color from the matrix to break the monotony of earth tones and give life to the face.",
-        "opacity": "Full Vivid",
-    },
-}
-BLUSH_EYE_STRATEGY_DEFAULT = "Monochromatic"
-
-# الخطوة 4: فلتر المناسبة (القوام والكثافة)
-BLUSH_OCCASION_TEXTURE = {
-    "work":    {"finish": "Matte", "transparency": "80% Sheer", "description": "Looks like a natural flush coming from the skin."},
-    "evening": {"finish": "Full Pigment + Satin/Shimmer", "transparency": "Full Opacity", "description": "Stands out under evening lighting."},
-    "photo":   {"finish": "Matte", "transparency": "80% Sheer", "description": "Looks like a natural flush coming from the skin (avoids flash reflection)."},
-    "wedding": {"finish": "Full Pigment + Satin/Shimmer", "transparency": "Full Opacity", "description": "Stands out under evening/celebration lighting."},
-}
-BLUSH_OCCASION_DEFAULT = "work"
-
-# الخطوة 5: إزاحة لونية أخيرة حسب الأندرتون
-BLUSH_UNDERTONE_SHIFT = {
-    "Warm": "A golden shift is added to the final color.",
-    "Cool": "A blue/magenta shift is added to the final color.",
-}
-BLUSH_UNDERTONE_DEFAULT = "Warm"
-
-BLUSH_DEPTH_DEFAULT = "Medium"
+class FaceShapeAnalysis(Fact):
+    shape = Field(str)
+    votes = Field(dict)
 
 
-# ══════════════════════════════════════════════════════
-# محرك القرار — Pure Lookup / Dispatch، بدون if وبدون for
-# ══════════════════════════════════════════════════════
-
-def resolve_blush_base_color(skin_undertone=None, skin_depth=None):
-    undertone_lookup = {True: skin_undertone, False: BLUSH_UNDERTONE_DEFAULT}
-    depth_lookup = {True: skin_depth, False: BLUSH_DEPTH_DEFAULT}
-
-    undertone = undertone_lookup[skin_undertone is not None]
-    depth = depth_lookup[skin_depth is not None]
-
-    return undertone, depth, BLUSH_BASE_COLOR_MATRIX.get(
-        (undertone, depth),
-        BLUSH_BASE_COLOR_MATRIX[(BLUSH_UNDERTONE_DEFAULT, BLUSH_DEPTH_DEFAULT)],
-    )
+class SkinProfile(Fact):
+    undertone = Field(str)
+    depth = Field(str)
 
 
-def get_blush_color_recommendation(skin_undertone=None, skin_depth=None,
-                                    eye_strategy=None, occasion="work"):
-    """
-    يبني توصية لون البلاشر عبر الخطوات الخمس بالكامل، اعتماداً على جداول بحث فقط.
-    """
-    undertone, depth, base_color = resolve_blush_base_color(skin_undertone, skin_depth)
-
-    strategy_lookup = {True: eye_strategy, False: BLUSH_EYE_STRATEGY_DEFAULT}
-    resolved_strategy = strategy_lookup[eye_strategy is not None]
-    strategy_rule = BLUSH_EYE_STRATEGY_ADJUSTMENT.get(
-        resolved_strategy, BLUSH_EYE_STRATEGY_ADJUSTMENT[BLUSH_EYE_STRATEGY_DEFAULT]
-    )
-
-    texture_rule = BLUSH_OCCASION_TEXTURE.get(occasion, BLUSH_OCCASION_TEXTURE[BLUSH_OCCASION_DEFAULT])
-
-    undertone_shift = BLUSH_UNDERTONE_SHIFT.get(undertone, BLUSH_UNDERTONE_SHIFT[BLUSH_UNDERTONE_DEFAULT])
-
-    return {
-        "hue_rule": BLUSH_HUE_RULE,
-        "base_color": base_color,
-        "resolved_undertone": undertone,
-        "resolved_depth": depth,
-        "eye_strategy": resolved_strategy,
-        "eye_strategy_rule": strategy_rule,
-        "occasion": occasion,
-        "texture_rule": texture_rule,
-        "undertone_shift": undertone_shift,
-    }
+class FaceFullness(Fact):
+    fullness = Field(str, default='Full')
 
 
-def get_face_contour_blush_recommendation(face_analysis_result, fullness="Full",
-                                           skin_undertone=None, skin_depth=None,
-                                           eye_strategy=None, occasion="work"):
-    """
-    المدخل: قاموس face_analysis_result كما يخرج من analyze_face_shape()
-            في all_face_analysis.py: 'shape', 'votes', 'ratios', ...
-    fullness: "Full" | "Slim" (يُستخدم فقط لأسلوب الدمج في الوجه البيضاوي)
-    """
-    face_shape = face_analysis_result.get("shape", "Oval")
-    rules = FACE_CONTOUR_BLUSH_RULES.get(face_shape, FACE_CONTOUR_BLUSH_RULES["Oval"])
+class EyeMakeupStrategy(Fact):
+    strategy = Field(str, default='Monochromatic')
 
-    fullness_lookup = {True: fullness, False: FACE_FULLNESS_DEFAULT}
-    resolved_fullness = fullness_lookup[fullness is not None]
-    blend_style = FACE_FULLNESS_BLEND_STYLE.get(resolved_fullness, FACE_FULLNESS_BLEND_STYLE[FACE_FULLNESS_DEFAULT])
 
-    # أسلوب الدمج يُضاف فقط عند تفعيله (له معنى صريح في الوجه البيضاوي فقط،
-    # لكنه يُرفق دائماً كمعلومة إضافية دون أي "if")
-    blend_style_lookup = {
-        "Oval": blend_style,
-    }
-    blend_note = blend_style_lookup.get(face_shape, "Not applicable — style is fixed for this face shape.")
+class OccasionContext(Fact):
+    occasion = Field(str)
 
-    blush_color = get_blush_color_recommendation(skin_undertone, skin_depth, eye_strategy, occasion)
 
-    return {
-        "input_shape": face_shape,
-        "rule_category_ar": rules["name_ar"],
-        "goal": rules["goal"],
-        "sculpt": rules["sculpt"],
-        "blush": rules["blush"],
-        "highlight": rules["highlight"],
-        "extra": rules["extra"],
-        "fullness": resolved_fullness,
-        "blend_style_note": blend_note,
-        "blush_color": blush_color,
-    }
+class FaceShapeCategory(Fact):
+    shape = Field(str)
+    name_ar = Field(str)
+    goal = Field(str)
+    priority = Field(int, default=0)
+
+
+class SculptRule(Fact):
+    placement = Field(str)
+    purpose = Field(str)
+
+
+class BlushRule(Fact):
+    placement = Field(str)
+    purpose = Field(str)
+
+
+class HighlightRule(Fact):
+    placement = Field(str)
+    purpose = Field(str)
+
+
+class BlushColorMatch(Fact):
+    undertone = Field(str)
+    depth = Field(str)
+    base_color = Field(str)
+    palette = Field(str)
+
+
+class BlushAdjustment(Fact):
+    strategy = Field(str)
+    rule = Field(str)
+    opacity = Field(int)
+
+
+class BlushTexture(Fact):
+    occasion = Field(str)
+    finish = Field(str)
+    transparency = Field(str)
+    description = Field(str)
+
+
+class FaceContourBlushRecommendation(Fact):
+    shape = Field(str)
+    base_color = Field(str)
+    occasion = Field(str)
+    complete = Field(bool, default=False)
 
 
 # ══════════════════════════════════════════════════════
-# طباعة منسقة — map() بدل for
+# RULES
 # ══════════════════════════════════════════════════════
 
-def print_face_contour_blush_recommendation(recommendation):
-    bc = recommendation["blush_color"]
-    header = (
-        f"\n{'─'*58}\n"
-        f"  Face shape detected: {recommendation['input_shape']}\n"
-        f"  Rule category: {recommendation['rule_category_ar']}\n"
-        f"  Goal: {recommendation['goal']}\n"
-        f"{'─'*58}\n"
-        f"  Sculpt/Contour:\n    Placement: {recommendation['sculpt']['placement']}\n    Purpose: {recommendation['sculpt']['purpose']}\n\n"
-        f"  Blush:\n    Placement: {recommendation['blush']['placement']}\n    Purpose: {recommendation['blush']['purpose']}\n\n"
-        f"  Highlight:\n    Placement: {recommendation['highlight']['placement']}\n    Purpose: {recommendation['highlight']['purpose']}\n\n"
-        f"  Extra technique:\n    {recommendation['extra']['placement']}\n    Purpose: {recommendation['extra']['purpose']}\n\n"
-        f"  Fullness: {recommendation['fullness']}  |  Blend style: {recommendation['blend_style_note']}\n\n"
-        f"  Blush Color Recommendation:\n"
-        f"    Base color: {bc['base_color']}  (undertone={bc['resolved_undertone']}, depth={bc['resolved_depth']})\n"
-        f"    Hue range allowed: {bc['hue_rule']['allowed_hue_range_deg']}°  Forbidden: {bc['hue_rule']['forbidden_color']}\n"
-        f"    Eye strategy: {bc['eye_strategy']} → {bc['eye_strategy_rule']['rule']} (opacity: {bc['eye_strategy_rule']['opacity']})\n"
-        f"    Occasion texture ({bc['occasion']}): {bc['texture_rule']['finish']}, {bc['texture_rule']['transparency']}\n"
-        f"    Undertone shift: {bc['undertone_shift']}\n"
-    )
-    print(header)
+class FaceContourRulesKB(KnowledgeEngine):
+
+    # ──── الوجه البيضاوي ────
+
+    @Rule(FaceShapeAnalysis(shape='Oval'), FaceFullness(fullness='Full'))
+    def oval_full_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Oval', name_ar='الوجه البيضاوي (Face Oval)',
+                               goal='الحفاظ على التوازن المثالي وتعريف الملامح', priority=1),
+            SculptRule(placement='نحت خفيف جداً فوق البلاشر مباشرة، على عظمة الخد',
+                       purpose='زيادة البعد ثلاثي الأبعاد دون كسر توازن الوجه'),
+            BlushRule(placement='على تفاحتي الخد فقط، بدمج مسحوب للأعلى باتجاه الأذن',
+                      purpose='الحفاظ على النضارة الطبيعية ورفع ملامح الوجه'),
+            HighlightRule(placement='تحت عظمة الخد مباشرة فوق خط الكونتور',
+                          purpose='تعريف الملامح وإبراز عظمة الخد')
+        )
+
+    @Rule(FaceShapeAnalysis(shape='Oval'), FaceFullness(fullness='Thin'))
+    def oval_thin_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Oval', name_ar='الوجه البيضاوي (Face Oval)',
+                               goal='الحفاظ على التوازن المثالي مع تفادي مظهر الوجه الغارق', priority=1),
+            SculptRule(placement='استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد',
+                       purpose='منع ظهور "الوجه الغارق" وإعطاء حيوية بدل النحت الحاد'),
+            BlushRule(placement='في مركز الخد بدمج ناعم جداً باتجاه الأذن',
+                      purpose='إعطاء حجم حيوي للخدود النحيفة'),
+            HighlightRule(placement='لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر',
+                          purpose='توحيد الإضاءة وتفادي مظهر النحول الزائد')
+        )
+
+    # ──── الوجه الدائري ────
+
+    @Rule(FaceShapeAnalysis(shape='Round'), FaceFullness(fullness='Full'))
+    def round_full_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Round', name_ar='الوجه الدائري (Face Round)',
+                               goal='كسر الاستدارة، تقليل العرض، وإعطاء إيحاء بالطول والحدة', priority=2),
+            SculptRule(placement='نحت نازل وحاد من الأذن للزاوية تحت الفم، مع تحديد خط الفك لتعريف العظم',
+                       purpose='كسر استدارة الخدين وتعريف عظمة الفك'),
+            BlushRule(placement='تحت العين مباشرة، مسحوب للأعلى ومدمج مع ظل العين',
+                      purpose='رفع ملامح الوجه بصرياً'),
+            HighlightRule(placement='على رأس الخدين (أعلى نقطة) والذقن',
+                          purpose='زيادة المدى الطولي الظاهر للوجه')
+        )
+
+    @Rule(FaceShapeAnalysis(shape='Round'), FaceFullness(fullness='Thin'))
+    def round_thin_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Round', name_ar='الوجه الدائري (Face Round)',
+                               goal='كسر الاستدارة بلطف مع الحفاظ على حيوية الخدود', priority=2),
+            SculptRule(placement='كونتور عادي من منتصف الأذن إلى منتصف الخد',
+                       purpose='تعريف الهيكل الطبيعي دون حدة زائدة'),
+            BlushRule(placement='من جانب الأنف مسحوب باتجاه الزاوية الخارجية للعين',
+                      purpose='تعزيز الحدة والإطالة البصرية'),
+            HighlightRule(placement='فوق عظمة الخد مباشرة',
+                          purpose='تعزيز البروز الطبيعي للخد')
+        )
+
+    # ──── الوجه المستطيل ────
+
+    @Rule(FaceShapeAnalysis(shape='Rectangular'), FaceFullness(fullness='Full'))
+    def rectangular_full_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Rectangular', name_ar='الوجه المستطيل (Face Rectangular)',
+                               goal='تقصير المدى العمودي وزيادة العرض الوهمي لمقاربته من الشكل البيضاوي', priority=3),
+            SculptRule(placement='خط أفقي صريح من منتصف الأذن إلى منتصف الخد لكسر طول الوجه',
+                       purpose='كسر الخط العمودي المستمر'),
+            BlushRule(placement='يوضع بشكل عرضي بجانب الكونتور',
+                      purpose='زيادة عرض الوجه بصرياً'),
+            HighlightRule(placement='وسط الجبهة والذقن فقط',
+                          purpose='جذب الانتباه للمركز وتجنب إطالة الأطراف')
+        )
+
+    @Rule(FaceShapeAnalysis(shape='Rectangular'), FaceFullness(fullness='Thin'))
+    def rectangular_thin_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Rectangular', name_ar='الوجه المستطيل (Face Rectangular)',
+                               goal='تقصير الوجه بصرياً وتخفيف حدة الفك الطويل', priority=3),
+            SculptRule(placement='تظليل ناعم عند منبت الشعر (أعلى الجبهة) وأسفل الذقن فقط',
+                       purpose='تقصير الوجه بصرياً'),
+            BlushRule(placement='على الصدغين وجوانب الجبهة',
+                      purpose='زيادة عرض الوجه في المنطقة العلوية'),
+            HighlightRule(placement='وسط الجبهة والذقن فقط',
+                          purpose='جذب الانتباه للمركز')
+        )
+
+    # ──── الوجه المربع ────
+
+    @Rule(FaceShapeAnalysis(shape='Square'))
+    def square_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Square', name_ar='الوجه المربع (Face Square)',
+                               goal='تليين حدة زوايا الفك وإضافة انسيابية للملامح', priority=4),
+            SculptRule(placement='نحت خفيف على زوايا الفك مع تدوير خط الكونتور',
+                       purpose='تليين حدة الزوايا'),
+            BlushRule(placement='على تفاحتي الخد بشكل دائري ناعم',
+                      purpose='إضافة انسيابية بصرية للوجه'),
+            HighlightRule(placement='وسط الجبهة وأعلى الخدين',
+                          purpose='دعم التصحيح البصري لشكل الوجه')
+        )
+
+    # ──── الوجه القلب ────
+
+    @Rule(FaceShapeAnalysis(shape='Heart'))
+    def heart_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Heart', name_ar='الوجه القلب (Face Heart)',
+                               goal='موازنة عرض الجبهة مع تخفيف الثقل البصري في منطقة الفك', priority=4),
+            SculptRule(placement='نحت خفيف على جانبي الجبهة وزاويتيها',
+                       purpose='تصغير عرض الجبهة بصرياً'),
+            BlushRule(placement='تحت عظمة الخد باتجاه منتصف الوجه',
+                      purpose='إضافة عرض بصري لمنطقة الفك والذقن'),
+            HighlightRule(placement='على الذقن ومنتصف الجبهة',
+                          purpose='موازنة أبعاد الوجه')
+        )
+
+    # ──── الوجه الماسي ────
+
+    @Rule(FaceShapeAnalysis(shape='Diamond'))
+    def diamond_face(self):
+        self.declare(
+            FaceShapeCategory(shape='Diamond', name_ar='الوجه الماسي (Face Diamond)',
+                               goal='توسيع الجبهة والفك بصرياً وتليين بروز عظام الخد', priority=4),
+            SculptRule(placement='نحت خفيف جداً على عظمة الخد البارزة فقط',
+                       purpose='تليين حدة بروز عظام الخد'),
+            BlushRule(placement='على تفاحتي الخد بامتداد أفقي خفيف',
+                      purpose='توسيع منطقة الخد بصرياً'),
+            HighlightRule(placement='وسط الجبهة والذقن',
+                          purpose='توسيع الجبهة والفك بصرياً')
+        )
+
+    # ──── Rule: مصفوفة لون البلاشر حسب البشرة (٦ حالات) ────
+
+    @Rule(SkinProfile(undertone='Warm', depth='Fair'))
+    def warm_fair_blush(self):
+        self.declare(BlushColorMatch(undertone='Warm', depth='Fair', base_color='خوخي ذهبي', palette='أساس دافئ'))
+
+    @Rule(SkinProfile(undertone='Warm', depth='Medium'))
+    def warm_medium_blush(self):
+        self.declare(BlushColorMatch(undertone='Warm', depth='Medium', base_color='مرجاني', palette='أساس دافئ'))
+
+    @Rule(SkinProfile(undertone='Warm', depth='Dark'))
+    def warm_dark_blush(self):
+        self.declare(BlushColorMatch(undertone='Warm', depth='Dark', base_color='برتقالي محروق', palette='أساس دافئ'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Fair'))
+    def cool_fair_blush(self):
+        self.declare(BlushColorMatch(undertone='Cool', depth='Fair', base_color='موف فاتح', palette='أساس بارد'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Medium'))
+    def cool_medium_blush(self):
+        self.declare(BlushColorMatch(undertone='Cool', depth='Medium', base_color='وردي ترابي', palette='أساس بارد'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Dark'))
+    def cool_dark_blush(self):
+        self.declare(BlushColorMatch(undertone='Cool', depth='Dark', base_color='وردي توتي غامق', palette='أساس بارد'))
+
+    # ──── Rule: تعديل اللون حسب استراتيجية مكياج العين ────
+
+    @Rule(EyeMakeupStrategy(strategy='Monochromatic'))
+    def monochromatic_blush_adjustment(self):
+        self.declare(BlushAdjustment(strategy='Monochromatic',
+                                      rule='يُختار اللون من المصفوفة بنفس درجة "حرارة" ظل العين ولون البشرة',
+                                      opacity=100))
+
+    @Rule(EyeMakeupStrategy(strategy='Contrast'))
+    def contrast_blush_adjustment(self):
+        self.declare(BlushAdjustment(strategy='Contrast',
+                                      rule='يُحيَّد اللون ويُجعل باهتاً وشفافاً جداً (شفاف بنسبة 80%) كي تبقى العين هي "البطل"',
+                                      opacity=20))
+
+    @Rule(EyeMakeupStrategy(strategy='Triadic'))
+    def triadic_blush_adjustment(self):
+        self.declare(BlushAdjustment(strategy='Triadic',
+                                      rule='يُحيَّد اللون ويُجعل باهتاً وشفافاً جداً (شفاف بنسبة 80%) كي تبقى العين هي "البطل"',
+                                      opacity=20))
+
+    @Rule(EyeMakeupStrategy(strategy='Earthy'))
+    def earthy_blush_adjustment(self):
+        self.declare(BlushAdjustment(strategy='Earthy',
+                                      rule='يُختار اللون من المصفوفة بأقصى حيوية لكسر رتابة الألوان الترابية',
+                                      opacity=100))
+
+    # ──── Rule: القوام والشفافية حسب المناسبة ────
+
+    @Rule(OccasionContext(occasion='work'))
+    def work_blush_texture(self):
+        self.declare(BlushTexture(occasion='work', finish='مطفأ', transparency='شفاف بنسبة 80%',
+                                   description='تورّد طبيعي نابع من الجلد'))
+
+    @Rule(OccasionContext(occasion='university'))
+    def university_blush_texture(self):
+        self.declare(BlushTexture(occasion='university', finish='مطفأ', transparency='شفاف بنسبة 80%',
+                                   description='تورّد طبيعي نابع من الجلد'))
+
+    @Rule(OccasionContext(occasion='evening'))
+    def evening_blush_texture(self):
+        self.declare(BlushTexture(occasion='evening', finish='ساتان / لامع', transparency='صبغة كاملة',
+                                   description='لون قوي يبرز تحت أضواء السهرة'))
+
+    @Rule(OccasionContext(occasion='wedding'))
+    def wedding_blush_texture(self):
+        self.declare(BlushTexture(occasion='wedding', finish='ساتان / لامع', transparency='صبغة كاملة',
+                                   description='لون قوي يبرز تحت أضواء السهرة'))
+
+    @Rule(OccasionContext(occasion='party'))
+    def party_blush_texture(self):
+        self.declare(BlushTexture(occasion='party', finish='ساتان / لامع', transparency='صبغة كاملة',
+                                   description='لون قوي يبرز تحت الإضاءة'))
+
+    @Rule(OccasionContext(occasion='photo'))
+    def photo_blush_texture(self):
+        self.declare(BlushTexture(occasion='photo', finish='مطفأ', transparency='صبغة كاملة بلا لمعان',
+                                   description='مطفأ تماماً لتفادي انعكاس الفلاش'))
+
+    # ──── Rule: التوصية النهائية ────
+
+    @Rule(FaceShapeCategory(shape=MATCH.shape),
+          BlushColorMatch(base_color=MATCH.base_color),
+          OccasionContext(occasion=MATCH.occasion))
+    def final_face_recommendation(self, shape, base_color, occasion):
+        self.declare(FaceContourBlushRecommendation(shape=shape, base_color=base_color, occasion=occasion, complete=True))
 
 
 # ══════════════════════════════════════════════════════
-# مثال استخدام مباشر
+# ENGINE
 # ══════════════════════════════════════════════════════
+
+class FaceContourEngine(FaceContourRulesKB):
+    """محرك الكونتور والبلاشر والهاياليت"""
+
+    def __init__(self):
+        super().__init__()
+
+    def analyze_face(self, face_data):
+        """
+        input: dict {
+            'shape': 'Oval', 'votes': {...},
+            'undertone': 'Warm', 'depth': 'Medium',
+            'fullness': 'Full',
+            'eye_strategy': 'Monochromatic',
+            'occasion': 'evening'
+        }
+        """
+        self.reset()
+        self.declare(
+            FaceShapeAnalysis(shape=face_data.get('shape', 'Oval'), votes=face_data.get('votes', {})),
+            SkinProfile(undertone=face_data.get('undertone', 'Warm'), depth=face_data.get('depth', 'Medium')),
+            FaceFullness(fullness=face_data.get('fullness', 'Full')),
+            EyeMakeupStrategy(strategy=face_data.get('eye_strategy', 'Monochromatic')),
+            OccasionContext(occasion=face_data.get('occasion', 'work'))
+        )
+        self.run()
+        return self._extract_results()
+
+    def _extract_results(self):
+        results = {'shape': None, 'sculpt': None, 'blush': None, 'highlight': None,
+                   'color': None, 'adjustment': None, 'texture': None, 'recommendation': None}
+
+        for fact in self.facts.values():
+            if isinstance(fact, FaceShapeCategory):
+                results['shape'] = {'shape': fact.get('shape'), 'name_ar': fact.get('name_ar'), 'goal': fact.get('goal')}
+            elif isinstance(fact, SculptRule):
+                results['sculpt'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+            elif isinstance(fact, BlushRule):
+                results['blush'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+            elif isinstance(fact, HighlightRule):
+                results['highlight'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+            elif isinstance(fact, BlushColorMatch):
+                results['color'] = {'base_color': fact.get('base_color'), 'palette': fact.get('palette')}
+            elif isinstance(fact, BlushAdjustment):
+                results['adjustment'] = {'rule': fact.get('rule'), 'opacity': fact.get('opacity')}
+            elif isinstance(fact, BlushTexture):
+                results['texture'] = {'finish': fact.get('finish'), 'transparency': fact.get('transparency'),
+                                       'description': fact.get('description')}
+            elif isinstance(fact, FaceContourBlushRecommendation):
+                results['recommendation'] = {'shape': fact.get('shape'), 'color': fact.get('base_color'),
+                                              'occasion': fact.get('occasion'), 'complete': fact.get('complete')}
+
+        return results
+
 
 if __name__ == "__main__":
-    example_face = {"shape": "Oval", "votes": {"Oval": 10, "Round": 2, "Rectangular": 0}}
-    rec = get_face_contour_blush_recommendation(
-        example_face, fullness="Full",
-        skin_undertone="Warm", skin_depth="Medium",
-        eye_strategy="Monochromatic", occasion="evening",
-    )
-    print_face_contour_blush_recommendation(rec)
+    engine = FaceContourEngine()
+    result = engine.analyze_face({'shape': 'Oval', 'undertone': 'Warm', 'depth': 'Medium', 'occasion': 'evening'})
+    print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
