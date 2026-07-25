@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from sklearn.cluster import KMeans
 import os
+from mediapipe.tasks.python import BaseOptions
 
 # ==========================================================
 # 1) MediaPipe Tasks API Initialization
@@ -11,10 +12,15 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 # Model asset path
-model_path = 'face_landmarker_v2_with_blendshapes.task'
+
+MODEL_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "face_landmarker_v2_with_blendshapes.task"
+)
+
 
 # Base options configuration
-base_options = python.BaseOptions(model_asset_path=model_path)
+base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
 options = vision.FaceLandmarkerOptions(
     base_options=base_options,
     output_face_blendshapes=False,
@@ -169,9 +175,9 @@ def classify_undertone_simple(bgr_color):
     else:
         return "Cool"
 def advanced_facial_analysis(image):
-    if not os.path.exists(model_path):
+    if not os.path.exists(MODEL_PATH):
         return {
-            "error": f"Model asset '{model_path}' not found. Please place the downloaded .task file in the root directory."
+            "error": f"Model asset '{MODEL_PATH}' not found. Please place the downloaded .task file in the root directory."
         }
 
     

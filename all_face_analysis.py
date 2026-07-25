@@ -35,7 +35,12 @@ from nose_makeup_rules import get_nose_makeup_recommendation, print_nose_recomme
 from face_makeup_rules import get_face_contour_blush_recommendation, print_face_contour_blush_recommendation
 from lip_makeup_rules import get_lip_makeup_recommendation, print_lip_recommendation
 
+import os
 
+MODEL_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "face_landmarker_v2_with_blendshapes.task"
+)
 # ══════════════════════════════════════════════════════
 # جدول تحويل تسمية المناسبة (occasion) بين الأنظمة الخبيرة
 # ══════════════════════════════════════════════════════
@@ -1010,9 +1015,211 @@ def main(image_path: str, output_path: str = "face_analysis_result.jpg",
     print(f"\n[OK] Saved → {output_path}")
 
 
+def analyze_face(image_path, occasion="work"):
+
+    image = cv2.imread(image_path)
+
+    if image is None:
+        return {
+            "error": "Image not found"
+        }
+
+
+    skin_result = analyze_skin(image)
+
+    if "error" in skin_result:
+        return skin_result
+
+
+    h, w, _ = image.shape
+
+    rgb = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2RGB
+    )
+
+
+    with mp.solutions.face_mesh.FaceMesh(
+        static_image_mode=True,
+        max_num_faces=1,
+        refine_landmarks=True
+    ) as mesh:
+
+
+        res = mesh.process(rgb)
+
+
+        if not res.multi_face_landmarks:
+            return {
+                "error":"No face detected"
+            }
+
+
+        lm = res.multi_face_landmarks[0].landmark
+
+
+        face_width = distance(
+            get_pt(lm, FACE_LEFT,w,h),
+            get_pt(lm, FACE_RIGHT,w,h)
+        )
+
+
+        face_height = distance(
+            get_pt(lm, FACE_TOP,w,h),
+            get_pt(lm, FACE_CHIN,h,w)
+        )
+
+
+        face_top_y = get_pt(lm,FACE_TOP,w,h)[1]
+
+        face_chin_y = get_pt(lm,FACE_CHIN,w,h)[1]
+
+
+
+        brow_res = analyze_brows(
+            lm,w,h,
+            face_width,
+            face_height
+        )
+
+
+        eye_res = analyze_eyes(
+            lm,w,h,
+            face_width,
+            face_height,
+            brow_res["brow_eye_gap_L"],
+            brow_res["brow_eye_gap_R"]
+        )
+
+
+        inter_eye_ratio = compute_inter_eye_ratio(
+            lm,w,h,
+            face_width
+        )
+
+
+        face_res = analyze_face_shape(
+            lm,w,h,
+            face_width,
+            face_height
+        )
+
+
+        lip_feats, lip_res = analyze_lips(
+            lm,w,h,
+            face_width,
+            face_height
+        )
+
+
+        nose_res = analyze_nose(
+            lm,w,h,
+            face_width,
+            face_height,
+            face_top_y,
+            face_chin_y
+        )
+
+
+
+        # ======================
+        # تشغيل القواعد
+        # ======================
+
+
+        left_eye = eye_res["Left"][1]
+
+
+        eye_recommendation = {}
+
+        if left_eye:
+
+            eye_recommendation = get_eye_makeup_recommendation(
+                left_eye,
+                occasion,
+                inter_eye_ratio
+            )
+
+
+
+        brow_recommendation = get_brow_recommendation(
+            brow_res["classification"],
+            face_res["shape"],
+            occasion,
+            skin_result["undertone"].lower()
+        )
+
+
+        nose_recommendation = get_nose_makeup_recommendation(
+            nose_res,
+            skin_result["undertone"],
+            skin_result["skin_depth"]
+        )
+
+
+        face_recommendation = get_face_contour_blush_recommendation(
+            face_res,
+            skin_undertone=skin_result["undertone"],
+            skin_depth=skin_result["skin_depth"],
+            occasion=occasion
+        )
+
+
+        lip_recommendation = get_lip_makeup_recommendation(
+            lip_res,
+            skin_result["undertone"],
+            occasion
+        )
+
+
+
+        return {
+
+
+            "skin":{
+                "depth":skin_result["skin_depth"],
+                "undertone":skin_result["undertone"]
+            },
+
+
+            "face":{
+                "shape":face_res["shape"]
+            },
+
+
+            "eyes":{
+                "analysis":eye_res,
+                "recommendation":eye_recommendation
+            },
+
+
+            "brows":{
+                "analysis":brow_res["classification"],
+                "recommendation":brow_recommendation
+            },
+
+
+            "nose":{
+                "shape":nose_res["shape"],
+                "recommendation":nose_recommendation
+            },
+
+
+            "lips":{
+                "analysis":lip_res,
+                "recommendation":lip_recommendation
+            },
+
+
+            "face_makeup":{
+                "recommendation":face_recommendation
+            }
+
+        }
+
 if __name__ == "__main__":
     main(
-        image_path  = "pictures3/cool9.jpg",
+        image_path  = "pictures/face.jpg",
         output_path = "face_analysis_result.jpg",
         occasion            = "work",       # work | evening | photo | wedding
         eye_makeup_strategy = "Monochromatic",  # Monochromatic | Complementary-Split | Triadic | Earth-Toned

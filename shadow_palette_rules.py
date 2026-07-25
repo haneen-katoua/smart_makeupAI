@@ -1,5 +1,3 @@
-
-
 # import cv2
 # import numpy as np
 # import matplotlib.pyplot as plt
@@ -793,8 +791,22 @@ def show_all_palettes(H, transform_name, cloth_rgb):
            enumerate(strategies), 0)
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    # plt.show()
+    
+    
+    import os
+    import uuid
 
+    output_dir = "media1/palettes"
+    os.makedirs(output_dir, exist_ok=True)
+
+    filename = f"{uuid.uuid4()}.png"
+    filepath = os.path.join(output_dir, filename)
+
+    plt.savefig(filepath, dpi=200, bbox_inches="tight")
+    plt.close()
+
+    return filepath
 
 # ==========================================================
 #                  محرك القواعد الخبير (experta)
@@ -868,23 +880,89 @@ def run_neutral_path(reason, skin_undertone):
     print(messages[reason])
     cloth_rgb = np.array([200, 200, 200], dtype=np.uint8)
     palette12 = get_neutral_palette_12(skin_undertone)
-    show_neutral_palette_12(palette12, cloth_rgb)
+    palette_path = show_neutral_palette_12(palette12, cloth_rgb)
+
+    return {
+        "palette_image": palette_path
+    }
 
 
 def run_colored_path(hue, cloth_bgr, transform_name, skin_undertone):
     cloth_rgb = np.array(cloth_bgr[::-1], dtype=np.uint8)
     print("Detected Undertone:", skin_undertone)
     print("Detected Clothing Hue:", hue)
-    show_all_palettes(hue, transform_name, cloth_rgb)
+    palette_path = show_all_palettes(hue, transform_name, cloth_rgb)
+
+    return {
+        "palette_image": palette_path
+    }
 
 
 PATH_HANDLERS = {
-    "neutral": lambda expert, cloth, skin_undertone: run_neutral_path(expert.reason, skin_undertone),
-    "colored": lambda expert, cloth, skin_undertone: run_colored_path(
-        expert.hue, cloth.get("dominant_bgr"), expert.transform, skin_undertone),
+    "neutral": lambda expert, cloth, skin:
+        run_neutral_path(expert.reason, skin),
+
+    "colored": lambda expert, cloth, skin:
+        run_colored_path(
+            expert.hue,
+            cloth.get("dominant_bgr"),
+            expert.transform,
+            skin
+        ),
 }
 
 
+def generate_shadow_palette(clothing_result, skin_undertone):
+
+    print("====== SHADOW START ======")
+    print("CLOTHING:", clothing_result)
+    print("SKIN:", skin_undertone)
+
+
+    expert = MakeupExpert()
+
+    expert.reset()
+
+
+    expert.declare(
+        ClothColor(
+            bgr=tuple(clothing_result.get("dominant_bgr")),
+            hue=clothing_result.get("Input_Hue")
+        )
+    )
+
+
+    expert.declare(
+        SkinInfo(
+            undertone=skin_undertone.capitalize()
+        )
+    )
+
+
+    expert.run()
+
+
+    print("PATH:", expert.path)
+    print("REASON:", expert.reason)
+    print("HUE:", expert.hue)
+    print("TRANSFORM:", expert.transform)
+
+
+
+    result = PATH_HANDLERS[expert.path](
+    expert,
+    clothing_result,
+    skin_undertone
+    )
+
+    return result
+
+
+    print("FINAL RESULT:", result)
+
+    return result
+    
+    
 def main():
     from skin_analysis import analyze_skin
     from clothing_hue_extractor import analyze_clothing_color
