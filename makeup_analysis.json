@@ -1,0 +1,246 @@
+{
+  "face_analysis": {
+    "success": true,
+    "face_detected": true,
+    "face_shape": {
+      "shape": "Oval",
+      "votes": {},
+      "ratios": {
+        "face_length_to_width": 0.6261044967595796,
+        "jaw_to_cheekbone_ratio": 0.5258287684721619
+      },
+      "confidence": 0.5
+    },
+    "eyes": {
+      "left_eye": {
+        "geo_shape": "Almond",
+        "eye_type": "Normal",
+        "size": "Small",
+        "corner_direction": "Neutral",
+        "opening": 0.19781997987991595
+      },
+      "right_eye": {
+        "geo_shape": "Almond",
+        "eye_type": "Normal",
+        "size": "Small",
+        "corner_direction": "Neutral",
+        "opening": 0.2171478523798416
+      },
+      "inter_eye_ratio": 1.062913081974412,
+      "symmetry": "Symmetrical"
+    },
+    "brows": {
+      "thickness": "Medium",
+      "length": "Short",
+      "shape": "Arched",
+      "position": "Normal",
+      "spacing": "Normal",
+      "symmetry": "Symmetrical"
+    },
+    "lips": {
+      "volume": "Thin",
+      "balance": "Lower Fuller",
+      "width": "Narrow",
+      "symmetry": "Symmetrical",
+      "cupid_bow": "Soft",
+      "corners": "Neutral"
+    },
+    "nose": {
+      "shape": "Short",
+      "width": "Normal",
+      "bridge": "Straight"
+    },
+    "measurements": {
+      "image_width": 675,
+      "image_height": 1200
+    }
+  },
+  "skin_analysis": {
+    "success": true,
+    "skin_depth": "Medium",
+    "undertone": "Warm",
+    "skin_type": "Oily",
+    "color_lab": {
+      "L": 60.63409684451976,
+      "a": 24.44412447780947,
+      "b": 28.138169565520556
+    },
+    "color_rgb": [
+      200.47541254125412,
+      128.6496699669967,
+      97.89480198019803
+    ],
+    "confidence": 0.7105682807419961
+  },
+  "expert_output": {
+    "eyes": {
+      "left": {
+        "category": {
+          "category": "Almond",
+          "name_ar": "العين اللوزية (Almond)",
+          "goal": "تم اختيار هذا الستايل لأن العين لوزية ومتوازنة تشريحياً، مما يجعلها القالب المثالي لأي تصميم مكياج دون الحاجة لتقنيات تصحيحية، مع تعزيز السحبة الطبيعية الجذابة للعين وإبراز توازن زواياها"
+        },
+        "plan": {
+          "style": "سبوت لايت / بنانا",
+          "texture": "لمسة ساتان / لامعة",
+          "lashes": "رموش طويلة وكثيفة فاخرة",
+          "eyeliner": "آيلاينر حريري"
+        }
+      },
+      "right": {
+        "category": {
+          "category": "Almond",
+          "name_ar": "العين اللوزية (Almond)",
+          "goal": "تم اختيار هذا الستايل لأن العين لوزية ومتوازنة تشريحياً، مما يجعلها القالب المثالي لأي تصميم مكياج دون الحاجة لتقنيات تصحيحية، مع تعزيز السحبة الطبيعية الجذابة للعين وإبراز توازن زواياها"
+        },
+        "plan": {
+          "style": "سبوت لايت / بنانا",
+          "texture": "لمسة ساتان / لامعة",
+          "lashes": "رموش طويلة وكثيفة فاخرة",
+          "eyeliner": "آيلاينر حريري"
+        }
+      }
+    },
+    "brows": {
+      "correction": {
+        "arch_type": "قوس طبيعي",
+        "arch_position": "وضعية طبيعية",
+        "tail_direction": "طبيعي",
+        "tail_weight": "طبيعي",
+        "visual_purpose": "متوازن تشريحياً ولا يحتاج تصحيح"
+      },
+      "style": {
+        "style": "فخامة وجرأة",
+        "technique": "دقة وجرأة في الرسم",
+        "product": "لاينر ومحدد حواجب",
+        "color_intensity": "قوي وجريء",
+        "appearance": "رفع درامي فاخر"
+      },
+      "color": null,
+      "recommendation": null
+    },
+    "lips": {
+      "shape": {
+        "category": "Lower Thin",
+        "name_ar": "شفة سفلى رقيقة",
+        "correction": "موازنة النسبة",
+        "technique": "رسم الخط أسفل الحد الطبيعي للشفة السفلى",
+        "reason": "لضمان التوازن البصري وتماثل الفم"
+      },
+      "color": {
+        "undertone": "Warm",
+        "palette": "أساس ذهبي/خوخي",
+        "colors": "درجات مرجانية وخوخية"
+      },
+      "occasion": {
+        "occasion": "wedding",
+        "style": "شفاه فاخرة وممتلئة",
+        "product": "أحمر شفاه غني مع طبقة لمعان توضع عمودياً بمنتصف الشفة فقط",
+        "texture": "لامع (بالمنتصف فقط، فوق طبقة أساس غنية)"
+      },
+      "recommendation": {
+        "shape": "Lower Thin",
+        "colors": "درجات مرجانية وخوخية",
+        "occasion": "wedding",
+        "complete": true
+      }
+    },
+    "nose": {
+      "shape": {
+        "shape": "Short",
+        "name_ar": "الأنف القصير",
+        "goal": "خلق إيحاء بالطول عبر تعريف هيكل العظم",
+        "technique": "يوضع كونتور كامل على جانبي الأنف من الحاجب حتى الطرف، مع هاياليت على طرف الأنف تماماً",
+        "reason": "لإعطاء إيحاء بالطول، يُستخدم كونتور بطول كامل لتعريف الهيكل العظمي"
+      },
+      "map": {
+        "contour": "بطول كامل، من بداية الحاجب حتى الطرف على الجانبين",
+        "highlight": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
+        "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل"
+      },
+      "contour": {
+        "product": "بني دافئ (Warm Brown)",
+        "reason": "لموازنة تدرجات البيج الدافئ"
+      },
+      "highlight": {
+        "tone": "عاجي",
+        "method": "يُنتج بالمزج بين لون البشرة الأساسي والأبيض"
+      },
+      "recommendation": {
+        "shape": "Short",
+        "product": "بني دافئ (Warm Brown)",
+        "highlight": "عاجي",
+        "complete": true
+      }
+    },
+    "face": {
+      "shape": {
+        "shape": "Oval",
+        "name_ar": "الوجه البيضاوي (Face Oval)",
+        "goal": "الحفاظ على التوازن المثالي مع تفادي مظهر الوجه الغارق"
+      },
+      "sculpt": {
+        "placement": "استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد",
+        "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد"
+      },
+      "blush": {
+        "placement": "في مركز الخد بدمج ناعم جداً باتجاه الأذن",
+        "purpose": "إعطاء حجم حيوي للخدود النحيفة"
+      },
+      "highlight": {
+        "placement": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
+        "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد"
+      },
+      "color": {
+        "base_color": "مرجاني",
+        "palette": "أساس دافئ"
+      },
+      "adjustment": {
+        "rule": "يُختار اللون من المصفوفة بنفس درجة \"حرارة\" ظل العين ولون البشرة",
+        "opacity": 100
+      },
+      "texture": {
+        "finish": "ساتان / لامع",
+        "transparency": "صبغة كاملة",
+        "description": "لون قوي يبرز تحت أضواء السهرة"
+      },
+      "recommendation": {
+        "shape": "Oval",
+        "color": "مرجاني",
+        "occasion": "wedding",
+        "complete": true
+      }
+    },
+    "foundation": {
+      "shade": {
+        "range": "متوسطة عسلية/ذهبية",
+        "descriptor": "درجة متوسطة عسلية/ذهبية"
+      },
+      "formula": {
+        "primary": "أساس بودرة / سائل مطفأ",
+        "texture": "مطفأ",
+        "coverage": "متوسطة إلى كاملة",
+        "reason": "تمتص الدهون الزائدة وتثبت لفترة أطول"
+      },
+      "concealer": {
+        "descriptor": "درجة أفتح بدرجة إلى درجة ونصف من الأساس",
+        "reason": "لتفتيح متوازن دون ظهور طبقة رمادية تحت العين"
+      },
+      "primer": {
+        "type": "برايمر مطفئ للمعان (أساسه سيليكا)",
+        "function": "تقليل لمعان الدهون وتوسيع ثبات المكياج"
+      },
+      "setting": {
+        "method": "بودرة تثبيت + رذاذ تثبيت مطفئ للمعان",
+        "technique": "تثبيت كامل الوجه ببودرة شفافة مع التركيز على منطقة T",
+        "reason": "لإطالة مدة الثبات ومنع ظهور اللمعان خلال اليوم"
+      },
+      "recommendation": {
+        "shade_range": "متوسطة عسلية/ذهبية",
+        "formula": "أساس بودرة / سائل مطفأ",
+        "complete": true
+      }
+    }
+  },
+  "occasion": "wedding"
+}

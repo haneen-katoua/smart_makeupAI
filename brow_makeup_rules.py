@@ -1,550 +1,290 @@
+# -*- coding: utf-8 -*-
 """
-brow_makeup_rules.py
-════════════════════════════════════════════════════════════════
-
-نظام قواعس الحواجب — Rule-based (بدون if/for)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-المنطق الأساسي:
-  • الحاجب = إطار "عالم العين" → لا يتجاوز حدود الـ V من فتحة الأنف
-  • قاعدة "النقاط الثلاث": البداية (من الأنف عموديا) + القمة (مع حدقة العين) + النهاية (مع الزاوية الخارجية)
-  • التصحيح يعتمد على: شكل الوجه + المناسبة (occasion)
-
-الخرج النهائي:
-  {
-    "style": "Natural Grooming" / "Arch Defined" / "Brow Sculpted" / "Glamour Bold",
-    "arch_type": "High Arch" / "Soft Arch" / "Flat" / "Soft Rounded",
-    "tail_direction": "Extended & Heavy" / "Extended" / "Tapered" / "Natural",
-    "technique": "Grooming" / "Definition" / "Sculpting" / "Bold Precision",
-    "product": "Gel" / "Powder" / "Pencil" / "Bold Liner",
-    "color_intensity": "Sheer" / "Natural" / "Strong" / "Bold",
-    "three_dots": {...},  # نقاط هندسية دقيقة
-    "explanation": "..."
-  }
-════════════════════════════════════════════════════════════════
+brow_makeup_rules.py — Experta-based Expert System (كامل بالعربي)
+===========================================================
+نظام خبير لقواعد الحواجب — Forward Chaining تلقائي، بلا if/else في القواعد
 """
 
+# ✅ MUST BE FIRST: Python 3.10+ Compatibility Fix
+import compat_fix
 
-# ══════════════════════════════════════════════════════════════
-# RULE 1: OCCASION-BASED STYLE MAPPING
-# ══════════════════════════════════════════════════════════════
-# الخرج يُحدد حسب المناسبة + خصائص الحاجب الأصلية
-
-BROW_STYLE_BY_OCCASION = {
-    # جامعة / عمل — طبيعي ونظيف
-    "work": {
-        "style": "Natural Grooming",
-        "description": "تمشيط شفاف أو لون خفيف جداً على الشعر",
-        "technique": "Grooming",
-        "product": "Gel Clear or Tinted",
-        "color_intensity": "Sheer",
-        "appearance": "Unpainted & Clean",
-    },
-    # سهرة / حفلة — محدد مع قمة واضحة
-    "party": {
-        "style": "Arch Defined",
-        "description": "تحديد نقاط الارتكاز (البداية، القمة، النهاية) بودرة أو قلم",
-        "technique": "Definition",
-        "product": "Powder or Pencil",
-        "color_intensity": "Natural",
-        "appearance": "Defined Symmetry",
-    },
-    # تصوير / إعلام — كثيف مع ضربات طبيعية
-    "photography": {
-        "style": "Brow Sculpted",
-        "description": "تعبئة الفراغات بضربات ريشة 45° تحاكي نمو الشعر",
-        "technique": "Sculpting",
-        "product": "Pencil or Powder Strokes",
-        "color_intensity": "Strong (HD-ready)",
-        "appearance": "Natural Density",
-    },
-    # زفاف / دراما — رسم حاد مع رفع قصوى
-    "wedding": {
-        "style": "Glamour Bold",
-        "description": "رسم حاد ومحدد مع رفع القمة لخلق طاقة رفع قصوى",
-        "technique": "Bold Precision",
-        "product": "Brow Liner & Definer",
-        "color_intensity": "Bold",
-        "appearance": "Dramatic Lift",
-    },
-}
+from experta import *
+import json
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 2: FACE SHAPE CORRECTION MAPPING
-# ══════════════════════════════════════════════════════════════
-# تصحيح هندسة الحاجب حسب شكل الوجه
+# ══════════════════════════════════════════════════════
+# FACTS
+# ══════════════════════════════════════════════════════
 
-BROW_CORRECTION_BY_FACE_SHAPE = {
-    # وجه دائري — كسر الاستدارة + إيحاء بالطول
-    "Round": {
-        "arch_type": "High Arch",
-        "arch_position": "Elevated",
-        "tail_direction": "Extended Outward",
-        "tail_weight": "Heavy",
-        "shape_rule": "رفع القمة عاليا مع ذيل نحو الخارج والحدة",
-        "visual_purpose": "كسر الاستدارة وإعطاء إيحاء بالطول والحدة",
-    },
-    # وجه مستطيل — خط أفقي للتوازن
-    "Rectangular": {
-        "arch_type": "Soft Arch or Flat",
-        "arch_position": "Moderate to Low",
-        "tail_direction": "Extended Long",
-        "tail_weight": "Tapered Light",
-        "shape_rule": "قمة مسطحة نسبيا مع ذيل طويل",
-        "visual_purpose": "كسر الخط العمودي وإضافة عرض وهمي",
-    },
-    # وجه بيضاوي — متوازن تشريحيا
-    "Oval": {
-        "arch_type": "Natural",
-        "arch_position": "Natural Position",
-        "tail_direction": "Natural",
-        "tail_weight": "Natural",
-        "shape_rule": "الشكل الطبيعي مثالي دون تعديل",
-        "visual_purpose": "متوازن تشريحيا وال يحتاج تصحيح",
-    },
-    # وجه مثلثي — موازنة الفك الثقيل
-    "Triangle": {
-        "arch_type": "Neutral Arch",
-        "arch_position": "Moderate",
-        "tail_direction": "Extended Heavy",
-        "tail_weight": "Heavy Relative",
-        "shape_rule": "قمة محايدة مع ذيل ممتد وثقيل",
-        "visual_purpose": "موازنة عرض الفك بإضافة ثقل بصري أعلى",
-    },
-    # وجه مربعي — تليين الزوايا
-    "Square": {
-        "arch_type": "Soft Arch",
-        "arch_position": "Slightly Elevated Soft",
-        "tail_direction": "Tapered",
-        "tail_weight": "Light",
-        "shape_rule": "قمة مرفوعة بزاوية ناعمة",
-        "visual_purpose": "كسر حدة الزوايا وإضافة منحنى لتليين المالمح",
-    },
-    # وجه على شكل قلب — موازنة الجبهة
-    "Heart": {
-        "arch_type": "Low Soft Arch",
-        "arch_position": "Low and Soft",
-        "tail_direction": "Tapered Thin",
-        "tail_weight": "Thin",
-        "shape_rule": "قمة خفيفة منخفضة مع ذيل نحيف",
-        "visual_purpose": "موازنة عرض الجبهة وتخفيف الثقل البصري",
-    },
-    # وجه على شكل ماسة — تليين البروزات
-    "Diamond": {
-        "arch_type": "Soft Arch",
-        "arch_position": "Soft Rounded",
-        "tail_direction": "Tapered Light",
-        "tail_weight": "Light",
-        "shape_rule": "قمة ناعمة مع بداية وذيل خفيف",
-        "visual_purpose": "توسيع الجبهة وتليين حدة عظام الخد البارزة",
-    },
-}
+class BrowAnalysis(Fact):
+    """نتائج تحليل الحاجب"""
+    thickness = Field(str)
+    length = Field(str)
+    shape = Field(str)
+    position = Field(str)
+    spacing = Field(str)
+    symmetry = Field(str)
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 3: BROW CHARACTERISTICS CLASSIFICATION
-# ══════════════════════════════════════════════════════════════
-# تصنيف الحاجب حسب الخصائص المُقاسة
-
-BROW_ARCH_LEVELS = {
-    # Thickness × Length × Arch
-    ("Thick", "Long", "Arched"): {
-        "natural_appearance": "Bold & Statement",
-        "styling_priority": "Define peaks sharply",
-        "risk": "Can overwhelm face if not balanced",
-    },
-    ("Thick", "Long", "Soft Arch"): {
-        "natural_appearance": "Full & Expressive",
-        "styling_priority": "Enhance natural arch subtly",
-        "risk": "May appear heavy; use light colors",
-    },
-    ("Thick", "Medium", "Arched"): {
-        "natural_appearance": "Balanced & Defined",
-        "styling_priority": "Amplify arch definition",
-        "risk": "None; ideal base",
-    },
-    ("Thick", "Short", "Arched"): {
-        "natural_appearance": "Compact & Strong",
-        "styling_priority": "Extend tail slightly",
-        "risk": "Can look severe; soften with color",
-    },
-    ("Medium", "Long", "Soft Arch"): {
-        "natural_appearance": "Natural & Approachable",
-        "styling_priority": "Groom and define subtly",
-        "risk": "Requires regular maintenance",
-    },
-    ("Medium", "Medium", "Soft Arch"): {
-        "natural_appearance": "Harmonious",
-        "styling_priority": "Standard definition",
-        "risk": "None",
-    },
-    ("Thin", "Long", "Soft Arch"): {
-        "natural_appearance": "Delicate & Sparse",
-        "styling_priority": "Fill and define",
-        "risk": "Requires precise product",
-    },
-    ("Thin", "Short", "Straight"): {
-        "natural_appearance": "Understated",
-        "styling_priority": "Full reconstruction",
-        "risk": "Needs skilled technique",
-    },
-}
+class FaceShape(Fact):
+    """شكل الوجه"""
+    shape = Field(str)  # Oval / Round / Rectangular / Triangle / Square / Heart / Diamond
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 4: TECHNIQUE & PRODUCT SELECTION — اختيار الأداة والمنتج
-# ══════════════════════════════════════════════════════════════
-
-TECHNIQUE_EXECUTION = {
-    "Grooming": {
-        "tools": ["Clear Gel", "Tinted Gel Light"],
-        "method": "تمشيط الشعر لألعلى ثم للخارج (Cascade Outward)",
-        "coverage": "الشعر الموجود فقط",
-        "finish": "Natural & Unpainted",
-        "time_efficiency": "Quick (30 sec)",
-    },
-    "Definition": {
-        "tools": ["Powder", "Pencil (medium)"],
-        "method": "تحديد 3 نقاط الارتكاز بدقة + خطوط رفيعة",
-        "coverage": "تحديد النقاط فقط",
-        "finish": "Defined but Natural",
-        "time_efficiency": "Medium (2-3 min)",
-    },
-    "Sculpting": {
-        "tools": ["Pencil Fine", "Powder + Brush 45°"],
-        "method": "ضربات ريشة بزاوية 45° تحاكي نمو الشعر",
-        "coverage": "ملء الفراغات + تعريف الشكل",
-        "finish": "Dense & Natural",
-        "time_efficiency": "Longer (5-7 min)",
-    },
-    "Bold Precision": {
-        "tools": ["Brow Liner", "Bold Definer Pencil"],
-        "method": "رسم حاد ومحدد + رفع قمة عالية جدا",
-        "coverage": "كامل الحاجب بخط حاد",
-        "finish": "Dramatic & Precise",
-        "time_efficiency": "Slow (8-10 min)",
-    },
-}
+class OccasionContext(Fact):
+    """سياق المناسبة"""
+    occasion = Field(str)  # work / university / evening / party / wedding / photo
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 5: COLOR INTENSITY & UNDERTONE MATCHING
-# ══════════════════════════════════════════════════════════════
-
-BROW_COLOR_INTENSITY = {
-    "Sheer": {
-        "pigment": 20,
-        "coverage": "Transparent",
-        "occasion": "work",
-        "description": "تلميح طفيف = لا يُرى إلا عن قرب",
-    },
-    "Natural": {
-        "pigment": 60,
-        "coverage": "Semi-opaque",
-        "occasion": "party",
-        "description": "لون طبيعي = يُرى بوضوح لكن ليس درامي",
-    },
-    "Strong": {
-        "pigment": 85,
-        "coverage": "Opaque",
-        "occasion": "photography",
-        "description": "قوي = مرئي تحت الأضواء والكاميرا",
-    },
-    "Bold": {
-        "pigment": 100,
-        "coverage": "Full Opaque",
-        "occasion": "wedding",
-        "description": "جريء = درامي تحت جميع الإضاءات",
-    },
-}
+class SkinTone(Fact):
+    """لون البشرة"""
+    undertone = Field(str)  # warm / cool
+    depth = Field(str)      # fair / medium / dark
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 6: AUTOMATIC EYEBROW GRADIENT
-# ══════════════════════════════════════════════════════════════
-# التدرج التلقائي: سميك من الداخل → نحيف للخارج
-
-GRADIENT_RULE = {
-    "logic": "التدرج التلقائي: يبدأ الحاجب كثيفا من الداخل ويصبح نحيفا نحو الخارج",
-    "zones": {
-        "start_zone": {
-            "width": "100% (full density)",
-            "taper": "No taper",
-            "description": "البداية كثيفة وقوية",
-        },
-        "peak_zone": {
-            "width": "85-90% (slight taper)",
-            "taper": "Subtle",
-            "description": "القمة كثيفة لكن أقل قليلا من البداية",
-        },
-        "tail_zone": {
-            "width": "40-60% (heavy taper)",
-            "taper": "Significant",
-            "description": "النهاية نحيفة وخفيفة = تنتهي في خط رفيع",
-        },
-    },
-    "purpose": "خلق وهم الحواجب المثالية بتدرج طبيعي",
-}
+class BrowCorrectionRule(Fact):
+    """قاعدة تصحيح الحاجب حسب شكل الوجه"""
+    face_shape = Field(str)
+    arch_type = Field(str)
+    arch_position = Field(str)
+    tail_direction = Field(str)
+    tail_weight = Field(str)
+    visual_purpose = Field(str)
 
 
-# ══════════════════════════════════════════════════════════════
-# RULE 7: LIFTING MECHANICS — آلية الرفع البصري
-# ══════════════════════════════════════════════════════════════
-
-LIFTING_MECHANICS = {
-    "upward_cascade": {
-        "direction": "للأعلى ثم للخارج (Cascade Outward)",
-        "purpose": "ضمان بقاء طاقة الوجه صاعدة وشابة",
-        "execution": "تمشيط الشعر بحركة طبيعية نحو الأعلى",
-    },
-    "arch_position": {
-        "rule": "كلما ارتفعت القمة → زادت طاقة الرفع",
-        "chart": {
-            "Low": "مهدئ وناعم",
-            "Moderate": "متوازن",
-            "High": "درامي ورفع قصوى",
-        },
-    },
-    "tail_extension": {
-        "rule": "ذيل ممتد وطويل = سحب بصري خارجي نحو الأعلى",
-        "effect": "يعطي إيحاء بوجه أطول وأنحف",
-    },
-}
+class BrowStyleRule(Fact):
+    """قاعدة أسلوب الحاجب حسب المناسبة"""
+    occasion = Field(str)
+    style = Field(str)
+    technique = Field(str)
+    product = Field(str)
+    color_intensity = Field(str)
+    description = Field(str)
+    appearance = Field(str)
 
 
-# ══════════════════════════════════════════════════════════════
-# FUNCTION: GET BROW RECOMMENDATION
-# ══════════════════════════════════════════════════════════════
-
-def get_brow_recommendation(
-    brow_classification: dict,  # من analyze_brows في face_analysis.py
-    face_shape: str,            # Oval / Round / Rectangular
-    occasion: str = "work",     # work / party / photography / wedding
-    skin_tone: str = "warm",    # warm / cool
-):
-    """
-    استخرج التوصيات الكاملة للحاجب بناءً على:
-      1. خصائص الحاجب الطبيعية (thickness, length, arch, shape)
-      2. شكل الوجه (face_shape)
-      3. المناسبة (occasion)
-      4. لون البشرة (للون الحاجب)
-    
-    العودة: dict شامل بجميع التفاصيل
-    """
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 1: استخرج الأساليب حسب المناسبة
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    occasion_base = BROW_STYLE_BY_OCCASION.get(occasion, BROW_STYLE_BY_OCCASION["work"])
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 2: استخرج التصحيحات حسب شكل الوجه
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    face_correction = BROW_CORRECTION_BY_FACE_SHAPE.get(
-        face_shape,
-        BROW_CORRECTION_BY_FACE_SHAPE["Oval"]
-    )
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 3: احصل على خصائص الحاجب الطبيعية
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    thickness = brow_classification.get("Thickness", "Medium")
-    length = brow_classification.get("Length", "Medium")
-    shape = brow_classification.get("Shape", "Soft Arch")
-    position = brow_classification.get("Position", "Normal")
-    spacing = brow_classification.get("Spacing", "Normal")
-    symmetry = brow_classification.get("Symmetry", "Symmetrical")
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 4: اختر الأداة والتقنية
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    technique_key = occasion_base.get("technique", "Grooming")
-    technique_details = TECHNIQUE_EXECUTION.get(technique_key, {})
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 5: اختر شدة اللون
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    color_intensity_key = occasion_base.get("color_intensity", "Natural")
-    color_intensity_details = BROW_COLOR_INTENSITY.get(color_intensity_key, {})
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 6: تحديد لون الحاجب حسب البشرة
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    brow_color_mapping = {
-        "warm": {
-            "fair": "Warm Brown / Auburn",
-            "medium": "Medium Brown",
-            "dark": "Rich Brown / Dark Blonde",
-        },
-        "cool": {
-            "fair": "Soft Taupe / Grey Brown",
-            "medium": "Ash Brown / Cool Brown",
-            "dark": "Cool Dark Brown / Ash",
-        },
-    }
-    
-    # (في تطبيق حقيقي، سيتم استخراج عمق البشرة من تحليل الصورة)
-    brow_color = "Dark Brown"  # default
-    
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # STEP 7: بناء الشرح التفصيلي
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    
-    explanation_parts = [
-        f"🎨 شكل الوجه '{face_shape}': {face_correction['visual_purpose']}",
-        f"📐 الحاجب الطبيعي: {thickness} + {length} + {shape}",
-        f"✨ المناسبة '{occasion}': {occasion_base['description']}",
-        f"🔧 التقنية: {technique_details.get('method', 'N/A')}",
-        f"🎯 القمة: {face_correction['arch_type']} → {face_correction['arch_position']}",
-        f"➡️ الذيل: {face_correction['tail_direction']} ({face_correction['tail_weight']})",
-    ]
-    
-    return {
-        # ── الأسلوب الأساسي ──
-        "style": occasion_base.get("style", "Natural Grooming"),
-        "occasion": occasion,
-        "face_shape": face_shape,
-        
-        # ── خصائص الحاجب الطبيعية ──
-        "natural_brow": {
-            "thickness": thickness,
-            "length": length,
-            "shape": shape,
-            "position": position,
-            "spacing": spacing,
-            "symmetry": symmetry,
-        },
-        
-        # ── الهندسة والتصحيح ──
-        "arch_correction": {
-            "arch_type": face_correction["arch_type"],
-            "arch_position": face_correction["arch_position"],
-            "visual_purpose": face_correction["visual_purpose"],
-        },
-        
-        "tail_correction": {
-            "direction": face_correction["tail_direction"],
-            "weight": face_correction["tail_weight"],
-            "rule": face_correction["shape_rule"],
-        },
-        
-        # ── التقنية والمنتج ──
-        "technique": {
-            "name": technique_key,
-            "tools": technique_details.get("tools", []),
-            "method": technique_details.get("method", ""),
-            "coverage": technique_details.get("coverage", ""),
-            "finish": technique_details.get("finish", ""),
-            "time_efficiency": technique_details.get("time_efficiency", ""),
-        },
-        
-        # ── اللون ──
-        "color": {
-            "tone": brow_color,
-            "intensity": color_intensity_key,
-            "pigment_level": color_intensity_details.get("pigment", 0),
-            "coverage": color_intensity_details.get("coverage", ""),
-        },
-        
-        # ── الآليات البصرية ──
-        "lifting_mechanics": {
-            "direction": LIFTING_MECHANICS["upward_cascade"]["direction"],
-            "purpose": LIFTING_MECHANICS["upward_cascade"]["purpose"],
-            "tail_extends": "Yes - extends beyond natural eye corner",
-        },
-        
-        "gradient": GRADIENT_RULE,
-        
-        # ── الشرح ──
-        "explanation": "\n".join(explanation_parts),
-    }
+class BrowColorRule(Fact):
+    """قاعدة لون الحاجب حسب البشرة"""
+    undertone = Field(str)
+    depth = Field(str)
+    tone = Field(str)
+    palette = Field(str)
 
 
-# ══════════════════════════════════════════════════════════════
-# PRINT HELPER
-# ══════════════════════════════════════════════════════════════
-
-def print_brow_recommendation(side: str, recommendation: dict):
-    """
-    طباعة توصيات الحاجب بتنسيق منظم
-    """
-    print(f"\n{'='*70}")
-    print(f"  EYEBROW RECOMMENDATION — {side}")
-    print(f"{'='*70}\n")
-    
-    # الأسلوب الأساسي
-    print(f"  Style:        {recommendation['style']}")
-    print(f"  Occasion:     {recommendation['occasion']}")
-    print(f"  Face Shape:   {recommendation['face_shape']}\n")
-    
-    # الخصائص الطبيعية
-    print(f"  Natural Brow Characteristics:")
-    for k, v in recommendation["natural_brow"].items():
-        print(f"    • {k.capitalize()}: {v}")
-    print()
-    
-    # التصحيحات
-    print(f"  Arch Correction:")
-    for k, v in recommendation["arch_correction"].items():
-        print(f"    • {k.replace('_', ' ').title()}: {v}")
-    print()
-    
-    print(f"  Tail Correction:")
-    for k, v in recommendation["tail_correction"].items():
-        print(f"    • {k.replace('_', ' ').title()}: {v}")
-    print()
-    
-    # التقنية والمنتج
-    print(f"  Technique & Product:")
-    for k, v in recommendation["technique"].items():
-        if isinstance(v, list):
-            print(f"    • {k.replace('_', ' ').title()}: {', '.join(v)}")
-        else:
-            print(f"    • {k.replace('_', ' ').title()}: {v}")
-    print()
-    
-    # اللون
-    print(f"  Color:")
-    for k, v in recommendation["color"].items():
-        print(f"    • {k.replace('_', ' ').title()}: {v}")
-    print()
-    
-    # الشرح
-    print(f"  💡 Explanation:")
-    for line in recommendation["explanation"].split("\n"):
-        print(f"     {line}")
-    print()
+class BrowRecommendation(Fact):
+    """التوصية النهائية الكاملة"""
+    face_shape = Field(str)
+    occasion = Field(str)
+    color_tone = Field(str)
+    complete = Field(bool, default=False)
 
 
-# ══════════════════════════════════════════════════════════════
-# DEMO / TEST
-# ══════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════
+# RULES
+# ══════════════════════════════════════════════════════
+
+class BrowRulesKB(KnowledgeEngine):
+
+    # ──── Rule 1: تصحيحات الحاجب حسب شكل الوجه ────
+
+    @Rule(FaceShape(shape='Oval'))
+    def oval_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Oval', arch_type='قوس طبيعي', arch_position='وضعية طبيعية',
+            tail_direction='طبيعي', tail_weight='طبيعي',
+            visual_purpose='متوازن تشريحياً ولا يحتاج تصحيح'))
+
+    @Rule(FaceShape(shape='Round'))
+    def round_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Round', arch_type='قوس مرتفع', arch_position='مرفوع',
+            tail_direction='ممتد للخارج', tail_weight='ثقيل',
+            visual_purpose='كسر الاستدارة وإعطاء إيحاء بالطول والحدة'))
+
+    @Rule(FaceShape(shape='Rectangular'))
+    def rectangular_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Rectangular', arch_type='قوس ناعم أو شبه مسطح', arch_position='معتدل إلى منخفض',
+            tail_direction='ممتد وطويل', tail_weight='خفيف ومدبب',
+            visual_purpose='كسر الخط العمودي وإضافة عرض وهمي'))
+
+    @Rule(FaceShape(shape='Triangle'))
+    def triangle_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Triangle', arch_type='قوس محايد', arch_position='معتدل',
+            tail_direction='ممتد وثقيل', tail_weight='ثقيل نسبياً',
+            visual_purpose='موازنة عرض الفك بإضافة ثقل بصري أعلى'))
+
+    @Rule(FaceShape(shape='Square'))
+    def square_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Square', arch_type='قوس ناعم', arch_position='مرتفع قليلاً وناعم',
+            tail_direction='مدبب', tail_weight='خفيف',
+            visual_purpose='كسر حدة الزوايا وإضافة منحنى لتليين الملامح'))
+
+    @Rule(FaceShape(shape='Heart'))
+    def heart_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Heart', arch_type='قوس ناعم منخفض', arch_position='منخفض وناعم',
+            tail_direction='مدبب ورفيع', tail_weight='رفيع',
+            visual_purpose='موازنة عرض الجبهة وتخفيف الثقل البصري'))
+
+    @Rule(FaceShape(shape='Diamond'))
+    def diamond_face_brow(self):
+        self.declare(BrowCorrectionRule(
+            face_shape='Diamond', arch_type='قوس ناعم', arch_position='دائري ناعم',
+            tail_direction='مدبب وخفيف', tail_weight='خفيف',
+            visual_purpose='توسيع الجبهة وتليين حدة عظام الخد البارزة'))
+
+    # ──── Rule 2: أسلوب الحاجب حسب المناسبة ────
+
+    @Rule(OccasionContext(occasion='work'))
+    def work_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='work', style='تهذيب طبيعي', technique='تمشيط وتهذيب',
+            product='جل شفاف أو ملوّن خفيف', color_intensity='شفاف جداً',
+            description='تمشيط شفاف أو لون خفيف جداً على الشعر', appearance='مظهر نظيف بلا رسم واضح'))
+
+    @Rule(OccasionContext(occasion='university'))
+    def university_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='university', style='تهذيب طبيعي', technique='تمشيط وتهذيب',
+            product='جل شفاف أو ملوّن خفيف', color_intensity='شفاف جداً',
+            description='تمشيط شفاف أو لون خفيف جداً على الشعر', appearance='مظهر نظيف بلا رسم واضح'))
+
+    @Rule(OccasionContext(occasion='evening'))
+    def evening_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='evening', style='تحديد بقوس واضح', technique='تحديد',
+            product='بودرة أو قلم حواجب', color_intensity='طبيعي إلى قوي',
+            description='تحديد نقاط الارتكاز مع تكثيف بسيط للمظهر المسائي', appearance='تناسق محدد وأنيق'))
+
+    @Rule(OccasionContext(occasion='party'))
+    def party_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='party', style='تحديد بقوس واضح', technique='تحديد',
+            product='بودرة أو قلم حواجب', color_intensity='طبيعي',
+            description='تحديد نقاط الارتكاز (البداية، القمة، النهاية)', appearance='تناسق محدد'))
+
+    @Rule(OccasionContext(occasion='photo'))
+    def photography_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='photo', style='نحت الحاجب', technique='نحت وتعبئة',
+            product='قلم أو بودرة بضربات ريشة', color_intensity='قوي (جاهز للتصوير عالي الدقة)',
+            description='تعبئة الفراغات بضربات ريشة بزاوية 45 درجة تحاكي نمو الشعر', appearance='كثافة طبيعية'))
+
+    @Rule(OccasionContext(occasion='wedding'))
+    def wedding_brow_style(self):
+        self.declare(BrowStyleRule(
+            occasion='wedding', style='فخامة وجرأة', technique='دقة وجرأة في الرسم',
+            product='لاينر ومحدد حواجب', color_intensity='قوي وجريء',
+            description='رسم حاد ومحدد مع رفع القمة لخلق طاقة رفع قصوى', appearance='رفع درامي فاخر'))
+
+    # ──── Rule 3: لون الحاجب حسب البشرة ────
+
+    @Rule(SkinTone(undertone='warm', depth='fair'))
+    def warm_fair_brow_color(self):
+        self.declare(BrowColorRule(undertone='warm', depth='fair', tone='بني دافئ / أشقر محمر',
+                                    palette='أساس ذهبي دافئ'))
+
+    @Rule(SkinTone(undertone='warm', depth='medium'))
+    def warm_medium_brow_color(self):
+        self.declare(BrowColorRule(undertone='warm', depth='medium', tone='بني متوسط',
+                                    palette='أساس ذهبي دافئ'))
+
+    @Rule(SkinTone(undertone='warm', depth='dark'))
+    def warm_dark_brow_color(self):
+        self.declare(BrowColorRule(undertone='warm', depth='dark', tone='بني غني / أشقر داكن',
+                                    palette='أساس ذهبي دافئ'))
+
+    @Rule(SkinTone(undertone='cool', depth='fair'))
+    def cool_fair_brow_color(self):
+        self.declare(BrowColorRule(undertone='cool', depth='fair', tone='تاوب فاتح / بني رمادي',
+                                    palette='أساس بارد'))
+
+    @Rule(SkinTone(undertone='cool', depth='medium'))
+    def cool_medium_brow_color(self):
+        self.declare(BrowColorRule(undertone='cool', depth='medium', tone='بني رمادي (آش براون)',
+                                    palette='أساس بارد'))
+
+    @Rule(SkinTone(undertone='cool', depth='dark'))
+    def cool_dark_brow_color(self):
+        self.declare(BrowColorRule(undertone='cool', depth='dark', tone='بني رمادي داكن',
+                                    palette='أساس بارد'))
+
+    # ──── Rule 4: التوصية النهائية ────
+
+    @Rule(BrowCorrectionRule(face_shape=MATCH.shape),
+          BrowStyleRule(occasion=MATCH.occasion),
+          BrowColorRule(tone=MATCH.tone))
+    def final_brow_recommendation(self, shape, occasion, tone):
+        self.declare(BrowRecommendation(face_shape=shape, occasion=occasion, color_tone=tone, complete=True))
+
+
+# ══════════════════════════════════════════════════════
+# ENGINE
+# ══════════════════════════════════════════════════════
+
+class BrowMakeupEngine(BrowRulesKB):
+    """محرك مكياج الحواجب"""
+
+    def __init__(self):
+        super().__init__()
+
+    def analyze_brows(self, brow_data):
+        self.reset()
+        self.declare(
+            BrowAnalysis(
+                thickness=brow_data.get('thickness', 'Medium'),
+                length=brow_data.get('length', 'Medium'),
+                shape=brow_data.get('shape', 'Soft Arch'),
+                position=brow_data.get('position', 'Normal'),
+                spacing=brow_data.get('spacing', 'Normal'),
+                symmetry=brow_data.get('symmetry', 'Symmetrical')
+            ),
+            FaceShape(shape=brow_data.get('face_shape', 'Oval')),
+            OccasionContext(occasion=brow_data.get('occasion', 'work')),
+            SkinTone(undertone=brow_data.get('undertone', 'warm'), depth=brow_data.get('depth', 'medium'))
+        )
+        self.run()
+        return self._extract_results()
+
+    def _extract_results(self):
+        results = {'correction': None, 'style': None, 'color': None, 'recommendation': None}
+
+        for fact in self.facts.values():
+            if isinstance(fact, BrowCorrectionRule):
+                results['correction'] = {
+                    'arch_type': fact.get('arch_type'),
+                    'arch_position': fact.get('arch_position'),
+                    'tail_direction': fact.get('tail_direction'),
+                    'tail_weight': fact.get('tail_weight'),
+                    'visual_purpose': fact.get('visual_purpose')
+                }
+            elif isinstance(fact, BrowStyleRule):
+                results['style'] = {
+                    'style': fact.get('style'),
+                    'technique': fact.get('technique'),
+                    'product': fact.get('product'),
+                    'color_intensity': fact.get('color_intensity'),
+                    'appearance': fact.get('appearance')
+                }
+            elif isinstance(fact, BrowColorRule):
+                results['color'] = {'tone': fact.get('tone'), 'palette': fact.get('palette')}
+            elif isinstance(fact, BrowRecommendation):
+                results['recommendation'] = {
+                    'face_shape': fact.get('face_shape'),
+                    'occasion': fact.get('occasion'),
+                    'color': fact.get('color_tone'),
+                    'complete': fact.get('complete')
+                }
+
+        return results
+
 
 if __name__ == "__main__":
-    # مثال: حاجب سميك متوسط الطول مع قوس ناعم
-    sample_brow_classification = {
-        "Thickness": "Medium",
-        "Length": "Medium",
-        "Shape": "Soft Arch",
-        "Position": "Normal",
-        "Spacing": "Normal",
-        "Symmetry": "Symmetrical",
-    }
-    
-    print("\n" + "="*70)
-    print("  BROW MAKEUP RULES — SYSTEM TEST")
-    print("="*70)
-    
-    for occasion in ["work", "party", "photography", "wedding"]:
-        for face_shape in ["Oval", "Round", "Rectangular"]:
-            rec = get_brow_recommendation(
-                brow_classification=sample_brow_classification,
-                face_shape=face_shape,
-                occasion=occasion,
-                skin_tone="warm",
-            )
-            print_brow_recommendation(
-                f"{face_shape} | {occasion.upper()}",
-                rec
-            )
+    engine = BrowMakeupEngine()
+    example = {'thickness': 'Medium', 'length': 'Medium', 'shape': 'Soft Arch', 'face_shape': 'Round',
+               'occasion': 'wedding', 'undertone': 'cool', 'depth': 'medium'}
+    result = engine.analyze_brows(example)
+    print(json.dumps(result, indent=2, ensure_ascii=False, default=str))

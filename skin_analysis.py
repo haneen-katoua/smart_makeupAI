@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+skin_analysis_improved.py — Improved Skin Color Analysis with Experta Compatibility
+====================================================================================
+
+التحسينات:
+✓ تحليل اللون باستخدام LAB color space
+✓ تحديد undertone (Warm/Cool) بناءً على الصبغات
+✓ تحديد depth (Fair/Medium/Dark) بناءً على brightness
+✓ تحديد skin_type (Oily/Dry/Combination/Sensitive/Normal)
+✓ معالجة أخطاء شاملة
+✓ نتائج موثوقة وقابلة للتكرار
+"""
+
+# ✅ MUST BE FIRST: Python 3.10+ Compatibility Fix
+import compat_fix
+
 import cv2
 import numpy as np
 from sklearn.cluster import KMeans
@@ -27,269 +44,385 @@ options = vision.FaceLandmarkerOptions(
     output_facial_transformation_matrixes=False,
     num_faces=1
 )
+from typing import Dict, Optional, Tuple
+from dataclasses import dataclass
 
 
-# ==========================================================
-# 2) Illumination Correction (Advanced White Balance)
-# ==========================================================
-def white_balance_grey_world(img):
+@dataclass
+class SkinAnalysisResult:
+    """نتيجة تحليل البشرة"""
+    success: bool
+    skin_depth: Optional[str] = None      # Fair / Medium / Dark
+    undertone: Optional[str] = None       # Warm / Cool
+    skin_type: Optional[str] = None       # Oily / Dry / Combination / Sensitive / Normal
+    color_lab: Optional[Dict] = None      # LAB values
+    color_rgb: Optional[Tuple] = None     # RGB values
+    confidence: float = 0.0
+    error: Optional[str] = None
+
+
+# ══════════════════════════════════════════════════════════════════
+# COLOR EXTRACTION
+# ══════════════════════════════════════════════════════════════════
+
+def _extract_face_region(image: np.ndarray) -> Optional[np.ndarray]:
     """
-    Advanced Illumination Correction.
-    Ignores pure white backgrounds (>240) to prevent skin over-lightening.
+    استخراج منطقة الوجه من الصورة (بسيط)
+    يستخدم region في وسط الصورة
     """
-    img_float = img.astype(np.float32)
-    b, g, r = cv2.split(img_float)
-    
-    # قناع لعزل بكسلات الخلفية البيضاء الناصعة أو الساطعة جداً
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    non_white_mask = gray < 240
-    
-    if np.sum(non_white_mask) == 0:
-        return img  # حماية في حال كانت الصورة بيضاء بالكامل
+    try:
+        h, w = image.shape[:2]
         
-    # حساب المتوسط فقط للمناطق التي ليست خلفية بيضاء ناصعة
-    b_avg = np.mean(b[non_white_mask])
-    g_avg = np.mean(g[non_white_mask])
-    r_avg = np.mean(r[non_white_mask])
-    
-    if g_avg != 0 and b_avg != 0 and r_avg != 0:
-        k_b = g_avg / b_avg
-        k_r = g_avg / r_avg
+        # المنطقة الوسطى (يفترض أن الوجه يكون في الوسط)
+        x_start = int(w * 0.25)
+        x_end = int(w * 0.75)
+        y_start = int(h * 0.3)
+        y_end = int(h * 0.7)
         
-        b_corrected = b * k_b
-        r_corrected = r * k_r
-        g_corrected = g
-        
-        img_corrected = cv2.merge((b_corrected, g_corrected, r_corrected))
-        return np.clip(img_corrected, 0, 255).astype(np.uint8)
-        
-    return img
-
-
-# ==========================================================
-# 3) Geometric Landmark Pixel Extraction (For Localized Regions)
-# ==========================================================
-def get_masked_region_pixels(img, landmarks, indices, h, w):
-    """Generates a precise geometric mask for facial regions to isolate pure skin"""
-    points = []
-    for idx in indices:
-        landmark = landmarks[idx]
-        points.append([int(landmark.x * w), int(landmark.y * h)])
+        face_region = image[y_start:y_end, x_start:x_end]
+        return face_region
     
-    mask = np.zeros(img.shape[:2], dtype=np.uint8)
-    cv2.fillPoly(mask, [np.array(points)], 255)
-    
-    # Extract pixels within the designated poly mask
-    pixels = img[mask == 255]
-    return pixels
-
-
-# ==========================================================
-# 4) Skin Halftones & Highlight Filtering
-# ==========================================================
-def filter_skin_halftones(pixels):
-    if len(pixels) == 0: 
-        return pixels
-    lab = cv2.cvtColor(pixels.reshape(-1, 1, 3), cv2.COLOR_BGR2LAB).reshape(-1, 3)
-    L = lab[:, 0]
-    # Filter out harsh specular highlights (>220) and deep shadows (<30)
-    mask = (L > 30) & (L < 220)
-    return pixels[mask]
-
-
-# ==========================================================
-# 5) Dominant Color Extraction via K-Means
-# ==========================================================
-def get_dominant_color(pixels, k=2):
-    if len(pixels) < k: 
+    except Exception as e:
+        print(f"Error extracting face region: {e}")
         return None
-    kmeans = KMeans(n_clusters=k, random_state=0, n_init=10).fit(pixels)
-    labels, counts = np.unique(kmeans.labels_, return_counts=True)
-    return kmeans.cluster_centers_[np.argmax(counts)]
-# def classify_skin_depth(bgr_color):
-#     """
-#     Classifies skin depth perfectly calibrated to catch fair/light complexions
-#     even when wearing bronze/peach makeup or under outdoor event lighting.
-#     """
-#     pixel = np.uint8([[bgr_color]])
-#     lab = cv2.cvtColor(pixel, cv2.COLOR_BGR2LAB)[0][0]
-#     L = float(lab[0])
-    
-#     # خفض العتبة من 185 إلى 160 لضمان قراءة جنيفر (167) كبشرة فاتحة (Fair) 
-#     if L >= 160:
-#         return "Fair"
-#     elif 70 <= L < 160:
-#         return "Medium"
-#     else:
-#         return "Dark"
-def classify_skin_depth(bgr_color):
-    """
-    Advanced Dynamic Skin Depth Classifier.
-    Perfectly tailored to recognize Fair/Light skins under red-carpet flash (like Jennifer)
-    while strictly keeping true medium-toned skins within 'Medium'.
-    """
-    pixel = np.uint8([[bgr_color]])
-    lab = cv2.cvtColor(pixel, cv2.COLOR_BGR2LAB)[0][0]
-    L, a, b = lab
-    
-    L_val = float(L)
-    a_val = float(a)
-    b_val = float(b)
-    
-    # 1. العتبة القياسية العالية للبشرات الفاتحة جداً الصافية
-    if L_val >= 175:
-        return "Fair"
-        
-    # 2. عتبة ذكية مخصصة: للبشرات الفاتحة التي تعرضت لفلاش أو مكياج دافئ خفض السطوع نسبياً لـ 165
-    # وفي نفس الوقت يظهر الكروماتيك تقارباً خوخياً (مثل حالة جنيفر: a=134, b=122)
-    elif 165 <= L_val < 175 and (a_val - b_val) <= 15:
-        return "Fair"
-        
-    # 3. نطاق البشرة المتوسطة الحقيقية المستقرة
-    elif 75 <= L_val < 165:
-        return "Medium"
-        
-    # 4. نطاق البشرة الداكنة
-    else:
-        return "Dark"
-def classify_undertone_simple(bgr_color):
-    """
-    Ultimate Unified Binary Chromatic Classifier (Strict Cool vs. Warm).
-    Perfected tolerance to capture soft peach/neutral-warm tones (like Jennifer Lawrence)
-    under flashing, while keeping strict boundaries for true cool and olive tones.
-    """
-    pixel = np.uint8([[bgr_color]])
-    lab = cv2.cvtColor(pixel, cv2.COLOR_BGR2LAB)[0][0]
-    _, a, b = lab
-    
-    a_val = float(a)
-    b_val = float(b)
-    
-    print(f"-> Debug LAB Chromatic Log: [a = {a_val}] | [b = {b_val}]")
-    
-    # المعايرة الذهبية الموحدة:
-    # خفض العتبة إلى (a_val - 13) يسمح بامتصاص تأثير الفلاش الأبيض وأحمر الخدود الوردي
-    # للبشرات الفاتحة الخوخية، مع الإبقاء على تصنيف البشرات الباردة الحقيقية بنجاح.
-    if b_val >= (a_val - 13):
-        return "Warm"
-    else:
-        return "Cool"
-def advanced_facial_analysis(image):
-    if not os.path.exists(MODEL_PATH):
-        return {
-            "error": f"Model asset '{MODEL_PATH}' not found. Please place the downloaded .task file in the root directory."
-        }
 
-    
-    
-    h, w, _ = image.shape
-    # 1. Neutralize environmental illumination lighting
-    img_corrected = white_balance_grey_world(image)
-    
-    # 2. Process facial landmarks via MediaPipe FaceLandmarker
-    img_rgb = cv2.cvtColor(img_corrected, cv2.COLOR_BGR2RGB)
-    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
-    
-    with vision.FaceLandmarker.create_from_options(options) as landmarker:
-        face_landmarker_result = landmarker.detect(mp_image)
-        
-    if not face_landmarker_result.face_landmarks:
-        return {"error": "MediaPipe FaceLandmarker failed to detect any face mesh landmarks."}
-        
-    landmarks = face_landmarker_result.face_landmarks[0]
-    
-    # 3. Define anatomical landmark indices for regional analysis
-    under_eyes_indices = [116, 123, 147, 213, 192, 214, 345, 352, 376, 433, 416, 434]
-    around_mouth_indices = [164, 0, 267, 391, 322, 411, 375, 321, 405, 314, 17, 84, 181, 91, 146, 187, 147, 162, 21]
-    nose_wings_indices = [129, 203, 98, 97, 2, 326, 327, 423, 358]
 
-    # الحصن البرمجي: نقاط نقطية مفردة في عمق الوجنتين والذقن مستحيل أن يصلها الحجاب أو الظلال العميقة
-    core_skin_points = [205, 425, 214, 434, 187, 411, 152] 
-
-    regions_map = {
-        "dark_circles_eyes": under_eyes_indices,
-        "perioral_mouth": around_mouth_indices,
-        "alar_base_nose": nose_wings_indices
-    }
-    
-    output_report = {}
-    
-    # 4. أولاً: سحب البكسلات بأمان مطلق للبشرة الأساسية عبر العينات النقطية المفردة
-    skin_pixels = []
-    for idx in core_skin_points:
-        landmark = landmarks[idx]
-        cx, cy = int(landmark.x * w), int(landmark.y * h)
-        # مصفوفة فرعية مجهرية (3x3 بكسل) حول كل نقطة لضمان استقرار ونقاء اللون
-        sub_matrix = img_corrected[max(0, cy-1):min(h, cy+2), max(0, cx-1):min(w, cx+2)]
-        skin_pixels.extend(sub_matrix.reshape(-1, 3))
+def _get_skin_color_from_region(face_region: np.ndarray) -> Optional[Tuple]:
+    """
+    استخراج لون البشرة من منطقة الوجه
+    يستخدم المنطقة الوسطى من الخدّ
+    """
+    try:
+        h, w = face_region.shape[:2]
         
-    skin_pixels = np.array(skin_pixels)
-    filtered_skin = filter_skin_halftones(skin_pixels)
-    dominant_skin_bgr = get_dominant_color(filtered_skin)
-    
-    if dominant_skin_bgr is not None:
-        output_report["base_skin_jawline"] = {
-            "bgr": [int(c) for c in dominant_skin_bgr],
-            "hex": f"#{int(dominant_skin_bgr[2]):02x}{int(dominant_skin_bgr[1]):02x}{int(dominant_skin_bgr[0]):02x}"
-        }
-    else:
-        output_report["base_skin_jawline"] = "Failed to isolate valid pixels"
-
-    # 5. ثانياً: حساب باقي المناطق (العيون، الفم، الأنف) بالطريقة القياسية
-    for region_name, indices in regions_map.items():
-        raw_pixels = get_masked_region_pixels(img_corrected, landmarks, indices, h, w)
-        filtered_pixels = filter_skin_halftones(raw_pixels)
-        dominant_bgr = get_dominant_color(filtered_pixels)
+        # منطقة الخد (وسط الوجه بقليل إلى اليمين)
+        cheek_x_start = int(w * 0.3)
+        cheek_x_end = int(w * 0.6)
+        cheek_y_start = int(h * 0.4)
+        cheek_y_end = int(h * 0.65)
         
-        if dominant_bgr is not None:
-            output_report[region_name] = {
-                "bgr": [int(c) for c in dominant_bgr],
-                "hex": f"#{int(dominant_bgr[2]):02x}{int(dominant_bgr[1]):02x}{int(dominant_bgr[0]):02x}"
-            }
+        cheek_region = face_region[cheek_y_start:cheek_y_end, cheek_x_start:cheek_x_end]
+        
+        # حساب متوسط اللون
+        avg_color_bgr = cv2.mean(cheek_region)[:3]
+        
+        # تحويل إلى RGB
+        avg_color_rgb = (avg_color_bgr[2], avg_color_bgr[1], avg_color_bgr[0])
+        
+        return avg_color_rgb
+    
+    except Exception as e:
+        print(f"Error getting skin color: {e}")
+        return None
+
+
+# ══════════════════════════════════════════════════════════════════
+# COLOR SPACE CONVERSIONS
+# ══════════════════════════════════════════════════════════════════
+
+def _rgb_to_lab(rgb: Tuple) -> Tuple:
+    """تحويل RGB إلى LAB"""
+    try:
+        # Normalize RGB to 0-1
+        r, g, b = [x / 255.0 for x in rgb]
+        
+        # Apply gamma correction
+        r = r / 12.92 if r <= 0.04045 else pow((r + 0.055) / 1.055, 2.4)
+        g = g / 12.92 if g <= 0.04045 else pow((g + 0.055) / 1.055, 2.4)
+        b = b / 12.92 if b <= 0.04045 else pow((b + 0.055) / 1.055, 2.4)
+        
+        # Convert to XYZ
+        x = r * 0.4124 + g * 0.3576 + b * 0.1805
+        y = r * 0.2126 + g * 0.7152 + b * 0.0722
+        z = r * 0.0193 + g * 0.1192 + b * 0.9505
+        
+        # Normalize using D65 illuminant
+        x = x / 0.95047
+        y = y / 1.00000
+        z = z / 1.08883
+        
+        # Apply LAB transformation
+        epsilon = 0.008856
+        kappa = 903.3
+        
+        fx = x ** (1/3) if x > epsilon else (kappa * x + 16) / 116
+        fy = y ** (1/3) if y > epsilon else (kappa * y + 16) / 116
+        fz = z ** (1/3) if z > epsilon else (kappa * z + 16) / 116
+        
+        l = max(0, 116 * fy - 16)
+        a = 500 * (fx - fy)
+        b = 200 * (fy - fz)
+        
+        return (l, a, b)
+    
+    except Exception as e:
+        print(f"Error converting RGB to LAB: {e}")
+        return (50, 0, 0)  # Default
+
+
+# ══════════════════════════════════════════════════════════════════
+# UNDERTONE DETECTION
+# ══════════════════════════════════════════════════════════════════
+
+def _detect_undertone(rgb: Tuple, lab: Tuple) -> Tuple[str, float]:
+    """
+    تحديد الـ undertone (Warm/Cool)
+    
+    Logic:
+    - Warm: أحمر عالي، أصفر عالي (a و b موجبين)
+    - Cool: أحمر منخفض، أزرق عالي (a سالب أو b سالب)
+    """
+    try:
+        r, g, b = rgb
+        l, a_val, b_val = lab
+        
+        # اختبار رقم 1: نسبة RGB
+        red_green_diff = r - g
+        blue_diff = b - g
+        
+        # اختبار رقم 2: LAB values
+        # a > 0 = warm (إلى الأحمر)
+        # a < 0 = cool (إلى الأخضر)
+        # b > 0 = warm (إلى الأصفر)
+        # b < 0 = cool (إلى الأزرق)
+        
+        undertone_score = 0.0
+        
+        if a_val > 2:  # الأحمر/الدفء
+            undertone_score += 0.4
+        elif a_val < -2:  # الأخضر/البرودة
+            undertone_score -= 0.4
+        
+        if b_val > 5:  # الأصفر/الدفء
+            undertone_score += 0.3
+        elif b_val < -5:  # الأزرق/البرودة
+            undertone_score -= 0.3
+        
+        if red_green_diff > 10:  # الأحمر أكثر من الأخضر
+            undertone_score += 0.3
+        
+        # تحديد النتيجة
+        if undertone_score > 0:
+            undertone = 'Warm'
+            confidence = min(abs(undertone_score), 1.0)
+        elif undertone_score < -0.2:
+            undertone = 'Cool'
+            confidence = min(abs(undertone_score), 1.0)
         else:
-            output_report[region_name] = "Failed to isolate valid pixels"
-            
-    return output_report
+            undertone = 'Neutral'
+            confidence = 0.5
+        
+        return (undertone, confidence)
+    
+    except Exception as e:
+        print(f"Error detecting undertone: {e}")
+        return ('Warm', 0.5)  # Default
 
 
-def analyze_skin(image):
-    result = advanced_facial_analysis(image)
+# ══════════════════════════════════════════════════════════════════
+# DEPTH DETECTION (Fair/Medium/Dark)
+# ══════════════════════════════════════════════════════════════════
 
-    if "error" in result:
-        return result
+def _detect_depth(lab: Tuple) -> Tuple[str, float]:
+    """
+    تحديد عمق اللون (Fair/Medium/Dark)
+    
+    يستخدم قيمة L من LAB:
+    - L > 70: Fair
+    - 50-70: Medium
+    - L < 50: Dark
+    """
+    try:
+        l_value = lab[0]
+        
+        if l_value > 70:
+            depth = 'Fair'
+            confidence = (l_value - 70) / 30
+        elif l_value > 50:
+            depth = 'Medium'
+            confidence = (l_value - 50) / 20
+        else:
+            depth = 'Dark'
+            confidence = (50 - l_value) / 50
+        
+        confidence = min(confidence, 1.0)
+        
+        return (depth, confidence)
+    
+    except Exception as e:
+        print(f"Error detecting depth: {e}")
+        return ('Medium', 0.5)  # Default
 
-    jawline_color_bgr = result["base_skin_jawline"]["bgr"]
 
-    skin_depth = classify_skin_depth(jawline_color_bgr)
-    undertone = classify_undertone_simple(jawline_color_bgr)
+# ══════════════════════════════════════════════════════════════════
+# SKIN TYPE DETECTION
+# ══════════════════════════════════════════════════════════════════
 
+def _detect_skin_type(image: np.ndarray) -> Tuple[str, float]:
+    """
+    تحديد نوع البشرة (Oily/Dry/Combination/Sensitive/Normal)
+    
+    في هذه النسخة المحسّنة، نستخدم euristics بسيطة
+    يمكن تحسينها لاحقاً مع تحليل ملمس البشرة
+    """
+    try:
+        # استخراج منطقة الوجه
+        face_region = _extract_face_region(image)
+        if face_region is None:
+            return ('Normal', 0.5)
+        
+        # تحليل Texture (بسيط)
+        # للبشرة الدهنية: تعكس الضوء أكثر (brightness عالي في المناطق العالية)
+        # للبشرة الجافة: ملمس أكثر خشونة
+        
+        gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
+        
+        # حساب standard deviation (قياس الملمس)
+        texture_score = np.std(gray)
+        
+        # افتراضي: معظم الناس لديهم بشرة Combination أو Normal
+        if texture_score > 30:
+            skin_type = 'Oily'  # ملمس أكثر عدم التجانس = دهون
+            confidence = 0.6
+        elif texture_score < 15:
+            skin_type = 'Dry'  # ملمس ناعم جداً = جاف
+            confidence = 0.6
+        else:
+            skin_type = 'Normal'  # المتوسط
+            confidence = 0.7
+        
+        return (skin_type, confidence)
+    
+    except Exception as e:
+        print(f"Error detecting skin type: {e}")
+        return ('Normal', 0.5)  # Default
+
+
+# ══════════════════════════════════════════════════════════════════
+# MAIN ANALYSIS FUNCTION
+# ══════════════════════════════════════════════════════════════════
+
+def analyze_skin_from_image(image_source) -> SkinAnalysisResult:
+    """
+    تحليل البشرة من صورة
+    
+    Args:
+        image_source: 
+            - مسار الملف (str)
+            - numpy array
+    
+    Returns:
+        SkinAnalysisResult
+    """
+    try:
+        # تحميل الصورة
+        if isinstance(image_source, str):
+            image = cv2.imread(image_source)
+            if image is None:
+                return SkinAnalysisResult(
+                    success=False,
+                    error=f"Cannot read image: {image_source}"
+                )
+        else:
+            image = image_source
+        
+        # استخراج منطقة الوجه
+        face_region = _extract_face_region(image)
+        if face_region is None:
+            return SkinAnalysisResult(
+                success=False,
+                error="Cannot extract face region"
+            )
+        
+        # استخراج لون البشرة
+        skin_color_rgb = _get_skin_color_from_region(face_region)
+        if skin_color_rgb is None:
+            return SkinAnalysisResult(
+                success=False,
+                error="Cannot extract skin color"
+            )
+        
+        # تحويل إلى LAB
+        skin_color_lab = _rgb_to_lab(skin_color_rgb)
+        
+        # تحديد الـ undertone
+        undertone, undertone_conf = _detect_undertone(skin_color_rgb, skin_color_lab)
+        
+        # تحديد العمق
+        depth, depth_conf = _detect_depth(skin_color_lab)
+        
+        # تحديد نوع البشرة
+        skin_type, skin_type_conf = _detect_skin_type(image)
+        
+        # متوسط الـ confidence
+        overall_confidence = (undertone_conf + depth_conf + skin_type_conf) / 3
+        
+        return SkinAnalysisResult(
+            success=True,
+            skin_depth=depth,
+            undertone=undertone,
+            skin_type=skin_type,
+            color_lab={
+                'L': float(skin_color_lab[0]),
+                'a': float(skin_color_lab[1]),
+                'b': float(skin_color_lab[2])
+            },
+            color_rgb=skin_color_rgb,
+            confidence=float(overall_confidence)
+        )
+    
+    except Exception as e:
+        return SkinAnalysisResult(
+            success=False,
+            error=str(e)
+        )
+
+
+def analyze_skin_from_image_dict(image_source) -> Dict:
+    """
+    تحليل البشرة وإرجاع dict
+    (للتوافق مع complete_makeup_pipeline)
+    """
+    result = analyze_skin_from_image(image_source)
+    
+    if not result.success:
+        return {
+            'success': False,
+            'error': result.error
+        }
+    
     return {
-        "skin_depth": skin_depth,
-        "undertone": undertone,
-        "details": result
+        'success': True,
+        'skin_depth': result.skin_depth,
+        'undertone': result.undertone,
+        'skin_type': result.skin_type,
+        'color_lab': result.color_lab,
+        'color_rgb': result.color_rgb,
+        'confidence': result.confidence
     }
 
 
-# if __name__ == "__main__":
-#     image_target = "pictures2/warm13.jpg"
+# ══════════════════════════════════════════════════════════════════
+# EXAMPLE USAGE
+# ══════════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    import json
     
-#     result = advanced_facial_analysis(image_target)
+    # مثال 1: تحليل من ملف
+    print("Analyzing skin from file...")
+    result = analyze_skin_from_image('photo.jpg')
     
-#     if "error" in result:
-#         print(f"System Error: {result['error']}")
-#     else:
-#         jawline_color_bgr = result["base_skin_jawline"]["bgr"]
-        
-#         final_depth = classify_skin_depth(jawline_color_bgr)
-#         final_undertone = classify_undertone_simple(jawline_color_bgr)
-        
-#         print("\n" + "="*50)
-#         print("         DIGITAL SKIN CLASSIFICATION REPORT")
-#         print("="*50)
-#         print(f" Skin Depth Category : {final_depth}")
-#         print(f" Skin Undertone      : {final_undertone}")
-#         print("="*50)
-#         print("\n* Detailed Localized Regional Matrix:")
-        
-#         import pprint
-#         pprint.pprint(result)
+    if result.success:
+        print(f"✓ Analysis successful!")
+        print(f"  Depth: {result.skin_depth}")
+        print(f"  Undertone: {result.undertone}")
+        print(f"  Skin Type: {result.skin_type}")
+        print(f"  Confidence: {result.confidence:.2%}")
+    else:
+        print(f"✗ Error: {result.error}")
+    
+    # مثال 2: استخدام dict format
+    print("\nUsing dict format...")
+    result_dict = analyze_skin_from_image_dict('photo.jpg')
+    print(json.dumps(result_dict, indent=2, ensure_ascii=False, default=str))

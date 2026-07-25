@@ -1,210 +1,209 @@
 # -*- coding: utf-8 -*-
 """
-nose_makeup_rules.py — Pure Rule-Based Expert System (No if / No for)
-=======================================================================
-نظام خبير قائم بالكامل على جداول البحث (Lookup Tables) وقواميس الإرسال
-(Dispatch Dictionaries / Lambda Dispatch) دون استخدام أي جملة "if" أو حلقة
-"for" في منطق القرار (بنفس أسلوب eye_makeup_rules.py و brow_makeup_rules.py).
-
-القاعدة المتبعة لإزالة if/for فعلياً:
-    - بدل "x if cond else y"  →  dict[bool(cond)] بمفاتيح True/False.
-    - بدل "for x in items: ..."  →  map(func, items) ثم join/إلخ.
-    - العتبات الرقمية (<, >) تُنتج قيمة Boolean تُستخدم كمدخل لجدول بحث،
-      ولا تُغيّر مسار التنفيذ.
-
-المصدر: ملف "الخبرة_النهائية" — صفحة 9 (قسم الأنف: طويل / قصير / متوازن)
-ومنطق "قاعدة النحت" (البشرة الدافئة/الباردة) من صفحة 10.
-
-نوع الأنف الهندسي يُستخرج من all_face_analysis.py::analyze_nose()
-والقيم الممكنة: "Long" / "Short" / "Balanced".
+nose_makeup_rules.py — Experta-based Expert System (كامل بالعربي)
+===========================================================
+نظام خبير لقواعد مكياج الأنف
 """
 
+# ✅ MUST BE FIRST: Python 3.10+ Compatibility Fix
+import compat_fix
 
-# ══════════════════════════════════════════════════════
-# جداول القرار الثابتة (البيانات — وليست منطق تحكم)
-# ══════════════════════════════════════════════════════
-
-NOSE_MAKEUP_RULES = {
-    "Long": {
-        "name_ar": "الأنف الطويل (Nose Long)",
-        "goal": "Break the continuous vertical line and shorten the visual length of the nose.",
-        "technique": (
-            "Apply contour starting from the middle of the nose bridge only (not from the brow), "
-            "and draw a soft shading circle around the tip of the nose."
-        ),
-        "reason": (
-            "Because the nose is long, contour is applied from the midpoint only to break the "
-            "continuous vertical line; shading around the tip acts as a visual barrier that stops "
-            "the eye from tracing the length downward, giving the impression the nose ends higher up."
-        ),
-        "map": {
-            "Contour": "Starts at the middle of the nose bridge, blended down the sides.",
-            "Highlight": "A thin line down the center of the bridge, stopping before the tip.",
-            "Tip_shading": "A soft circular shadow drawn around (not on top of) the nasal tip.",
-        },
-        "forbidden": [
-            "Avoid running the contour the full length from the brow bone — this elongates the nose further.",
-            "Avoid a bright highlight dot directly on the tip — it draws the eye downward and accentuates length.",
-        ],
-    },
-    "Short": {
-        "name_ar": "الأنف القصير (Nose Short)",
-        "goal": "Create the impression of length by defining the bone structure along the full length of the nose.",
-        "technique": (
-            "Apply full contour along both sides of the nose starting from the brow to the tip, "
-            "plus a highlight on the very tip of the nose."
-        ),
-        "reason": (
-            "To give an impression of length, the system applies full-length contour to define the "
-            "bony structure and draw attention along the whole nose; the highlight on the tip acts as "
-            "an advancing point that pulls the feature forward and extends its visual reach."
-        ),
-        "map": {
-            "Contour": "Full-length, from the start of the brow down both sides to the tip.",
-            "Highlight": "Placed directly on the tip of the nose (advancing technique).",
-            "Tip_shading": "None — the tip is highlighted, not shaded.",
-        },
-        "forbidden": [
-            "Avoid stopping the contour at mid-bridge — this cuts the nose visually shorter still.",
-            "Avoid shading around the tip — that technique is reserved for long noses and would shorten it further.",
-        ],
-    },
-    "Balanced": {
-        "name_ar": "الأنف المتوازن (Nose Balanced)",
-        "goal": "Frame the nose ideally while emphasizing the strength of its natural features.",
-        "technique": (
-            "Apply full contour along the sides with light shading on the tip, plus a highlight on the tip."
-        ),
-        "reason": (
-            "The nose is already balanced, so the system uses the full-definition technique to "
-            "emphasize the strength of the features and frame the nose perfectly, without lengthening "
-            "or shortening it."
-        ),
-        "map": {
-            "Contour": "Full-length along both sides, moderate intensity.",
-            "Highlight": "On the tip of the nose.",
-            "Tip_shading": "Light shading on the tip, combined with the highlight for dimension.",
-        },
-        "forbidden": [
-            "Avoid heavy/harsh contour — the balanced nose needs definition, not correction.",
-        ],
-    },
-}
-
-# ══════════════════════════════════════════════════════
-# قاعدة اختيار منتج النحت (Contour Product) حسب حرارة البشرة وعمقها
-# (نفس منطق قاعدة النحت الوارد صفحة 10 من ملف الخبرة، يُعاد استخدامه هنا
-#  لأن الأنف يستخدم نفس منتج الكونتور المستخدم في الوجه)
-# ══════════════════════════════════════════════════════
-
-NOSE_CONTOUR_PRODUCT_MAP = {
-    ("Warm", "Fair"):   {"product": "Adobe",          "reason_ar": "يميل للذهبي الفاتح، يمنح نحتاً طبيعياً دون أن يظهر كبقعة متسخة أو رمادية."},
-    ("Warm", "Medium"): {"product": "Warm Brown",      "reason_ar": "لموازنة تدرجات البيج الدافئ في الوجه."},
-    ("Warm", "Dark"):   {"product": "Bronze",          "reason_ar": "يحتاج صبغة قوية (Pigment) لكي تظهر عملية التراجع البصري المطلوبة لتصغير الأنف."},
-    ("Cool", "Fair"):   {"product": "Taupe",           "reason_ar": "بني مائل للرمادي الفاتح جداً، يحاكي الظل الطبيعي الساقط على الجلد الوردي دون حدة."},
-    ("Cool", "Medium"): {"product": "Mauve",           "reason_ar": "يضيف مسحة وردية/زرقاء تتناغم مع العروق الباردة تحت الجلد."},
-    ("Cool", "Dark"):   {"product": "Brown-Grey",      "reason_ar": "يضمن عدم تحول الكونتور إلى لون برتقالي (محذور بشدة للبشرة الباردة)."},
-}
-
-NOSE_HIGHLIGHT_RULE = {
-    "forbidden": "Never use pure/explicit white.",
-    "method": "Produced via tinting (base skin color + white) — ivory for warm skin, pearly pink for cool skin.",
-    "tone_lookup": {"Warm": "Ivory", "Cool": "Pearly Pink"},
-}
-
-# قيمة افتراضية محايدة عند غياب بيانات البشرة (خيار Warm/Medium الأكثر شيوعاً)
-NOSE_DEFAULT_UNDERTONE = "Warm"
-NOSE_DEFAULT_DEPTH = "Medium"
+from experta import *
+import json
 
 
 # ══════════════════════════════════════════════════════
-# محرك القرار — Pure Lookup / Dispatch، بدون if وبدون for
+# FACTS
 # ══════════════════════════════════════════════════════
 
-def resolve_nose_contour_product(skin_undertone=None, skin_depth=None):
-    """
-    يحدد منتج الكونتور حسب (الأندرتون، عمق البشرة) عبر جدول بحث ثابت.
-    القيم الغائبة تُستبدل بقيم افتراضية محايدة عبر جدول True/False.
-    """
-    undertone_lookup = {True: skin_undertone, False: NOSE_DEFAULT_UNDERTONE}
-    depth_lookup = {True: skin_depth, False: NOSE_DEFAULT_DEPTH}
-
-    undertone = undertone_lookup[skin_undertone is not None]
-    depth = depth_lookup[skin_depth is not None]
-
-    return NOSE_CONTOUR_PRODUCT_MAP.get(
-        (undertone, depth),
-        NOSE_CONTOUR_PRODUCT_MAP[(NOSE_DEFAULT_UNDERTONE, NOSE_DEFAULT_DEPTH)],
-    )
+class NoseAnalysis(Fact):
+    shape = Field(str)
 
 
-def get_nose_makeup_recommendation(nose_analysis_result, skin_undertone=None, skin_depth=None):
-    """
-    المدخل: قاموس nose_analysis_result كما يخرج من analyze_nose()
-            في all_face_analysis.py: 'shape', 'votes', 'metrics', ...
-    skin_undertone: "Warm" | "Cool" (اختياري)
-    skin_depth: "Fair" | "Medium" | "Dark" (اختياري)
-    """
-    nose_shape = nose_analysis_result.get("shape", "Balanced")
-    rules = NOSE_MAKEUP_RULES.get(nose_shape, NOSE_MAKEUP_RULES["Balanced"])
+class SkinProfile(Fact):
+    undertone = Field(str)
+    depth = Field(str)
 
-    contour_product = resolve_nose_contour_product(skin_undertone, skin_depth)
 
-    highlight_tone_lookup = {True: skin_undertone, False: NOSE_DEFAULT_UNDERTONE}
-    resolved_undertone = highlight_tone_lookup[skin_undertone is not None]
-    highlight_tone = NOSE_HIGHLIGHT_RULE["tone_lookup"][resolved_undertone]
+class NoseShapeCategory(Fact):
+    shape = Field(str)
+    name_ar = Field(str)
+    goal = Field(str)
+    technique = Field(str)
+    reason = Field(str)
 
-    return {
-        "input_shape": nose_shape,
-        "rule_category_ar": rules["name_ar"],
-        "goal": rules["goal"],
-        "technique": rules["technique"],
-        "reason": rules["reason"],
-        "map": rules["map"],
-        "forbidden": rules["forbidden"],
-        "contour_product": contour_product["product"],
-        "contour_product_reason": contour_product["reason_ar"],
-        "highlight_rule": {
-            "forbidden": NOSE_HIGHLIGHT_RULE["forbidden"],
-            "method": NOSE_HIGHLIGHT_RULE["method"],
-            "tone": highlight_tone,
-        },
-    }
+
+class NoseMap(Fact):
+    shape = Field(str)
+    contour = Field(str)
+    highlight = Field(str)
+    tip_shading = Field(str)
+
+
+class ContourProductMatch(Fact):
+    undertone = Field(str)
+    depth = Field(str)
+    product = Field(str)
+    reason_ar = Field(str)
+
+
+class HighlightTone(Fact):
+    undertone = Field(str)
+    tone = Field(str)
+    method = Field(str)
+
+
+class NoseRecommendation(Fact):
+    shape = Field(str)
+    contour_product = Field(str)
+    highlight_tone = Field(str)
+    complete = Field(bool, default=False)
 
 
 # ══════════════════════════════════════════════════════
-# طباعة منسقة — map() بدل for
+# RULES
 # ══════════════════════════════════════════════════════
 
-def print_nose_recommendation(recommendation):
-    map_text = "\n".join(map(lambda kv: f"    {kv[0]:<14}: {kv[1]}", recommendation["map"].items()))
-    forbidden_text = "\n".join(map(lambda f: f"    - {f}", recommendation["forbidden"]))
+class NoseRulesKB(KnowledgeEngine):
 
-    header = (
-        f"\n{'─'*58}\n"
-        f"  Nose shape detected: {recommendation['input_shape']}\n"
-        f"  Rule category: {recommendation['rule_category_ar']}\n"
-        f"  Goal: {recommendation['goal']}\n"
-        f"{'─'*58}\n"
-        f"  Technique: {recommendation['technique']}\n\n"
-        f"  Placement map:\n{map_text}\n\n"
-        f"  Forbidden:\n{forbidden_text}\n\n"
-        f"  Contour product: {recommendation['contour_product']}\n"
-        f"    Reason: {recommendation['contour_product_reason']}\n\n"
-        f"  Highlight rule:\n"
-        f"    Tone: {recommendation['highlight_rule']['tone']}\n"
-        f"    Method: {recommendation['highlight_rule']['method']}\n"
-        f"    Forbidden: {recommendation['highlight_rule']['forbidden']}\n\n"
-        f"  Explanation: {recommendation['reason']}\n"
-    )
-    print(header)
+    # ──── Rule 1: تصنيف شكل الأنف والتقنيات ────
+
+    @Rule(NoseAnalysis(shape='Long'))
+    def long_nose_detected(self):
+        self.declare(
+            NoseShapeCategory(
+                shape='Long', name_ar='الأنف الطويل',
+                goal='كسر الخط العمودي المستمر وتقصير الطول الظاهر',
+                technique='يوضع الكونتور بدءاً من منتصف جسر الأنف فقط (وليس من الحاجب)، مع رسم دائرة تظليل ناعمة حول طرف الأنف',
+                reason='بما أن الأنف طويل، يوضع الكونتور من منتصف الجسر فقط لكسر الخط العمودي المستمر'),
+            NoseMap(shape='Long',
+                    contour='يبدأ من منتصف جسر الأنف، ويُدمج للأسفل على الجانبين',
+                    highlight='خط رفيع في منتصف الجسر يتوقف قبل الطرف',
+                    tip_shading='ظل دائري ناعم حول طرف الأنف'))
+
+    @Rule(NoseAnalysis(shape='Short'))
+    def short_nose_detected(self):
+        self.declare(
+            NoseShapeCategory(
+                shape='Short', name_ar='الأنف القصير',
+                goal='خلق إيحاء بالطول عبر تعريف هيكل العظم',
+                technique='يوضع كونتور كامل على جانبي الأنف من الحاجب حتى الطرف، مع هاياليت على طرف الأنف تماماً',
+                reason='لإعطاء إيحاء بالطول، يُستخدم كونتور بطول كامل لتعريف الهيكل العظمي'),
+            NoseMap(shape='Short',
+                    contour='بطول كامل، من بداية الحاجب حتى الطرف على الجانبين',
+                    highlight='يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)',
+                    tip_shading='لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل'))
+
+    @Rule(NoseAnalysis(shape='Balanced'))
+    def balanced_nose_detected(self):
+        self.declare(
+            NoseShapeCategory(
+                shape='Balanced', name_ar='الأنف المتوازن',
+                goal='تأطير الأنف بشكل مثالي مع إبراز قوة الملامح',
+                technique='يوضع كونتور كامل على الجانبين مع تظليل خفيف على الطرف، بالإضافة إلى هاياليت على الطرف',
+                reason='الأنف متوازن أصلاً، لذلك تُستخدم تقنية التعريف الكامل لإبراز قوة الملامح'),
+            NoseMap(shape='Balanced',
+                    contour='بطول كامل على الجانبين وبكثافة معتدلة',
+                    highlight='على طرف الأنف',
+                    tip_shading='تظليل خفيف على الطرف مدموج مع الهاياليت لإعطاء بعد ثلاثي الأبعاد'))
+
+    # ──── Rule 2: منتج الكونتور حسب البشرة ────
+
+    @Rule(SkinProfile(undertone='Warm', depth='Fair'))
+    def warm_fair_contour(self):
+        self.declare(ContourProductMatch(undertone='Warm', depth='Fair', product='بيج ذهبي فاتح',
+                                          reason_ar='يميل للذهبي الفاتح، يمنح نحتاً طبيعياً'))
+
+    @Rule(SkinProfile(undertone='Warm', depth='Medium'))
+    def warm_medium_contour(self):
+        self.declare(ContourProductMatch(undertone='Warm', depth='Medium', product='بني دافئ (Warm Brown)',
+                                          reason_ar='لموازنة تدرجات البيج الدافئ'))
+
+    @Rule(SkinProfile(undertone='Warm', depth='Dark'))
+    def warm_dark_contour(self):
+        self.declare(ContourProductMatch(undertone='Warm', depth='Dark', product='برونزي',
+                                          reason_ar='يحتاج صبغة قوية لإظهار التراجع البصري'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Fair'))
+    def cool_fair_contour(self):
+        self.declare(ContourProductMatch(undertone='Cool', depth='Fair', product='بني تاوب رمادي فاتح',
+                                          reason_ar='بني مائل للرمادي الفاتح جداً، يحاكي الظل الطبيعي'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Medium'))
+    def cool_medium_contour(self):
+        self.declare(ContourProductMatch(undertone='Cool', depth='Medium', product='موف',
+                                          reason_ar='يضيف مسحة وردية/زرقاء تتناغم مع العروق الباردة'))
+
+    @Rule(SkinProfile(undertone='Cool', depth='Dark'))
+    def cool_dark_contour(self):
+        self.declare(ContourProductMatch(undertone='Cool', depth='Dark', product='بني رمادي غامق',
+                                          reason_ar='يضمن عدم تحول الكونتور إلى لون برتقالي'))
+
+    # ──── Rule 3: لون الهاياليت ────
+
+    @Rule(SkinProfile(undertone='Warm'))
+    def warm_highlight_tone(self):
+        self.declare(HighlightTone(undertone='Warm', tone='عاجي',
+                                    method='يُنتج بالمزج بين لون البشرة الأساسي والأبيض'))
+
+    @Rule(SkinProfile(undertone='Cool'))
+    def cool_highlight_tone(self):
+        self.declare(HighlightTone(undertone='Cool', tone='وردي لؤلؤي',
+                                    method='يُنتج بالمزج بين لون البشرة الأساسي والأبيض'))
+
+    # ──── Rule 4: التوصية النهائية ────
+
+    @Rule(NoseShapeCategory(shape=MATCH.shape),
+          NoseMap(shape=MATCH.shape_map),
+          ContourProductMatch(product=MATCH.product),
+          HighlightTone(tone=MATCH.highlight))
+    def final_nose_recommendation(self, shape, shape_map, product, highlight):
+        self.declare(NoseRecommendation(shape=shape, contour_product=product, highlight_tone=highlight, complete=True))
 
 
 # ══════════════════════════════════════════════════════
-# مثال استخدام مباشر
+# ENGINE
 # ══════════════════════════════════════════════════════
+
+class NoseMakeupEngine(NoseRulesKB):
+    """محرك مكياج الأنف"""
+
+    def __init__(self):
+        super().__init__()
+
+    def analyze_nose(self, nose_data):
+        self.reset()
+        self.declare(
+            NoseAnalysis(shape=nose_data.get('shape', 'Balanced')),
+            SkinProfile(undertone=nose_data.get('undertone', 'Warm'), depth=nose_data.get('depth', 'Medium'))
+        )
+        self.run()
+        return self._extract_results()
+
+    def _extract_results(self):
+        results = {'shape': None, 'map': None, 'contour': None, 'highlight': None, 'recommendation': None}
+
+        for fact in self.facts.values():
+            if isinstance(fact, NoseShapeCategory):
+                results['shape'] = {'shape': fact.get('shape'), 'name_ar': fact.get('name_ar'),
+                                     'goal': fact.get('goal'), 'technique': fact.get('technique'),
+                                     'reason': fact.get('reason')}
+            elif isinstance(fact, NoseMap):
+                results['map'] = {'contour': fact.get('contour'), 'highlight': fact.get('highlight'),
+                                   'tip_shading': fact.get('tip_shading')}
+            elif isinstance(fact, ContourProductMatch):
+                results['contour'] = {'product': fact.get('product'), 'reason': fact.get('reason_ar')}
+            elif isinstance(fact, HighlightTone):
+                results['highlight'] = {'tone': fact.get('tone'), 'method': fact.get('method')}
+            elif isinstance(fact, NoseRecommendation):
+                results['recommendation'] = {'shape': fact.get('shape'), 'product': fact.get('contour_product'),
+                                              'highlight': fact.get('highlight_tone'), 'complete': fact.get('complete')}
+
+        return results
+
 
 if __name__ == "__main__":
-    example_nose = {"shape": "Long", "votes": {"Long": 6, "Short": 0, "Balanced": 2}}
-    rec = get_nose_makeup_recommendation(example_nose, skin_undertone="Warm", skin_depth="Medium")
-    print_nose_recommendation(rec)
+    engine = NoseMakeupEngine()
+    example = {'shape': 'Long', 'undertone': 'Warm', 'depth': 'Medium'}
+    result = engine.analyze_nose(example)
+    print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
