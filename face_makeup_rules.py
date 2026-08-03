@@ -727,11 +727,25 @@ class FaceContourEngine(FaceContourRulesKB):
                     'rgb': contour_info['rgb'],
                     'opacity': intensity_data.get('contour_opacity', 70)  # 👈 إضافة شفافية الكونتور
                 }
+            # elif isinstance(fact, BlushRule):
+            #     results['blush'] = {
+            #         'placement': fact.get('placement'), 
+            #         'purpose': fact.get('purpose'),
+            #         'opacity': intensity_data.get('blush_opacity', 80)     # 👈 إضافة شفافية البلاشر
+            #     }
             elif isinstance(fact, BlushRule):
+                # جلب تفاصيل الألوان بناءً على الأندرتون والعمق الحاليين
+                undertone = self.face_data.get('undertone', 'Warm')
+                depth = self.face_data.get('depth', 'Medium')
+                # استدعاء مؤقت لقاعدة الألوان أو استخدام المتغير المحفوظ
+                # (بفرض أننا سنربطه مع قاعدة BlushColorMatch أو نعرف اللون الأساسي مباشرة)
+                base_color = "خوخي ذهبي" if undertone == 'Warm' else "وردي ترابي" # مثال تناغم حسب حالتك
+                
                 results['blush'] = {
                     'placement': fact.get('placement'), 
                     'purpose': fact.get('purpose'),
-                    'opacity': intensity_data.get('blush_opacity', 80)     # 👈 إضافة شفافية البلاشر
+                    'opacity': intensity_data.get('blush_opacity', 80),
+                    'color_details': get_blush_palette_shades(base_color) # 👈 هنا يتم دمج الألوان مباشرة
                 }
             elif isinstance(fact, HighlightRule):
                 results['highlight'] = {
@@ -742,13 +756,13 @@ class FaceContourEngine(FaceContourRulesKB):
                     'rgb': highlight_info['rgb'],
                     'opacity': intensity_data.get('highlight_opacity', 80) # 👈 إضافة شفافية الهايلايتر
                 }
-            elif isinstance(fact, BlushColorMatch):
-                base_color = fact.get('base_color')
-                results['color'] = {
-                    'base_color': base_color, 
-                    'palette': fact.get('palette'),
-                    'shades_details': get_blush_palette_shades(base_color)
-                }
+            # elif isinstance(fact, BlushColorMatch):
+            #     base_color = fact.get('base_color')
+            #     results['color'] = {
+            #         'base_color': base_color, 
+            #         'palette': fact.get('palette'),
+            #         'shades_details': get_blush_palette_shades(base_color)
+            #     }
             elif isinstance(fact, OccasionIntensity):
                 results['texture'] = {
                     'finish': fact.get('finish'),
