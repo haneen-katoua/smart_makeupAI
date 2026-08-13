@@ -1,0 +1,88 @@
+{
+  "success": true,
+  "face_detected": true,
+  "face_shape": {
+    "shape": "Rectangular",
+    "votes": {
+      "Rectangular": 9,
+      "Heart": 8
+    },
+    "ratios": {
+      "face_length_to_width": 1.860913274094609,
+      "jaw_to_cheekbone_ratio": 0.5602657095106712,
+      "forehead_to_jaw_ratio": 1.7911694988988371
+    },
+    "confidence": 0.5294117647058824
+  },
+  "eyes": {
+    "left_eye": {
+      "geo_shape": "Round",
+      "eye_type": "Deep-set",
+      "size": "Large",
+      "corner_direction": "Upturned",
+      "opening": 0.502427682510326,
+      "width": 0.049086394007557134,
+      "height": 0.024662363184005685
+    },
+    "right_eye": {
+      "geo_shape": "Round",
+      "eye_type": "Deep-set",
+      "size": "Large",
+      "corner_direction": "Upturned",
+      "opening": 0.5570069999841664,
+      "width": 0.049617757805030915,
+      "height": 0.027637438420921225
+    },
+    "inter_eye_ratio": 1.1074158705814199,
+    "symmetry": "Symmetrical",
+    "measurements": {
+      "left_eye_aspect_ratio": 0.502427682510326,
+      "right_eye_aspect_ratio": 0.5570069999841664,
+      "inter_eye_distance": 0.05465327210476891
+    }
+  },
+  "brows": {
+    "thickness": "Thick",
+    "length": "Short",
+    "shape": "Straight",
+    "position": "High",
+    "spacing": "Wide",
+    "symmetry": "Symmetrical",
+    "measurements": {
+      "left_length": 0.011851182707583476,
+      "right_length": 0.012827559308498167,
+      "avg_arch_depth": 0.00620337575674057,
+      "avg_thickness_ratio": 1.1160070409994487
+    }
+  },
+  "lips": {
+    "volume": "Medium",
+    "balance": "Lower Fuller",
+    "width": "Narrow",
+    "symmetry": "Symmetrical",
+    "cupid_bow": "Soft",
+    "corners": "Upturned",
+    "measurements": {
+      "upper_thickness": 0.012170985871263269,
+      "lower_thickness": 0.024575600145348982,
+      "thickness_ratio": 0.495246740640296,
+      "width": 0.08985210394082777
+    }
+  },
+  "nose": {
+    "shape": "Balanced",
+    "width": "Wide",
+    "bridge": "Straight",
+    "measurements": {
+      "length": 0.0814196931528755,
+      "width_sides": 0.0509011119627893,
+      "nostril_width": 0.06928352343979335,
+      "length_to_width_ratio": 1.1751667512064157
+    }
+  },
+  "measurements": {
+    "image_width": 1024,
+    "image_height": 683
+  },
+  "error": null
+}

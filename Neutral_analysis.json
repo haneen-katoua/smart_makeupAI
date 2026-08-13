@@ -1,0 +1,91 @@
+{
+  "success": true,
+  "face_detected": true,
+  "face_shape": {
+    "shape": "Heart",
+    "votes": {
+      "Heart": 9
+    },
+    "ratios": {
+      "face_length_to_width": 0.8818860122904236,
+      "jaw_to_cheekbone_ratio": 0.5782803847894323,
+      "forehead_to_jaw_ratio": 1.713523024230649,
+      "cheekbone_width": 0.4902838574341726,
+      "jaw_width": 0.2835215377330805,
+      "face_length": 0.432374475922989
+    },
+    "confidence": 1.0
+  },
+  "eyes": {
+    "left_eye": {
+      "geo_shape": "Almond",
+      "eye_type": "Droopy",
+      "size": "Normal",
+      "corner_direction": "Neutral",
+      "opening": 0.2776949037009589,
+      "width": 0.10674090570913138,
+      "height": 0.029641405531850372
+    },
+    "right_eye": {
+      "geo_shape": "Almond",
+      "eye_type": "Almond",
+      "size": "Normal",
+      "corner_direction": "Neutral",
+      "opening": 0.2886435919092789,
+      "width": 0.10108465290528355,
+      "height": 0.029177437301483772
+    },
+    "inter_eye_ratio": 1.1768465450132874,
+    "symmetry": "Symmetrical",
+    "measurements": {
+      "left_eye_aspect_ratio": 0.2776949037009589,
+      "right_eye_aspect_ratio": 0.2886435919092789,
+      "inter_eye_distance": 0.12228939531041533,
+      "width_to_height_ratio": 3.5333160022086467
+    }
+  },
+  "brows": {
+    "thickness": "Medium",
+    "length": "Short",
+    "shape": "Soft Arch",
+    "position": "Normal",
+    "spacing": "Normal",
+    "symmetry": "Symmetrical",
+    "measurements": {
+      "left_length": 0.02450057705453657,
+      "right_length": 0.022181295642862756,
+      "left_arch_depth": 0.009251520037651062,
+      "right_arch_depth": 0.012329071760177612,
+      "avg_arch_depth": 0.010790295898914337
+    }
+  },
+  "lips": {
+    "volume": "Full",
+    "balance": "Balanced",
+    "width": "Narrow",
+    "symmetry": "Symmetrical",
+    "cupid_bow": "Soft",
+    "corners": "Neutral",
+    "measurements": {
+      "upper_thickness": 0.08016300342838949,
+      "lower_thickness": 0.07010318772863118,
+      "thickness_ratio": 1.1435001178362925,
+      "width": 0.1739752539818677
+    }
+  },
+  "nose": {
+    "shape": "Short",
+    "width": "Narrow",
+    "bridge": "Straight",
+    "measurements": {
+      "length": 0.07629992409638213,
+      "width_sides": 0.11350577090389724,
+      "nostril_width": 0.02362468478962461,
+      "length_to_width_ratio": 0.6722118486907908
+    }
+  },
+  "measurements": {
+    "image_width": 480,
+    "image_height": 640
+  }
+}
