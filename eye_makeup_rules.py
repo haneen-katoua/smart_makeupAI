@@ -171,19 +171,25 @@ class EyeMakeupRulesKB(KnowledgeEngine):
 
     # ──── Rule 2: تصنيف مسافة العينين ────
 
-    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is not None and x < 0.32))
+    # ملاحظة معايرة: inter_eye_ratio = المسافة بين الزاويتين الداخليتين للعينين
+    # (intercanthal distance) مقسومة على متوسط عرض عين واحدة. القاعدة التشريحية
+    # المعروفة ("مسافة عين واحدة بين العينين") تعني أن القيمة الطبيعية تكون
+    # قريبة من 1.0 وليس من 0.35. العتبات القديمة (0.32 / 0.42) كانت من مقياس
+    # مختلف تماماً وتُصنّف كل الوجوه الحقيقية تقريباً كـ"متباعدة"، لذلك تم
+    # تصحيحها هنا لتُطابق نفس المقياس الذي يُنتجه all_face_analysis_fixed.py.
+    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is not None and x < 0.80))
     def close_set_eyes(self):
         self.declare(EyeSpacingCorrection(
             classification='Close-set', name_ar='عيون متقاربة (Close-set)',
             rule='يتم فرض لون الإضاءة (Highlight) في الزاوية الداخلية (مدمع العين) لتوسيع المسافة بين العينين بصرياً'))
 
-    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is not None and x > 0.42))
+    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is not None and x > 1.20))
     def wide_set_eyes(self):
         self.declare(EyeSpacingCorrection(
             classification='Wide-set', name_ar='عيون متباعدة (Wide-set)',
             rule='يتم فرض ظل متوسط إلى داكن (من لون النحت أو الأساس) في الزاوية الداخلية لتقريب المسافة بين العينين بصرياً'))
 
-    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is None or (0.32 <= x <= 0.42)))
+    @Rule(EyeSpacing(inter_eye_ratio=lambda x: x is None or (0.80 <= x <= 1.20)))
     def normal_set_eyes(self):
         self.declare(EyeSpacingCorrection(
             classification='Normal', name_ar='مسافة طبيعية بين العينين',

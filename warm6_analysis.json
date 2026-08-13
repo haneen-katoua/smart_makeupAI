@@ -1,0 +1,81 @@
+{
+  "success": true,
+  "face_detected": true,
+  "face_shape": {
+    "shape": "Oval",
+    "votes": {},
+    "ratios": {
+      "face_length_to_width": 0.8628932995293445,
+      "jaw_to_cheekbone_ratio": 0.5385712625237968
+    },
+    "confidence": 0.5
+  },
+  "eyes": {
+    "left_eye": {
+      "geo_shape": "Almond",
+      "eye_type": "Deep-set",
+      "size": "Normal",
+      "corner_direction": "Neutral",
+      "opening": 0.28605836561290493
+    },
+    "right_eye": {
+      "geo_shape": "Almond",
+      "eye_type": "Deep-set",
+      "size": "Normal",
+      "corner_direction": "Neutral",
+      "opening": 0.2856324432209142
+    },
+    "inter_eye_ratio": 1.2337252906497194,
+    "symmetry": "Symmetrical"
+  },
+  "brows": {
+    "thickness": "Thin",
+    "length": "Short",
+    "shape": "High Arch",
+    "position": "Normal",
+    "spacing": "Normal",
+    "symmetry": "Symmetrical",
+    "measurements": {
+      "avg_thickness": 0.014838159084320068,
+      "length_ratio": 0.18235259614568952,
+      "arch_deviation": 0.5006094593553978
+    }
+  },
+  "lips": {
+    "upper_lip": {
+      "volume": "Thin",
+      "thickness": 0.00047181374229989973
+    },
+    "lower_lip": {
+      "volume": "Thin",
+      "thickness": 0.03109824502162989
+    },
+    "volume": "Thin",
+    "balance": "Lower Fuller",
+    "description": "Upper Thin, Lower Thin",
+    "width": "Narrow",
+    "symmetry": "Symmetrical",
+    "cupid_bow": "Soft",
+    "corners": "Neutral",
+    "measurements": {
+      "ratio": 0.015171716023580662,
+      "total_thickness": 0.031570058763929786
+    }
+  },
+  "nose": {
+    "shape": "Long",
+    "width": "Narrow",
+    "bridge": "Straight",
+    "measurements": {
+      "width_ratio": 0.21958072721727778,
+      "length_ratio": 0.18104986916567453,
+      "bridge_deviation": 9.119510650634766e-05
+    }
+  },
+  "measurements": {
+    "image_width": 736,
+    "image_height": 914,
+    "inter_eye_distance": 0.13021767437984935,
+    "face_width": 0.5047892367733373
+  }
+}
