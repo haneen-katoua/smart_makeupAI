@@ -189,8 +189,19 @@ class NoseMakeupEngine(NoseRulesKB):
                                      'goal': fact.get('goal'), 'technique': fact.get('technique'),
                                      'reason': fact.get('reason')}
             elif isinstance(fact, NoseMap):
-                results['map'] = {'contour': fact.get('contour'), 'highlight': fact.get('highlight'),
-                                   'tip_shading': fact.get('tip_shading')}
+                results['map'] = {
+                        'contour': fact.get('contour'),
+                        'contour_arrow_target': [
+                            'nose_contour_left',
+                            'nose_contour_right'
+                        ],
+
+                        'highlight': fact.get('highlight'),
+                        'highlight_arrow_target': 'nose_bridge',
+
+                        'tip_shading': fact.get('tip_shading'),
+                        'tip_arrow_target': 'nose_tip'
+                    }
             elif isinstance(fact, ContourProductMatch):
                 results['contour'] = {'product': fact.get('product'), 'reason': fact.get('reason_ar')}
             elif isinstance(fact, HighlightTone):

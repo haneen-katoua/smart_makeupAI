@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from .services.makeup_pipeline import run_makeup_pipeline
-from .models import MakeupRequest
-from .serializers import MakeupRequestSerializer , AdminAnalysisDetailSerializer , AdminAnalysisListSerializer , UserAnalysisHistorySerializer , UserAnalysisDetailSerializer
+from .models import MakeupRequest , MakeupStepImage
+from .serializers import MakeupRequestSerializer , AdminAnalysisDetailSerializer , AdminAnalysisListSerializer , UserAnalysisHistorySerializer , UserAnalysisDetailSerializer , MakeupStepImageSerializer
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView
@@ -18,9 +18,31 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
+from generate_final_steps import (
+    create_final_steps_from_analysis
+)
+
+from .services.makeup_steps_service import (
+    load_makeup_steps,
+    generate_makeup_step_images
+)
+
+from complete_makeup_pipline import analyze_image
+import os
+import json
+from pathlib import Path
+from django.conf import settings
+import cv2
+import numpy as np
+from makeup_steps_generator import (
+    MakeupStepsGenerator
+)
+
+
 
 
 
@@ -30,12 +52,15 @@ class MakeupRequestCreateView(CreateAPIView):
 
     serializer_class = MakeupRequestSerializer
 
-    permission_classes=[
+    permission_classes = [
         IsAuthenticated
     ]
 
-
     def create(self, request, *args, **kwargs):
+
+        # ==================================================
+        # Validate request
+        # ==================================================
 
         serializer = self.get_serializer(
             data=request.data
@@ -45,25 +70,88 @@ class MakeupRequestCreateView(CreateAPIView):
             raise_exception=True
         )
 
+        # ==================================================
+        # Create MakeupRequest
+        # ==================================================
 
         makeup_request = serializer.save(
             user=request.user
         )
 
+        # ==================================================
+        # Get face image path
+        # ==================================================
 
-        result = run_makeup_pipeline(
-            makeup_request
+        face_image_path = (
+            makeup_request.face_image.path
         )
-        
+
+        # ==================================================
+        # Run complete makeup pipeline
+        # ==================================================
+
+        try:
+
+            result = analyze_image(
+                face_image_path=face_image_path,
+                occasion=makeup_request.occasion,
+                eye_strategy="Monochromatic",
+                print_report=False
+            )
+
+        except Exception as exc:
+
+            makeup_request.delete()
+
+            return Response(
+                {
+                    "detail": "Makeup analysis failed.",
+                    "error": str(exc)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ==================================================
+        # Check result
+        # ==================================================
+
+        if result is None:
+
+            makeup_request.delete()
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not analyze "
+                        "the uploaded face image."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # Save complete analysis
+        # ==================================================
+
         makeup_request.analysis_result = result
-        makeup_request.save()
 
+        makeup_request.save(
+            update_fields=[
+                "analysis_result"
+            ]
+        )
 
-        return Response({
-            "request_id": makeup_request.id,
-            "result": result
-        })
-        
+        # ==================================================
+        # Response
+        # ==================================================
+
+        return Response(
+            {
+                "request_id": makeup_request.id,
+                "result": result
+            },
+            status=status.HTTP_201_CREATED
+        )
 
 class AdminAnalysisFilter(filters.FilterSet):
 
@@ -265,4 +353,359 @@ class UserAnalysisDetailAPIView(RetrieveAPIView):
 
         return MakeupRequest.objects.filter(
             user=self.request.user
-        )                                   
+        )
+        
+
+
+class GenerateMakeupStepsAPIView(APIView):
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def post(
+        self,
+        request,
+        request_id
+    ):
+
+        # ==================================================
+        # 1. Get user's MakeupRequest
+        # ==================================================
+
+        makeup_request = get_object_or_404(
+            MakeupRequest,
+            id=request_id,
+            user=request.user
+        )
+
+        # ==================================================
+        # 2. Check face image
+        # ==================================================
+
+        if not makeup_request.face_image:
+
+            return Response(
+                {
+                    "detail": (
+                        "No face image found "
+                        "for this makeup request."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 3. Check analysis
+        # ==================================================
+
+        analysis = makeup_request.analysis_result
+
+        if not analysis:
+
+            return Response(
+                {
+                    "detail": (
+                        "Makeup analysis is not "
+                        "available yet."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 4. Get expert_output from analysis
+        # ==================================================
+
+        expert_output = analysis.get(
+            "expert_output"
+        )
+
+        if not isinstance(
+            expert_output,
+            dict
+        ):
+
+            return Response(
+                {
+                    "detail": (
+                        "expert_output is missing "
+                        "from analysis result."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 5. Generate makeup steps
+        # ==================================================
+        #
+        # IMPORTANT:
+        #
+        # We DO NOT load a static makeup_steps.json.
+        #
+        # The steps are generated directly from
+        # this user's expert makeup recommendation.
+        #
+        # ==================================================
+
+        try:
+
+            generator = MakeupStepsGenerator(
+                expert_output
+            )
+
+            steps = generator.generate()
+
+        except Exception as exc:
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not generate "
+                        "makeup steps from "
+                        "expert recommendation."
+                    ),
+                    "error": str(exc)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ==================================================
+        # 6. Check generated steps
+        # ==================================================
+
+        if not steps:
+
+            return Response(
+                {
+                    "detail": (
+                        "No makeup steps were generated "
+                        "from the expert recommendation."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 7. Add arrow targets
+        # ==================================================
+        #
+        # Priority:
+        #
+        # 1. Expert arrow_target
+        # 2. Default target
+        # 3. Generator targets
+        #
+        # ==================================================
+
+        try:
+
+            final_steps = (
+                create_final_steps_from_analysis(
+                    steps,
+                    analysis
+                )
+            )
+
+        except Exception as exc:
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not create final "
+                        "makeup steps."
+                    ),
+                    "error": str(exc)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ==================================================
+        # 8. Validate final steps
+        # ==================================================
+
+        if not final_steps:
+
+            return Response(
+                {
+                    "detail": (
+                        "Final makeup steps are empty."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 9. Read user's face image
+        # ==================================================
+
+        try:
+
+            makeup_request.face_image.open(
+                "rb"
+            )
+
+            image_bytes = (
+                makeup_request.face_image.read()
+            )
+
+            makeup_request.face_image.close()
+
+        except Exception as exc:
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not read face image."
+                    ),
+                    "error": str(exc)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ==================================================
+        # 10. Convert image bytes -> OpenCV
+        # ==================================================
+
+        image_array = np.frombuffer(
+            image_bytes,
+            dtype=np.uint8
+        )
+
+        image = cv2.imdecode(
+            image_array,
+            cv2.IMREAD_COLOR
+        )
+
+        if image is None:
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not decode face image."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ==================================================
+        # 11. Generate cumulative makeup images
+        # ==================================================
+        #
+        # final_steps contains:
+        #
+        # - personalized instruction
+        # - product
+        # - targets
+        # - arrow_target
+        #
+        # The image generator uses these steps
+        # to create the step images.
+        #
+        # ==================================================
+
+        try:
+
+            results = generate_makeup_step_images(
+                makeup_request=makeup_request,
+                image=image,
+                final_steps=final_steps
+            )
+
+        except Exception as exc:
+
+            return Response(
+                {
+                    "detail": (
+                        "Could not generate "
+                        "makeup step images."
+                    ),
+                    "error": str(exc)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ==================================================
+        # 12. Serialize results
+        # ==================================================
+
+        serializer = MakeupStepImageSerializer(
+            results,
+            many=True,
+            context={
+                "request": request
+            }
+        )
+
+        # ==================================================
+        # 13. Response
+        # ==================================================
+
+        return Response(
+            {
+                "makeup_request_id": (
+                    makeup_request.id
+                ),
+
+                "count": len(results),
+
+                "steps": serializer.data
+            },
+            status=status.HTTP_201_CREATED
+        )
+            
+class MakeupStepsView(APIView):
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def get(
+        self,
+        request,
+        request_id
+    ):
+
+        # ==================================================
+        # Get user's MakeupRequest
+        # ==================================================
+
+        makeup_request = get_object_or_404(
+            MakeupRequest,
+            id=request_id,
+            user=request.user
+        )
+
+        # ==================================================
+        # Get generated makeup steps
+        # ==================================================
+
+        steps = makeup_request.step_images.all().order_by(
+            "step_number"
+        )
+
+        # ==================================================
+        # Serialize
+        # ==================================================
+
+        serializer = MakeupStepImageSerializer(
+            steps,
+            many=True,
+            context={
+                "request": request
+            }
+        )
+
+        # ==================================================
+        # Response
+        # ==================================================
+
+        return Response(
+            {
+                "request_id": makeup_request.id,
+                "count": steps.count(),
+                "steps": serializer.data
+            },
+            status=status.HTTP_200_OK
+        )

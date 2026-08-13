@@ -230,11 +230,12 @@ class LipMakeupEngine(LipRulesKB):
                     'name_ar': fact.get('name_ar'),
                     'correction': fact.get('correction_style'),
                     'technique': fact.get('technique'),
-                    'reason': fact.get('reason')
+                    'reason': fact.get('reason'),
+                    'arrow_target': 'lip_border'
                 }
             elif isinstance(fact, LipColorMatch):
                 results['color'] = {'undertone': fact.get('undertone'), 'palette': fact.get('palette'),
-                                     'colors': fact.get('colors')}
+                                     'colors': fact.get('colors'),'arrow_target': 'lips'}
             elif isinstance(fact, LipOccasionStyle):
                 results['occasion'] = {'occasion': fact.get('occasion'), 'style': fact.get('style'),
                                         'product': fact.get('product'), 'texture': fact.get('texture')}

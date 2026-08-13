@@ -1,4 +1,5 @@
-from all_face_analysis import analyze_face
+from all_face_analysis import  analyze_face_from_image_dict
+from skin_analysis import analyze_skin_from_image_dict
 from clothing_hue_extractor import analyze_clothing_color
 from shadow_palette_rules import generate_shadow_palette
 
@@ -8,10 +9,39 @@ def run_makeup_pipeline(request):
     # ==========================
     # 1) تحليل الوجه والمكياج
     # ==========================
-    face_result = analyze_face(
-        request.face_image.path,
-        request.occasion
+    face_result = analyze_face_from_image_dict(
+        request.face_image.path
     )
+    
+    if not face_result.get("success"):
+
+        return {
+            "face_makeup": face_result,
+            "skin_analysis": None,
+            "clothes_analysis": None,
+            "shadow_palette": None
+        }
+
+
+
+    # ==========================
+    # 2) تحليل البشرة
+    # ==========================
+
+    skin_result = analyze_skin_from_image_dict(
+        request.face_image.path
+    )
+
+
+    if not skin_result.get("success"):
+
+        return {
+            "face_makeup": face_result,
+            "skin_analysis": skin_result,
+            "clothes_analysis": None,
+            "shadow_palette": None
+        }
+
 
 
     # ==========================
@@ -27,14 +57,11 @@ def run_makeup_pipeline(request):
             request.clothes_image.path
         )
 
-        # أخذ undertone من تحليل البشرة
-        skin_undertone = face_result.get("skin", {}).get("undertone")
-        
-        print("SKIN:", face_result.get("skin_analysis"))
-        print("UNDERTONE:", skin_undertone) 
+        skin_undertone = skin_result.get(
+            "undertone"
+        )
 
 
-        # توليد باليت ظلال مناسبة
         try:
 
             shadow_palette_result = generate_shadow_palette(
@@ -42,19 +69,31 @@ def run_makeup_pipeline(request):
                 skin_undertone
             )
 
-        except Exception as e:
 
-            print("SHADOW ERROR:", str(e))
+        except Exception as e:
 
             shadow_palette_result = {
                 "error": str(e)
             }
 
 
+
+    # ==========================
+    # النتيجة النهائية
+    # ==========================
+
     return {
+
+
         "face_makeup": face_result,
+
+
+        "skin_analysis": skin_result,
+
 
         "clothes_analysis": clothes_result,
 
+
         "shadow_palette": shadow_palette_result
+
     }

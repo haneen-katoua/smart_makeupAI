@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MakeupRequest
+from .models import MakeupRequest , MakeupStepImage
 
 
 class MakeupRequestSerializer(serializers.ModelSerializer):
@@ -88,4 +88,30 @@ class UserAnalysisDetailSerializer(serializers.ModelSerializer):
             "occasion",
             "analysis_result",
             "created_at"
+        ] 
+        
+
+class MakeupStepImageSerializer(
+    serializers.ModelSerializer
+):
+
+    image = serializers.ImageField(
+        use_url=True
+    )
+
+    class Meta:
+
+        model = MakeupStepImage
+
+        fields = [
+            "id",
+            "step_number",
+            "category",
+            "title",
+            "product",
+            "instruction",
+            "image",
+            "arrow_target",
+            "metadata"
         ]        
+               

@@ -6,8 +6,8 @@
       "shape": "Oval",
       "votes": {},
       "ratios": {
-        "face_length_to_width": 0.6261044967595796,
-        "jaw_to_cheekbone_ratio": 0.5258287684721619
+        "face_length_to_width": 0.6742479371202882,
+        "jaw_to_cheekbone_ratio": 0.5602649207641116
       },
       "confidence": 0.5
     },
@@ -15,18 +15,18 @@
       "left_eye": {
         "geo_shape": "Almond",
         "eye_type": "Normal",
-        "size": "Small",
+        "size": "Normal",
         "corner_direction": "Neutral",
-        "opening": 0.19781997987991595
+        "opening": 0.2653410127143092
       },
       "right_eye": {
         "geo_shape": "Almond",
         "eye_type": "Normal",
-        "size": "Small",
+        "size": "Normal",
         "corner_direction": "Neutral",
-        "opening": 0.2171478523798416
+        "opening": 0.2635472556103224
       },
-      "inter_eye_ratio": 1.062913081974412,
+      "inter_eye_ratio": 1.1584915396944335,
       "symmetry": "Symmetrical"
     },
     "brows": {
@@ -51,8 +51,8 @@
       "bridge": "Straight"
     },
     "measurements": {
-      "image_width": 675,
-      "image_height": 1200
+      "image_width": 736,
+      "image_height": 1103
     }
   },
   "skin_analysis": {
@@ -61,16 +61,16 @@
     "undertone": "Warm",
     "skin_type": "Oily",
     "color_lab": {
-      "L": 60.63409684451976,
-      "a": 24.44412447780947,
-      "b": 28.138169565520556
+      "L": 61.85393507037183,
+      "a": 16.999012370178036,
+      "b": 16.45639258198819
     },
     "color_rgb": [
-      200.47541254125412,
-      128.6496699669967,
-      97.89480198019803
+      188.25077805077805,
+      137.81277641277643,
+      121.20597870597871
     ],
-    "confidence": 0.7105682807419961
+    "confidence": 0.7308989178395305
   },
   "expert_output": {
     "eyes": {
@@ -81,10 +81,13 @@
           "goal": "تم اختيار هذا الستايل لأن العين لوزية ومتوازنة تشريحياً، مما يجعلها القالب المثالي لأي تصميم مكياج دون الحاجة لتقنيات تصحيحية، مع تعزيز السحبة الطبيعية الجذابة للعين وإبراز توازن زواياها"
         },
         "plan": {
-          "style": "سبوت لايت / بنانا",
-          "texture": "لمسة ساتان / لامعة",
-          "lashes": "رموش طويلة وكثيفة فاخرة",
-          "eyeliner": "آيلاينر حريري"
+          "style": "تعريف طبيعي",
+          "texture": "مطفأ بالكامل (ألوان محايدة/ترابية)",
+          "lashes": "ماسكرا تكثيف عند الزاوية الخارجية",
+          "eyeliner": "آيلاينر بني جاف",
+          "eyeshadow_arrow_target": "eyelid",
+          "eyeliner_arrow_target": "eyeliner",
+          "mascara_arrow_target": "lashes"
         }
       },
       "right": {
@@ -94,10 +97,13 @@
           "goal": "تم اختيار هذا الستايل لأن العين لوزية ومتوازنة تشريحياً، مما يجعلها القالب المثالي لأي تصميم مكياج دون الحاجة لتقنيات تصحيحية، مع تعزيز السحبة الطبيعية الجذابة للعين وإبراز توازن زواياها"
         },
         "plan": {
-          "style": "سبوت لايت / بنانا",
-          "texture": "لمسة ساتان / لامعة",
-          "lashes": "رموش طويلة وكثيفة فاخرة",
-          "eyeliner": "آيلاينر حريري"
+          "style": "تعريف طبيعي",
+          "texture": "مطفأ بالكامل (ألوان محايدة/ترابية)",
+          "lashes": "ماسكرا تكثيف عند الزاوية الخارجية",
+          "eyeliner": "آيلاينر بني جاف",
+          "eyeshadow_arrow_target": "eyelid",
+          "eyeliner_arrow_target": "eyeliner",
+          "mascara_arrow_target": "lashes"
         }
       }
     },
@@ -110,11 +116,12 @@
         "visual_purpose": "متوازن تشريحياً ولا يحتاج تصحيح"
       },
       "style": {
-        "style": "فخامة وجرأة",
-        "technique": "دقة وجرأة في الرسم",
-        "product": "لاينر ومحدد حواجب",
-        "color_intensity": "قوي وجريء",
-        "appearance": "رفع درامي فاخر"
+        "style": "تهذيب طبيعي",
+        "technique": "تمشيط وتهذيب",
+        "product": "جل شفاف أو ملوّن خفيف",
+        "color_intensity": "شفاف جداً",
+        "appearance": "مظهر نظيف بلا رسم واضح",
+        "arrow_target": "brows"
       },
       "color": null,
       "recommendation": null
@@ -125,23 +132,25 @@
         "name_ar": "شفة سفلى رقيقة",
         "correction": "موازنة النسبة",
         "technique": "رسم الخط أسفل الحد الطبيعي للشفة السفلى",
-        "reason": "لضمان التوازن البصري وتماثل الفم"
+        "reason": "لضمان التوازن البصري وتماثل الفم",
+        "arrow_target": "lip_border"
       },
       "color": {
         "undertone": "Warm",
         "palette": "أساس ذهبي/خوخي",
-        "colors": "درجات مرجانية وخوخية"
+        "colors": "درجات مرجانية وخوخية",
+        "arrow_target": "lips"
       },
       "occasion": {
-        "occasion": "wedding",
-        "style": "شفاه فاخرة وممتلئة",
-        "product": "أحمر شفاه غني مع طبقة لمعان توضع عمودياً بمنتصف الشفة فقط",
-        "texture": "لامع (بالمنتصف فقط، فوق طبقة أساس غنية)"
+        "occasion": "work",
+        "style": "تورّد طبيعي",
+        "product": "صبغة شفاه أو أحمر شفاه مطفأ فاتح جداً",
+        "texture": "مطفأ — يمنح مظهراً صحياً ونابضاً بالحياة"
       },
       "recommendation": {
         "shape": "Lower Thin",
         "colors": "درجات مرجانية وخوخية",
-        "occasion": "wedding",
+        "occasion": "work",
         "complete": true
       }
     },
@@ -155,8 +164,14 @@
       },
       "map": {
         "contour": "بطول كامل، من بداية الحاجب حتى الطرف على الجانبين",
+        "contour_arrow_target": [
+          "nose_contour_left",
+          "nose_contour_right"
+        ],
         "highlight": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
-        "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل"
+        "highlight_arrow_target": "nose_bridge",
+        "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل",
+        "tip_arrow_target": "nose_tip"
       },
       "contour": {
         "product": "بني دافئ (Warm Brown)",
@@ -181,15 +196,18 @@
       },
       "sculpt": {
         "placement": "استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد",
-        "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد"
+        "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد",
+        "arrow_target": "face_contour"
       },
       "blush": {
         "placement": "في مركز الخد بدمج ناعم جداً باتجاه الأذن",
-        "purpose": "إعطاء حجم حيوي للخدود النحيفة"
+        "purpose": "إعطاء حجم حيوي للخدود النحيفة",
+        "arrow_target": "cheeks"
       },
       "highlight": {
         "placement": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
-        "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد"
+        "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد",
+        "arrow_target": "face_highlight"
       },
       "color": {
         "base_color": "مرجاني",
@@ -200,14 +218,14 @@
         "opacity": 100
       },
       "texture": {
-        "finish": "ساتان / لامع",
-        "transparency": "صبغة كاملة",
-        "description": "لون قوي يبرز تحت أضواء السهرة"
+        "finish": "مطفأ",
+        "transparency": "شفاف بنسبة 80%",
+        "description": "تورّد طبيعي نابع من الجلد"
       },
       "recommendation": {
         "shape": "Oval",
         "color": "مرجاني",
-        "occasion": "wedding",
+        "occasion": "work",
         "complete": true
       }
     },
@@ -242,5 +260,5 @@
       }
     }
   },
-  "occasion": "wedding"
+  "occasion": "work"
 }

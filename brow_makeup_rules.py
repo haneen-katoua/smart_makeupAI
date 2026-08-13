@@ -267,7 +267,8 @@ class BrowMakeupEngine(BrowRulesKB):
                     'technique': fact.get('technique'),
                     'product': fact.get('product'),
                     'color_intensity': fact.get('color_intensity'),
-                    'appearance': fact.get('appearance')
+                    'appearance': fact.get('appearance'),
+                    "arrow_target": "brows"
                 }
             elif isinstance(fact, BrowColorRule):
                 results['color'] = {'tone': fact.get('tone'), 'palette': fact.get('palette')}

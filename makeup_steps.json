@@ -1,0 +1,338 @@
+[
+    {
+        "step_number": 1,
+        "category": "Base",
+        "title": "Prepare Skin",
+        "product": "Primer",
+        "instruction": "برايمر مطفئ للمعان (أساسه سيليكا)",
+        "targets": [
+            "full_face"
+        ],
+        "metadata": {
+            "type": "برايمر مطفئ للمعان (أساسه سيليكا)",
+            "function": "تقليل لمعان الدهون وتوسيع ثبات المكياج"
+        }
+    },
+    {
+        "step_number": 2,
+        "category": "Base",
+        "title": "Apply Foundation",
+        "product": "Foundation",
+        "instruction": "أساس بودرة / سائل مطفأ | التغطية: متوسطة إلى كاملة",
+        "targets": [
+            "full_face"
+        ],
+        "metadata": {
+            "formula": {
+                "primary": "أساس بودرة / سائل مطفأ",
+                "texture": "مطفأ",
+                "coverage": "متوسطة إلى كاملة",
+                "reason": "تمتص الدهون الزائدة وتثبت لفترة أطول"
+            },
+            "shade": {
+                "range": "متوسطة عسلية/ذهبية",
+                "descriptor": "درجة متوسطة عسلية/ذهبية"
+            }
+        }
+    },
+    {
+        "step_number": 3,
+        "category": "Base",
+        "title": "Apply Concealer",
+        "product": "Concealer",
+        "instruction": "درجة أفتح بدرجة إلى درجة ونصف من الأساس",
+        "targets": [
+            "under_left_eye",
+            "under_right_eye"
+        ],
+        "metadata": {
+            "descriptor": "درجة أفتح بدرجة إلى درجة ونصف من الأساس",
+            "reason": "لتفتيح متوازن دون ظهور طبقة رمادية تحت العين"
+        }
+    },
+    {
+        "step_number": 4,
+        "category": "Face",
+        "title": "Face Contour",
+        "product": "Contour",
+        "instruction": "استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد",
+        "targets": [
+            "left_face_contour",
+            "right_face_contour"
+        ],
+        "metadata": {
+            "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد",
+            "shape": {
+                "shape": "Oval",
+                "name_ar": "الوجه البيضاوي (Face Oval)",
+                "goal": "الحفاظ على التوازن المثالي مع تفادي مظهر الوجه الغارق"
+            },
+            "recommendation": {
+                "shape": "Oval",
+                "color": "مرجاني",
+                "occasion": "work",
+                "complete": true
+            },
+            "adjustment": {
+                "rule": "يُختار اللون من المصفوفة بنفس درجة \"حرارة\" ظل العين ولون البشرة",
+                "opacity": 100
+            },
+            "texture": {
+                "finish": "مطفأ",
+                "transparency": "شفاف بنسبة 80%",
+                "description": "تورّد طبيعي نابع من الجلد"
+            }
+        }
+    },
+    {
+        "step_number": 5,
+        "category": "Face",
+        "title": "Blush",
+        "product": "Blush",
+        "instruction": "في مركز الخد بدمج ناعم جداً باتجاه الأذن | اللون: مرجاني",
+        "targets": [
+            "left_cheek",
+            "right_cheek"
+        ],
+        "metadata": {
+            "blush": {
+                "placement": "في مركز الخد بدمج ناعم جداً باتجاه الأذن",
+                "purpose": "إعطاء حجم حيوي للخدود النحيفة",
+                "arrow_target": "cheeks"
+            },
+            "color": {
+                "base_color": "مرجاني",
+                "palette": "أساس دافئ"
+            },
+            "recommendation": {
+                "shape": "Oval",
+                "color": "مرجاني",
+                "occasion": "work",
+                "complete": true
+            }
+        }
+    },
+    {
+        "step_number": 6,
+        "category": "Face",
+        "title": "Face Highlight",
+        "product": "Highlighter",
+        "instruction": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
+        "targets": [
+            "nose_bridge"
+        ],
+        "metadata": {
+            "highlight": {
+                "placement": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
+                "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد",
+                "arrow_target": "face_highlight"
+            },
+            "texture": {
+                "finish": "مطفأ",
+                "transparency": "شفاف بنسبة 80%",
+                "description": "تورّد طبيعي نابع من الجلد"
+            }
+        }
+    },
+    {
+        "step_number": 7,
+        "category": "Face",
+        "title": "Nose Contour",
+        "product": "Contour",
+        "instruction": "يوضع كونتور كامل على جانبي الأنف من الحاجب حتى الطرف، مع هاياليت على طرف الأنف تماماً",
+        "targets": [
+            "nose_contour_left",
+            "nose_contour_right"
+        ],
+        "metadata": {
+            "shape": {
+                "shape": "Short",
+                "name_ar": "الأنف القصير",
+                "goal": "خلق إيحاء بالطول عبر تعريف هيكل العظم",
+                "technique": "يوضع كونتور كامل على جانبي الأنف من الحاجب حتى الطرف، مع هاياليت على طرف الأنف تماماً",
+                "reason": "لإعطاء إيحاء بالطول، يُستخدم كونتور بطول كامل لتعريف الهيكل العظمي"
+            },
+            "contour": {
+                "product": "بني دافئ (Warm Brown)",
+                "reason": "لموازنة تدرجات البيج الدافئ"
+            },
+            "map": {
+                "contour": "بطول كامل، من بداية الحاجب حتى الطرف على الجانبين",
+                "contour_arrow_target": [
+                    "nose_contour_left",
+                    "nose_contour_right"
+                ],
+                "highlight": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
+                "highlight_arrow_target": "nose_bridge",
+                "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل",
+                "tip_arrow_target": "nose_tip"
+            }
+        }
+    },
+    {
+        "step_number": 8,
+        "category": "Face",
+        "title": "Nose Highlight",
+        "product": "Highlighter",
+        "instruction": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
+        "targets": [
+            "nose_tip"
+        ],
+        "metadata": {
+            "highlight": {
+                "tone": "عاجي",
+                "method": "يُنتج بالمزج بين لون البشرة الأساسي والأبيض"
+            },
+            "map": {
+                "contour": "بطول كامل، من بداية الحاجب حتى الطرف على الجانبين",
+                "contour_arrow_target": [
+                    "nose_contour_left",
+                    "nose_contour_right"
+                ],
+                "highlight": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
+                "highlight_arrow_target": "nose_bridge",
+                "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل",
+                "tip_arrow_target": "nose_tip"
+            }
+        }
+    },
+    {
+        "step_number": 9,
+        "category": "Brows",
+        "title": "Eyebrows",
+        "product": "جل شفاف أو ملوّن خفيف",
+        "instruction": "تهذيب طبيعي | تمشيط وتهذيب | مظهر نظيف بلا رسم واضح",
+        "targets": [
+            "left_eyebrow",
+            "right_eyebrow"
+        ],
+        "metadata": {
+            "style": {
+                "style": "تهذيب طبيعي",
+                "technique": "تمشيط وتهذيب",
+                "product": "جل شفاف أو ملوّن خفيف",
+                "color_intensity": "شفاف جداً",
+                "appearance": "مظهر نظيف بلا رسم واضح",
+                "arrow_target": "brows"
+            },
+            "correction": {
+                "arch_type": "قوس طبيعي",
+                "arch_position": "وضعية طبيعية",
+                "tail_direction": "طبيعي",
+                "tail_weight": "طبيعي",
+                "visual_purpose": "متوازن تشريحياً ولا يحتاج تصحيح"
+            },
+            "color": null,
+            "recommendation": null
+        }
+    },
+    {
+        "step_number": 10,
+        "category": "Eyes",
+        "title": "Eyeshadow",
+        "product": "Eyeshadow",
+        "instruction": "تعريف طبيعي | مطفأ بالكامل (ألوان محايدة/ترابية)",
+        "targets": [
+            "left_upper_eyelid",
+            "right_upper_eyelid"
+        ],
+        "metadata": {
+            "style": "تعريف طبيعي",
+            "texture": "مطفأ بالكامل (ألوان محايدة/ترابية)"
+        }
+    },
+    {
+        "step_number": 11,
+        "category": "Eyes",
+        "title": "Eyeliner",
+        "product": "Eyeliner",
+        "instruction": "آيلاينر بني جاف",
+        "targets": [
+            "left_eyeliner",
+            "right_eyeliner"
+        ],
+        "metadata": {
+            "style": "آيلاينر بني جاف"
+        }
+    },
+    {
+        "step_number": 12,
+        "category": "Eyes",
+        "title": "Mascara",
+        "product": "Mascara",
+        "instruction": "ماسكرا تكثيف عند الزاوية الخارجية",
+        "targets": [
+            "left_lashes",
+            "right_lashes"
+        ],
+        "metadata": {
+            "lashes": "ماسكرا تكثيف عند الزاوية الخارجية"
+        }
+    },
+    {
+        "step_number": 13,
+        "category": "Lips",
+        "title": "Lip Liner",
+        "product": "Lip Liner",
+        "instruction": "رسم الخط أسفل الحد الطبيعي للشفة السفلى | موازنة النسبة",
+        "targets": [
+            "lip_border"
+        ],
+        "metadata": {
+            "shape": {
+                "category": "Lower Thin",
+                "name_ar": "شفة سفلى رقيقة",
+                "correction": "موازنة النسبة",
+                "technique": "رسم الخط أسفل الحد الطبيعي للشفة السفلى",
+                "reason": "لضمان التوازن البصري وتماثل الفم",
+                "arrow_target": "lip_border"
+            }
+        }
+    },
+    {
+        "step_number": 14,
+        "category": "Lips",
+        "title": "Lipstick",
+        "product": "Lipstick",
+        "instruction": "صبغة شفاه أو أحمر شفاه مطفأ فاتح جداً | مطفأ — يمنح مظهراً صحياً ونابضاً بالحياة | اللون: درجات مرجانية وخوخية",
+        "targets": [
+            "upper_lip",
+            "lower_lip"
+        ],
+        "metadata": {
+            "occasion": {
+                "occasion": "work",
+                "style": "تورّد طبيعي",
+                "product": "صبغة شفاه أو أحمر شفاه مطفأ فاتح جداً",
+                "texture": "مطفأ — يمنح مظهراً صحياً ونابضاً بالحياة"
+            },
+            "color": {
+                "undertone": "Warm",
+                "palette": "أساس ذهبي/خوخي",
+                "colors": "درجات مرجانية وخوخية",
+                "arrow_target": "lips"
+            },
+            "recommendation": {
+                "shape": "Lower Thin",
+                "colors": "درجات مرجانية وخوخية",
+                "occasion": "work",
+                "complete": true
+            }
+        }
+    },
+    {
+        "step_number": 15,
+        "category": "Finishing",
+        "title": "Set Makeup",
+        "product": "Setting Powder & Spray",
+        "instruction": "بودرة تثبيت + رذاذ تثبيت مطفئ للمعان | تثبيت كامل الوجه ببودرة شفافة مع التركيز على منطقة T",
+        "targets": [
+            "full_face"
+        ],
+        "metadata": {
+            "method": "بودرة تثبيت + رذاذ تثبيت مطفئ للمعان",
+            "technique": "تثبيت كامل الوجه ببودرة شفافة مع التركيز على منطقة T",
+            "reason": "لإطالة مدة الثبات ومنع ظهور اللمعان خلال اليوم"
+        }
+    }
+]

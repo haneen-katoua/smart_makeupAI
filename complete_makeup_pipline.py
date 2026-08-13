@@ -29,6 +29,7 @@ from skin_analysis import analyze_skin_from_image_dict as analyze_skin
 from full_makeup_expert_system import CompleteMakeupExpertSystem
 
 
+
 # ══════════════════════════════════════════════════════════════════
 # تطبيع مدخلات المستخدم
 # ══════════════════════════════════════════════════════════════════

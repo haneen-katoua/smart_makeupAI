@@ -331,6 +331,9 @@ class EyeMakeupEngine(EyeMakeupRulesKB):
                     'texture': fact['texture'],
                     'lashes': fact['lashes'],
                     'eyeliner': fact['eyeliner'],
+                    "eyeshadow_arrow_target": "eyelid",
+                    "eyeliner_arrow_target": "eyeliner",
+                    "mascara_arrow_target": "lashes"
                 }
             elif isinstance(fact, EyeSpacingCorrection):
                 facts_dict['spacing'] = {

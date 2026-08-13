@@ -355,11 +355,11 @@ class FaceContourEngine(FaceContourRulesKB):
             if isinstance(fact, FaceShapeCategory):
                 results['shape'] = {'shape': fact.get('shape'), 'name_ar': fact.get('name_ar'), 'goal': fact.get('goal')}
             elif isinstance(fact, SculptRule):
-                results['sculpt'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+                results['sculpt'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose'),'arrow_target': 'face_contour'}
             elif isinstance(fact, BlushRule):
-                results['blush'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+                results['blush'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose'),'arrow_target': 'cheeks'}
             elif isinstance(fact, HighlightRule):
-                results['highlight'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose')}
+                results['highlight'] = {'placement': fact.get('placement'), 'purpose': fact.get('purpose'),'arrow_target': 'face_highlight'}
             elif isinstance(fact, BlushColorMatch):
                 results['color'] = {'base_color': fact.get('base_color'), 'palette': fact.get('palette')}
             elif isinstance(fact, BlushAdjustment):
