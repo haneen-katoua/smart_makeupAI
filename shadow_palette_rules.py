@@ -954,6 +954,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from experta import KnowledgeEngine, Fact, Rule, MATCH, TEST
+import os
+import uuid
 
 # ==========================================================
 # حقائق النظام الخبير (Facts)
@@ -1081,36 +1083,110 @@ def generate_strategy_palettes(H, u):
 
 def render_neutral_palette_12(skin_undertone):
     print("⚠️ Neutral/Missing color detected → generating 12-color palette")
-    palette = PALETTES_DICT.get(skin_undertone, NEUTRAL_12_COOL)
-    
-    plt.figure(figsize=(10, 4))
-    plt.suptitle("Makeup Shadow Palette", fontsize=18, fontweight='bold')
-    plt.gcf().patch.set_facecolor('#f8f8f8')
 
-    groups = ["Highlight", "Base", "Sculpt", "Accent"]
+    palette = PALETTES_DICT.get(
+        skin_undertone,
+        NEUTRAL_12_COOL
+    )
+
+    plt.figure(figsize=(10, 4))
+
+    plt.suptitle(
+        "Makeup Shadow Palette",
+        fontsize=18,
+        fontweight="bold"
+    )
+
+    plt.gcf().patch.set_facecolor("#f8f8f8")
+
+    groups = [
+        "Highlight",
+        "Base",
+        "Sculpt",
+        "Accent"
+    ]
+
     seen = set()
     idx = 1
 
     for group in groups:
-        print(f"\n{group} Colors:")
-        for hsv in palette[group]:
-            _, rgb = dedupe_hsv(hsv, seen)
-            seen.add(tuple(map(int, rgb)))
-            
-            hex_color = "#{:02X}{:02X}{:02X}".format(rgb[0], rgb[1], rgb[2])
-            print(f"RGB: {rgb}  HEX: {hex_color}")
 
-            ax = plt.subplot(3, 4, idx)
-            ax.imshow(np.ones((150, 150, 3), dtype=np.uint8) * rgb)
+        print(f"\n{group} Colors:")
+
+        for hsv in palette[group]:
+
+            _, rgb = dedupe_hsv(
+                hsv,
+                seen
+            )
+
+            seen.add(
+                tuple(map(int, rgb))
+            )
+
+            hex_color = "#{:02X}{:02X}{:02X}".format(
+                rgb[0],
+                rgb[1],
+                rgb[2]
+            )
+
+            print(
+                f"RGB: {rgb}  HEX: {hex_color}"
+            )
+
+            ax = plt.subplot(
+                3,
+                4,
+                idx
+            )
+
+            ax.imshow(
+                np.ones(
+                    (150, 150, 3),
+                    dtype=np.uint8
+                ) * rgb
+            )
+
             for spine in ax.spines.values():
-                spine.set_edgecolor('#444')
+                spine.set_edgecolor("#444")
                 spine.set_linewidth(2)
+
             ax.set_xticks([])
             ax.set_yticks([])
+
             idx += 1
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    plt.tight_layout(
+        rect=[0, 0, 1, 0.95]
+    )
+
+    # ======================================================
+    # حفظ صورة الـPalette
+    # ======================================================
+
+    output_dir = "media1/palettes"
+
+    os.makedirs(
+        output_dir,
+        exist_ok=True
+    )
+
+    filename = f"{uuid.uuid4()}.png"
+
+    filepath = os.path.join(
+        output_dir,
+        filename
+    )
+
+    plt.savefig(
+        filepath,
+        dpi=200,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+    return filepath
 
 def render_all_palettes(H, skin_undertone):
     print("Detected Undertone:", skin_undertone)
@@ -1158,6 +1234,94 @@ def render_all_palettes(H, skin_undertone):
     plt.close()
 
     return filepath
+
+def generate_shadow_palette(
+    clothing_result,
+    skin_undertone
+):
+
+    print("====== SHADOW PALETTE START ======")
+
+    print(
+        "Clothing:",
+        clothing_result
+    )
+
+    print(
+        "Skin undertone:",
+        skin_undertone
+    )
+
+    expert = MakeupExpertEngine()
+
+    expert.reset()
+
+    dominant_bgr = clothing_result.get(
+        "dominant_bgr"
+    )
+
+    clothing_hue = clothing_result.get(
+        "Input_Hue",
+        0
+    )
+
+    expert.declare(
+        SkinFact(
+            undertone=skin_undertone
+        )
+    )
+
+    expert.declare(
+        ClothingFact(
+            bgr=(
+                tuple(dominant_bgr)
+                if dominant_bgr is not None
+                else None
+            ),
+            hue=clothing_hue
+        )
+    )
+
+    expert.run()
+
+    print(
+        "PATH:",
+        expert.path_type
+    )
+
+    # ======================================================
+    # Neutral / missing clothing
+    # ======================================================
+
+    if expert.path_type == "neutral_12":
+
+        palette_path = render_neutral_palette_12(
+            skin_undertone
+        )
+
+    # ======================================================
+    # Colored clothing
+    # ======================================================
+
+    elif expert.path_type == "colored_palettes":
+
+        palette_path = render_all_palettes(
+            expert.cloth_hue,
+            expert.skin_undertone
+        )
+
+    else:
+
+        raise ValueError(
+            "Could not determine shadow palette path."
+        )
+
+    return {
+        "palette_image": palette_path,
+        "path_type": expert.path_type,
+        "clothing_hue": expert.cloth_hue,
+        "skin_undertone": expert.skin_undertone
+    }
 
 if __name__ == "__main__":
     from skin_analysis import analyze_skin_from_image_dict as analyze_skin

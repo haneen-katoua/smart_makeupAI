@@ -85,6 +85,13 @@ class MakeupRequestCreateView(CreateAPIView):
         face_image_path = (
             makeup_request.face_image.path
         )
+        
+        clothes_image_path = None
+
+        if makeup_request.clothes_image:
+            clothes_image_path = (
+                makeup_request.clothes_image.path
+            )
 
         # ==================================================
         # Run complete makeup pipeline
@@ -98,6 +105,38 @@ class MakeupRequestCreateView(CreateAPIView):
                 eye_strategy="Monochromatic",
                 print_report=False
             )
+            clothing_result = None
+            palette_result = None
+
+            if clothes_image_path:
+
+                from clothing_hue_extractor import (
+                    analyze_clothing_color
+                )
+
+                from shadow_palette_rules import (
+                    generate_shadow_palette
+                )
+
+                clothing_result = analyze_clothing_color(
+                    clothes_image_path
+                )
+
+                if "error" not in clothing_result:
+
+                    skin_undertone = result.get(
+                        "skin_analysis",
+                        {}
+                    ).get(
+                        "undertone"
+                    )
+
+                    if skin_undertone:
+
+                        palette_result = generate_shadow_palette(
+                            clothing_result=clothing_result,
+                            skin_undertone=skin_undertone
+                        )
 
         except Exception as exc:
 
@@ -132,6 +171,10 @@ class MakeupRequestCreateView(CreateAPIView):
         # ==================================================
         # Save complete analysis
         # ==================================================
+        
+        result["clothing_analysis"] = clothing_result
+
+        result["shadow_palette"] = palette_result
 
         makeup_request.analysis_result = result
 
