@@ -728,7 +728,7 @@ class FaceContourEngine(FaceContourRulesKB):
                 results['color'] = {'base_color': fact.get('base_color'), 'palette': fact.get('palette')}
             elif isinstance(fact, BlushAdjustment):
                 results['adjustment'] = {'rule': fact.get('rule'), 'opacity': fact.get('opacity')}
-            elif isinstance(fact, BlushTexture):
+            elif isinstance(fact, OccasionIntensity):
                 results['texture'] = {'finish': fact.get('finish'), 'transparency': fact.get('transparency'),
                                        'description': fact.get('description')}
                 results['sculpt'] = {
