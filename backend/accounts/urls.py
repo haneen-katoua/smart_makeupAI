@@ -1,8 +1,15 @@
 from django.urls import path
-from .views import RegisterView , AdminUsersAPIView , UserProfileAPIView
+from .views import RegisterView , AdminUsersAPIView , UserProfileAPIView , AdminLoginView
 
 
 urlpatterns = [
+    
+    
+     path(
+        'admin/login/',
+        AdminLoginView.as_view(),
+        name='admin-login'
+    ),
 
     path(
         'register/',

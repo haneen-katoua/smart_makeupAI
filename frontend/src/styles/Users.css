@@ -1,0 +1,84 @@
+.users-page {
+
+    padding:20px;
+
+}
+
+
+.users-page h1 {
+
+    color:#FF8FAB;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.users-table-container {
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:25px;
+
+}
+
+
+
+.users-table {
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+
+.users-table th {
+
+    background:#FFB6C1;
+
+    color:white;
+
+    padding:15px;
+
+}
+
+
+
+.users-table td {
+
+    padding:15px;
+
+    border-bottom:1px solid #eee;
+
+}
+
+
+
+.delete-btn {
+
+    background:#ff6b81;
+
+    color:white;
+
+    border:none;
+
+    padding:8px 18px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+}
+
+
+
+.delete-btn:hover {
+
+    opacity:0.8;
+
+}

@@ -956,6 +956,8 @@ import matplotlib.pyplot as plt
 from experta import KnowledgeEngine, Fact, Rule, MATCH, TEST
 import os
 import uuid
+from django.conf import settings
+from pathlib import Path
 
 # ==========================================================
 # حقائق النظام الخبير (Facts)
@@ -1164,19 +1166,16 @@ def render_neutral_palette_12(skin_undertone):
     # حفظ صورة الـPalette
     # ======================================================
 
-    output_dir = "media1/palettes"
+    output_dir = settings.BASE_DIR / "media1" / "palettes"
 
-    os.makedirs(
-        output_dir,
+    output_dir.mkdir(
+        parents=True,
         exist_ok=True
     )
 
     filename = f"{uuid.uuid4()}.png"
 
-    filepath = os.path.join(
-        output_dir,
-        filename
-    )
+    filepath = output_dir / filename
 
     plt.savefig(
         filepath,
@@ -1186,7 +1185,7 @@ def render_neutral_palette_12(skin_undertone):
 
     plt.close()
 
-    return filepath
+    return f"media1/palettes/{filename}"
 
 def render_all_palettes(H, skin_undertone):
     print("Detected Undertone:", skin_undertone)
@@ -1224,16 +1223,26 @@ def render_all_palettes(H, skin_undertone):
     import os
     import uuid
 
-    output_dir = "media1/palettes"
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = settings.BASE_DIR / "media1" / "palettes"
+
+    output_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     filename = f"{uuid.uuid4()}.png"
-    filepath = os.path.join(output_dir, filename)
 
-    plt.savefig(filepath, dpi=200, bbox_inches="tight")
+    filepath = output_dir / filename
+
+    plt.savefig(
+        filepath,
+        dpi=200,
+        bbox_inches="tight"
+    )
+
     plt.close()
 
-    return filepath
+    return f"media1/palettes/{filename}"
 
 def generate_shadow_palette(
     clothing_result,

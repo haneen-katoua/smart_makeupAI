@@ -1,0 +1,75 @@
+.admin-sidebar {
+
+    position:fixed;
+
+    top:70px;
+
+    left:0;
+
+    bottom:0;
+
+    width:230px;
+
+
+    background:#fff;
+
+
+    padding:30px 20px;
+
+
+    box-shadow:
+    5px 0 20px rgba(0,0,0,0.05);
+
+
+}
+
+
+.admin-sidebar a {
+
+
+    display:block;
+
+
+    padding:14px 18px;
+
+
+    margin-bottom:10px;
+
+
+    border-radius:12px;
+
+
+    text-decoration:none;
+
+
+    color:#555;
+
+
+    font-weight:600;
+
+
+}
+
+
+.admin-sidebar a:hover {
+
+
+    background:#FFF7EB;
+
+
+    color:#FF8FAB;
+
+
+}
+
+
+.admin-sidebar a.active {
+
+
+    background:#FFB6C1;
+
+
+    color:white;
+
+
+}

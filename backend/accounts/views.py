@@ -7,11 +7,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .serializers import AdminTokenObtainPairSerializer
 from .serializers import AdminUserSerializer , UserProfileSerializer
 from rest_framework.generics import RetrieveUpdateAPIView
 
 
+
+class AdminLoginView(TokenObtainPairView):
+
+    serializer_class = AdminTokenObtainPairSerializer
+    
+    
 class RegisterView(CreateAPIView):
 
     serializer_class = RegisterSerializer
@@ -26,7 +34,9 @@ class AdminUsersAPIView(APIView):
     # عرض كل المستخدمين
     def get(self, request):
 
-        users = User.objects.all()
+        users = User.objects.filter(
+            is_staff=False
+        )
 
         serializer = AdminUserSerializer(
             users,

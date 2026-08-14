@@ -1,0 +1,149 @@
+.analysis-page {
+    padding: 20px;
+}
+
+
+.analysis-page h1 {
+    margin-bottom: 25px;
+    color: #333;
+}
+
+
+/* ==========================================
+   FILTERS
+========================================== */
+
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+.filters input,
+.filters select {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: white;
+    font-size: 14px;
+    outline: none;
+}
+
+
+.filters input:focus,
+.filters select:focus {
+    border-color: #FFB6C1;
+}
+
+
+.filters button {
+    background: #FFB6C1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+
+.filters button:hover {
+    background: #f29aaa;
+}
+
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.analysis-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+
+.analysis-table th {
+    background: #FFB6C1;
+    color: white;
+    padding: 15px;
+    text-align: left;
+}
+
+
+.analysis-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+}
+
+
+.analysis-table tbody tr:hover {
+    background: #FFF7EB;
+}
+
+
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
+
+.analysis-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.analysis-actions button {
+    border: none;
+    padding: 9px 15px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+
+/* View Details */
+
+.view-details-btn {
+    background: #FFB6C1;
+    color: white;
+}
+
+
+.view-details-btn:hover {
+    background: #f29aaa;
+}
+
+
+/* Delete */
+
+.delete-analysis-btn {
+    background: #dc3545;
+    color: white;
+}
+
+
+.delete-analysis-btn:hover {
+    background: #c82333;
+}
+
+
+/* ==========================================
+   EMPTY TABLE
+========================================== */
+
+.analysis-table td[colspan="4"] {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}

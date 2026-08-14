@@ -1,6 +1,20 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+
+class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.is_staff:
+            raise serializers.ValidationError(
+                "You do not have admin access."
+            )
+
+        return data
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -12,6 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            
             "username",
             "email",
             "password"

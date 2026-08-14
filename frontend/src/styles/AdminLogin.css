@@ -1,0 +1,255 @@
+/* ================================
+   Admin Login
+   Smart Makeup AI
+================================ */
+
+.admin-login-page {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 24px;
+
+    background-color: #fff7eb;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* ================================
+   Login Card
+================================ */
+
+.admin-login-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 45px 40px;
+
+    background-color: #ffffff;
+
+    border-radius: 24px;
+
+    border: 1px solid rgba(255, 182, 193, 0.35);
+
+    box-shadow:
+        0 20px 50px rgba(255, 182, 193, 0.20);
+
+    box-sizing: border-box;
+}
+
+
+/* ================================
+   Brand
+================================ */
+
+.admin-login-brand {
+    text-align: center;
+
+    margin-bottom: 35px;
+}
+
+
+.admin-logo {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #ffb6c1;
+
+    color: #ffffff;
+
+    border-radius: 50%;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 20px rgba(255, 182, 193, 0.35);
+}
+
+
+.admin-login-brand h1 {
+    margin: 0;
+
+    color: #333333;
+
+    font-size: 26px;
+    font-weight: 700;
+}
+
+
+.admin-login-brand p {
+    margin: 8px 0 0;
+
+    color: #888888;
+
+    font-size: 14px;
+}
+
+
+/* ================================
+   Form
+================================ */
+
+.admin-login-form {
+    width: 100%;
+}
+
+
+.admin-form-group {
+    margin-bottom: 22px;
+}
+
+
+.admin-form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #444444;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.admin-form-group input {
+    width: 100%;
+
+    padding: 13px 15px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #eadfe1;
+
+    border-radius: 10px;
+
+    background-color: #ffffff;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.admin-form-group input::placeholder {
+    color: #aaaaaa;
+}
+
+
+.admin-form-group input:focus {
+    border-color: #ffb6c1;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 182, 193, 0.20);
+}
+
+
+/* ================================
+   Login Button
+================================ */
+
+.admin-login-button {
+    width: 100%;
+
+    padding: 14px;
+
+    margin-top: 5px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background-color: #ffb6c1;
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.admin-login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.admin-login-button:hover {
+    background-color: #f29daa;
+
+    box-shadow:
+        0 8px 18px rgba(255, 182, 193, 0.30);
+
+    transform: translateY(-1px);
+}
+
+
+.admin-login-button:active {
+    transform: translateY(0);
+}
+
+
+/* ================================
+   Responsive
+================================ */
+
+@media (max-width: 480px) {
+
+    .admin-login-page {
+        padding: 16px;
+    }
+
+    .admin-login-card {
+        padding: 35px 24px;
+
+        border-radius: 20px;
+    }
+
+    .admin-login-brand h1 {
+        font-size: 23px;
+    }
+
+    .admin-logo {
+        width: 62px;
+        height: 62px;
+    }
+
+    .admin-login-error {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    border-radius: 8px;
+
+    background-color: #fff0f0;
+
+    color: #c0392b;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+}
