@@ -27,6 +27,15 @@ from all_face_analysis import analyze_face_from_image_dict, analyze_face_from_im
 from skin_analysis import analyze_skin_from_image_dict as analyze_skin
 from full_makeup_expert_system import CompleteMakeupExpertSystem
 
+# 🎨 استيراد دالة تحويل البيانات
+try:
+    from data_transformer import apply_transformation_to_results
+    TRANSFORMER_AVAILABLE = True
+except ImportError:
+    print("⚠️ تحذير: data_transformer غير متوفر")
+    TRANSFORMER_AVAILABLE = False
+    def apply_transformation_to_results(data): return data
+
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -125,6 +134,171 @@ def _derive_fullness(face_shape_data: Optional[Dict]) -> str:
         return 'Full' if ratio >= 0.9 else 'Thin'
     except (ValueError, TypeError):
         return 'Full'
+
+
+# ══════════════════════════════════════════════════════════════════
+# JSON STANDARDIZATION FUNCTIONS
+# ══════════════════════════════════════════════════════════════════
+
+def _standardize_eyes_structure(eyes: Optional[Dict]) -> Dict:
+    """تنظيف بيانات العيون - إزالة measurements الإضافية"""
+    if not eyes:
+        return {}
+    
+    result = {}
+    
+    # معالجة العين اليسرى
+    if 'left_eye' in eyes and eyes['left_eye']:
+        left = eyes['left_eye'].copy()
+        # إزالة الحقول الإضافية التي لا تكون في makeup_analysis2
+        for key in ['width', 'height', 'opening']:
+            if key in left and key not in ['opening']:  # opening يبقى
+                pass  # opening قد يكون مهم، لكن width و height يتم حذفها
+        result['left_eye'] = left
+    
+    # معالجة العين اليمنى
+    if 'right_eye' in eyes and eyes['right_eye']:
+        right = eyes['right_eye'].copy()
+        result['right_eye'] = right
+    
+    # نسخ البيانات المهمة
+    if 'inter_eye_ratio' in eyes:
+        result['inter_eye_ratio'] = eyes['inter_eye_ratio']
+    if 'symmetry' in eyes:
+        result['symmetry'] = eyes['symmetry']
+    
+    return result
+
+
+def _standardize_brows_structure(brows: Optional[Dict]) -> Dict:
+    """تنظيف بيانات الحواجب - إزالة measurements الإضافية"""
+    if not brows:
+        return {}
+    
+    result = {}
+    # الحقول المسموحة فقط
+    allowed_fields = ['thickness', 'length', 'shape', 'position', 'spacing', 'symmetry']
+    
+    for field in allowed_fields:
+        if field in brows:
+            result[field] = brows[field]
+    
+    # حذف حقل measurements إن وجد
+    if 'measurements' in brows:
+        # لا نضيفه
+        pass
+    
+    return result
+
+
+def _standardize_lips_structure(lips: Optional[Dict]) -> Dict:
+    """تنظيف بيانات الشفاه - إزالة measurements الإضافية"""
+    if not lips:
+        return {}
+    
+    result = {}
+    # الحقول المسموحة فقط
+    allowed_fields = ['volume', 'balance', 'width', 'symmetry', 'cupid_bow', 'corners']
+    
+    for field in allowed_fields:
+        if field in lips:
+            result[field] = lips[field]
+    
+    # حذف حقل measurements إن وجد
+    if 'measurements' in lips:
+        # لا نضيفه
+        pass
+    
+    return result
+
+
+def _standardize_nose_structure(nose: Optional[Dict]) -> Dict:
+    """تنظيف بيانات الأنف - إزالة measurements الإضافية"""
+    if not nose:
+        return {}
+    
+    result = {}
+    # الحقول المسموحة فقط
+    allowed_fields = ['shape', 'width', 'bridge']
+    
+    for field in allowed_fields:
+        if field in nose:
+            result[field] = nose[field]
+    
+    # حذف حقل measurements إن وجد
+    if 'measurements' in nose:
+        # لا نضيفه
+        pass
+    
+    return result
+
+
+def _standardize_face_analysis(face_analysis: Optional[Dict]) -> Dict:
+    """تنظيف بيانات تحليل الوجه بالكامل"""
+    if not face_analysis:
+        return {}
+    
+    result = face_analysis.copy()
+    
+    # تنظيف العيون
+    if 'eyes' in result:
+        result['eyes'] = _standardize_eyes_structure(result['eyes'])
+    
+    # تنظيف الحواجب
+    if 'brows' in result:
+        result['brows'] = _standardize_brows_structure(result['brows'])
+    
+    # تنظيف الشفاه
+    if 'lips' in result:
+        result['lips'] = _standardize_lips_structure(result['lips'])
+    
+    # تنظيف الأنف
+    if 'nose' in result:
+        result['nose'] = _standardize_nose_structure(result['nose'])
+    
+    # الحفاظ على الحقول الأساسية فقط في face_shape
+    if 'face_shape' in result and result['face_shape']:
+        face_shape = result['face_shape'].copy()
+        # الحقول المسموحة
+        allowed = ['shape', 'votes', 'ratios', 'confidence']
+        result['face_shape'] = {k: v for k, v in face_shape.items() if k in allowed}
+    
+    return result
+
+
+def normalize_json_output(results: Dict) -> Dict:
+    """
+    تطبيع تنسيق JSON النهائي ليطابق makeup_analysis2.json
+    يزيل جميع البيانات الإضافية التي لم يتوقعها الزملاء
+    """
+    try:
+        normalized = {}
+        
+        # تنظيف face_analysis
+        if 'face_analysis' in results:
+            normalized['face_analysis'] = _standardize_face_analysis(results['face_analysis'])
+        
+        # نسخ skin_analysis كما هي (عادة ما تكون صحيحة)
+        if 'skin_analysis' in results:
+            normalized['skin_analysis'] = results['skin_analysis']
+        
+        # نسخ expert_output كما هي
+        if 'expert_output' in results:
+            normalized['expert_output'] = results['expert_output']
+        
+        # نسخ occasion
+        if 'occasion' in results:
+            normalized['occasion'] = results['occasion']
+        
+        # نسخ eyeshadow_palettes إن وجدت
+        if 'eyeshadow_palettes' in results:
+            normalized['eyeshadow_palettes'] = results['eyeshadow_palettes']
+        
+        return normalized
+    except Exception as e:
+        print(f"⚠ تحذير في تطبيع البيانات: {e}")
+        # في حالة الخطأ، إرجاع البيانات الأصلية
+        return results
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -278,14 +452,20 @@ class CompleteMakeupPipeline:
             }
 
     def _save_json(self, output_path: str):
-        """حفظ النتائج في JSON"""
+        """حفظ النتائج في JSON مع تحويل البيانات إلى الهيكل المطلوب"""
         try:
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             
+            # 🎨 تحويل البيانات إلى الهيكل المطلوب (makeup_analysis.json)
+            transformed_results = apply_transformation_to_results(self.results)
+            
+            # تطبيع البيانات (حذف الحقول الزائدة)
+            final_results = normalize_json_output(transformed_results)
+            
             with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(self.results, f, indent=2, ensure_ascii=False, default=str)
-            print(f"  ✓ تم حفظ النتائج في: {output_path}")
+                json.dump(final_results, f, indent=2, ensure_ascii=False, default=str)
+            print(f"  ✓ تم حفظ النتائج (مع التحويل والتطبيع) في: {output_path}")
         except Exception as e:
             error = f"خطأ في حفظ JSON: {str(e)}"
             self.errors.append(error)
@@ -313,11 +493,17 @@ class CompleteMakeupPipeline:
         return []
 
     def export_json(self, filepath: str):
-        """تصدير النتائج الكاملة"""
+        """تصدير النتائج مع تحويل البيانات إلى الهيكل المطلوب"""
         try:
+            # 🎨 تحويل البيانات إلى الهيكل المطلوب
+            transformed_results = apply_transformation_to_results(self.results)
+            
+            # تطبيع البيانات
+            final_results = normalize_json_output(transformed_results)
+            
             with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(self.results, f, indent=2, ensure_ascii=False, default=str)
-            print(f"✓ تم التصدير إلى: {filepath}")
+                json.dump(final_results, f, indent=2, ensure_ascii=False, default=str)
+            print(f"✓ تم التصدير (مع التحويل والتطبيع) إلى: {filepath}")
         except Exception as e:
             print(f"✗ خطأ في التصدير: {e}")
 

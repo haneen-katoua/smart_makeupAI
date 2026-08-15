@@ -267,7 +267,26 @@ function redirectToLogin() {
 
 }
 
+import { Client } from "@gradio/client";
 
+export const applySmartMakeup = async (imageFile) => {
+  try {
+    const app = await Client.connect("http://localhost:7860/");
+
+    const result = await app.predict("/handle_apply", [ imageFile ]);
+
+    return {
+      success: true,
+      beforeImage: result.data[0]?.url,
+      afterImage: result.data[1]?.url,
+      statusMessage: result.data[2],
+      recommendationsHtml: result.data[5]
+    };
+  } catch (error) {
+    console.error("Gradio Integration Error:", error);
+    return { success: false, error: error.message };
+  }
+};
 
 // =====================================================
 // EXPORT

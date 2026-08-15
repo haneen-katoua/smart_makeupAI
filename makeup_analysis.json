@@ -3,92 +3,61 @@
     "success": true,
     "face_detected": true,
     "face_shape": {
-      "shape": "Rectangular",
-      "votes": {
-        "Rectangular": 9,
-        "Heart": 8
-      },
+      "shape": "Oval",
+      "votes": {},
       "ratios": {
-        "face_length_to_width": 1.6797624862160727,
-        "jaw_to_cheekbone_ratio": 0.5222052263442953,
-        "forehead_to_jaw_ratio": 1.9600882591237718
+        "face_length_to_width": 0.7698029236023052,
+        "jaw_to_cheekbone_ratio": 0.5573227686463619,
+        "forehead_to_jaw_ratio": 1.7992901509023242
       },
-      "confidence": 0.5294117647058824
+      "confidence": 0.4
     },
     "eyes": {
       "left_eye": {
-        "geo_shape": "Round",
-        "eye_type": "Deep-set",
-        "size": "Large",
+        "geo_shape": "Almond",
+        "eye_type": "Hooded",
+        "size": "Small",
         "corner_direction": "Neutral",
-        "opening": 0.4637748003913304,
-        "width": 0.05217553235133628,
-        "height": 0.024197697101552385
+        "opening": 0.22340464132958687,
+        "width": 0.13384354570388063,
+        "height": 0.02990126932225562
       },
       "right_eye": {
-        "geo_shape": "Round",
-        "eye_type": "Deep-set",
-        "size": "Large",
+        "geo_shape": "Almond",
+        "eye_type": "Hooded",
+        "size": "Small",
         "corner_direction": "Upturned",
-        "opening": 0.4887881017086508,
-        "width": 0.055319385552820136,
-        "height": 0.027039457452051916
+        "opening": 0.23594345677044282,
+        "width": 0.13500119218088222,
+        "height": 0.03185264795128823
       },
-      "inter_eye_ratio": 1.1915584314610554,
-      "symmetry": "Symmetrical",
-      "measurements": {
-        "left_eye_aspect_ratio": 0.4637748003913304,
-        "right_eye_aspect_ratio": 0.4887881017086508,
-        "inter_eye_distance": 0.06404323788395577
-      }
+      "inter_eye_ratio": 1.250806584963411,
+      "symmetry": "Symmetrical"
     },
     "brows": {
       "thickness": "Thick",
       "length": "Short",
       "shape": "Soft Arch",
-      "position": "High",
+      "position": "Normal",
       "spacing": "Wide",
-      "symmetry": "Symmetrical",
-      "measurements": {
-        "left_length": 0.016258832919356925,
-        "right_length": 0.016946297946394673,
-        "avg_arch_depth": 0.011839456856250763,
-        "avg_thickness_ratio": 2.302114319021663,
-        "face_scale": 0.25661307649114384,
-        "brow_length_ratio": 0.06469882852384096
-      }
+      "symmetry": "Symmetrical"
     },
     "lips": {
-      "volume": "Full",
+      "volume": "Medium",
       "balance": "Lower Fuller",
       "width": "Narrow",
-      "symmetry": "Slightly Asymmetrical",
+      "symmetry": "Symmetrical",
       "cupid_bow": "Soft",
-      "corners": "Neutral",
-      "measurements": {
-        "upper_thickness": 0.015706139882459797,
-        "lower_thickness": 0.02783170318504638,
-        "thickness_ratio": 0.5643255023967957,
-        "width": 0.08603086541951868,
-        "face_scale": 0.25661307649114384,
-        "thickness_ratio_to_face": 0.16966338451192972,
-        "width_ratio_to_face": 0.33525518884649574
-      }
+      "corners": "Upturned"
     },
     "nose": {
-      "shape": "Balanced",
-      "width": "Normal",
-      "bridge": "Straight",
-      "measurements": {
-        "length": 0.08457544053554704,
-        "width_sides": 0.05421139823161869,
-        "nostril_width": 0.0716378078041482,
-        "length_to_width_ratio": 1.1805978313402505
-      }
+      "shape": "Short",
+      "width": "Wide",
+      "bridge": "Straight"
     },
     "measurements": {
-      "image_width": 1024,
-      "image_height": 682
+      "image_width": 736,
+      "image_height": 1177
     },
     "error": null
   },
@@ -96,94 +65,169 @@
     "success": true,
     "skin_depth": "Fair",
     "undertone": "Warm",
-    "skin_type": "Oily",
+    "skin_type": "Normal",
     "color_lab": {
-      "L": 72.06767655583518,
-      "a": 16.64492146947738,
-      "b": 15.708761835467211
+      "L": 68.23529411764706,
+      "a": 11.0,
+      "b": 15.0
     },
     "color_rgb": [
-      216.34453781512605,
-      165.08880825057295,
-      148.87862872421695
+      196,
+      159,
+      140
     ],
-    "confidence": 0.5563075172870575
+    "color_hex": "#c49f8c",
+    "confidence": 0.8500000000000001
   },
   "expert_output": {
     "eyes": {
       "left": {
         "category": {
-          "category": "Deep-set",
-          "name_ar": "العين الغائرة (Deep-set)",
-          "goal": "تم اعتماد تقنية التقديم البصري (Advancing) بوضع ألوان فاتحة ومشرقة على كامل الجفن المتحرك لسحب العين للخارج بصرياً، مع استخدام ألوان متوسطة (وليست داكنة) في الكسرة، ومنع الألوان الداكنة جداً لأنها تزيد من عمق التجويف وتجعل العين تبدو غارقة"
+          "category": "Hooded",
+          "name_ar": "العين المبطّنة (Hooded)",
+          "goal": "تم اختيار تقنية الكات كريز الوهمي (Floating/Illusion Crease) برسم ظل اصطناعي فوق الطية الطبيعية للجفن، لخلق عمق بصري يقلل من بروز التبطينة ويجعل الجفن الثابت يبدو كجفن متحرك واسع، مع استبعاد الآيلاينر الكلاسيكي لأنه ينكسر تحت الجلد المترهل"
         },
         "plan": {
-          "style": "سموكي متدرّج ناعم",
-          "texture": "شيمر على الجفن المتحرك / غليتر",
-          "lashes": "رموش كثيفة 3D",
-          "eyeliner": "آيلاينر سائل"
+          "style": "كت كريز فاخر بتقنية جناح حريري دقيق",
+          "texture": "لمسة ساتان / لامعة",
+          "lashes": "رموش طويلة وكثيفة فاخرة",
+          "eyeliner": "آيلاينر حريري",
+          "eyeshadow_arrow_target": "eyelid",
+          "eyeliner_arrow_target": "eyeliner",
+          "mascara_arrow_target": "lashes"
         }
       },
       "right": {
         "category": {
-          "category": "Deep-set",
-          "name_ar": "العين الغائرة (Deep-set)",
-          "goal": "تم اعتماد تقنية التقديم البصري (Advancing) بوضع ألوان فاتحة ومشرقة على كامل الجفن المتحرك لسحب العين للخارج بصرياً، مع استخدام ألوان متوسطة (وليست داكنة) في الكسرة، ومنع الألوان الداكنة جداً لأنها تزيد من عمق التجويف وتجعل العين تبدو غارقة"
+          "category": "Hooded",
+          "name_ar": "العين المبطّنة (Hooded)",
+          "goal": "تم اختيار تقنية الكات كريز الوهمي (Floating/Illusion Crease) برسم ظل اصطناعي فوق الطية الطبيعية للجفن، لخلق عمق بصري يقلل من بروز التبطينة ويجعل الجفن الثابت يبدو كجفن متحرك واسع، مع استبعاد الآيلاينر الكلاسيكي لأنه ينكسر تحت الجلد المترهل"
         },
         "plan": {
-          "style": "سموكي متدرّج ناعم",
-          "texture": "شيمر على الجفن المتحرك / غليتر",
-          "lashes": "رموش كثيفة 3D",
-          "eyeliner": "آيلاينر سائل"
+          "style": "كت كريز فاخر بتقنية جناح حريري دقيق",
+          "texture": "لمسة ساتان / لامعة",
+          "lashes": "رموش طويلة وكثيفة فاخرة",
+          "eyeliner": "آيلاينر حريري",
+          "eyeshadow_arrow_target": "eyelid",
+          "eyeliner_arrow_target": "eyeliner",
+          "mascara_arrow_target": "lashes"
         }
       }
     },
     "brows": {
       "correction": {
-        "arch_type": "قوس ناعم أو شبه مسطح",
-        "arch_position": "معتدل إلى منخفض",
-        "tail_direction": "ممتد وطويل",
-        "tail_weight": "خفيف ومدبب",
-        "visual_purpose": "كسر الخط العمودي وإضافة عرض وهمي"
+        "arch_type": "قوس طبيعي",
+        "arch_position": "وضعية طبيعية",
+        "tail_direction": "طبيعي",
+        "tail_weight": "طبيعي",
+        "visual_purpose": "متوازن تشريحياً ولا يحتاج تصحيح"
       },
       "style": {
-        "style": "تحديد بقوس واضح",
-        "technique": "تحديد",
-        "product": "بودرة أو قلم حواجب",
-        "color_intensity": "طبيعي إلى قوي",
-        "appearance": "تناسق محدد وأنيق"
+        "style": "فخامة وجرأة",
+        "technique": "دقة وجرأة في الرسم",
+        "product": "لاينر ومحدد حواجب",
+        "color_intensity": "قوي وجريء",
+        "appearance": "رفع درامي فاخر",
+        "arrow_target": "brows"
       },
       "color": null,
       "recommendation": null
     },
     "lips": {
-      "shape": null,
+      "shape": {
+        "category": "Lower Thin",
+        "name_ar": "شفة سفلى أرق نسبياً",
+        "correction": "موازنة النسبة",
+        "technique": "رسم الخط أسفل الحد الطبيعي للشفة السفلى",
+        "reason": "لضمان التماثل بين الشفتين",
+        "arrow_target": "lip_border"
+      },
       "color": {
         "undertone": "Warm",
         "palette": "أساس ذهبي/خوخي",
-        "colors": "درجات مرجانية وخوخية",
-        "arrow_target": "lips"
+        "colors_summary": "درجات مرجانية وخوخية",
+        "lipstick_shades": [
+          {
+            "name": "خوخي ناعم (Soft Peach)",
+            "hex": "#FFB7B2",
+            "rgb": [
+              255,
+              183,
+              178
+            ]
+          },
+          {
+            "name": "مرجاني مشرق (Bright Coral)",
+            "hex": "#FF7F50",
+            "rgb": [
+              255,
+              127,
+              80
+            ]
+          },
+          {
+            "name": "مشمشي دافئ (Warm Apricot)",
+            "hex": "#FBCEB1",
+            "rgb": [
+              251,
+              206,
+              177
+            ]
+          }
+        ],
+        "lip_liners": [
+          {
+            "name": "محدد خوخي بني (Peach Nude Liner)",
+            "hex": "#D18B70",
+            "rgb": [
+              209,
+              139,
+              112
+            ]
+          },
+          {
+            "name": "محدد مرجاني غامق (Deep Coral Liner)",
+            "hex": "#C85A32",
+            "rgb": [
+              200,
+              90,
+              50
+            ]
+          }
+        ]
       },
       "occasion": {
-        "occasion": "evening",
-        "style": "إطلالة متوازنة",
-        "product": "أحمر شفاه بصبغة قوية، متوازن مع مكياج العين",
-        "texture": "ساتان أو كريمي — يمنح عمقاً ثلاثي الأبعاد"
+        "occasion": "wedding",
+        "style": "شفاه فاخرة وممتلئة",
+        "product": "أحمر شفاه غني مع طبقة لمعان توضع عمودياً بمنتصف الشفة فقط",
+        "texture": "لامع (بالمنتصف فقط، فوق طبقة أساس غنية)",
+        "opacity": 100
       },
-      "recommendation": null
+      "recommendation": {
+        "shape": "Lower Thin",
+        "colors": "درجات مرجانية وخوخية",
+        "occasion": "wedding",
+        "complete": true
+      }
     },
     "nose": {
       "shape": {
-        "shape": "Balanced",
-        "name_ar": "الأنف المتوازن",
-        "goal": "تأطير الأنف بشكل مثالي مع إبراز قوة الملامح",
-        "technique": "يوضع كونتور كامل على الجانبين مع تظليل خفيف على الطرف، بالإضافة إلى هاياليت على الطرف",
-        "reason": "الأنف متوازن أصلاً، لذلك تُستخدم تقنية التعريف الكامل لإبراز قوة الملامح"
+        "shape": "Short",
+        "name_ar": "الأنف القصير",
+        "goal": "خلق إيحاء بالطول عبر تعريف هيكل العظم",
+        "technique": "يوضع كونتور كامل على جانبي الأنف من الحاجب حتى الطرف، مع هاياليت على طرف الأنف تماماً",
+        "reason": "لإعطاء إيحاء بالطول، يُستخدم كونتور بطول كامل لتعريف الهيكل العظمي"
       },
       "map": {
-        "contour": "بطول كامل على الجانبين وبكثافة معتدلة",
-        "highlight": "على طرف الأنف",
-        "tip_shading": "تظليل خفيف على الطرف مدموج مع الهاياليت لإعطاء بعد ثلاثي الأبعاد"
+        "contour": "بطول كامل، من بداية الحاجب حتى الطرف على الجانبين",
+        "contour_arrow_target": [
+          "nose_contour_left",
+          "nose_contour_right"
+        ],
+        "highlight": "يوضع مباشرة على طرف الأنف (تقنية الإظهار للأمام)",
+        "highlight_arrow_target": "nose_bridge",
+        "tip_shading": "لا يوجد — الطرف يُبرَز بالهاياليت وليس بالتظليل",
+        "tip_arrow_target": "nose_tip"
       },
       "contour": {
         "product": "بيج ذهبي فاتح",
@@ -194,7 +238,7 @@
         "method": "يُنتج بالمزج بين لون البشرة الأساسي والأبيض"
       },
       "recommendation": {
-        "shape": "Balanced",
+        "shape": "Short",
         "product": "بيج ذهبي فاتح",
         "highlight": "عاجي",
         "complete": true
@@ -202,72 +246,207 @@
     },
     "face": {
       "shape": {
-        "shape": "Rectangular",
-        "name_ar": "الوجه المستطيل (Face Rectangular)",
-        "goal": "تقصير الوجه بصرياً وتخفيف حدة الفك الطويل"
+        "shape": "Oval",
+        "name_ar": "الوجه البيضاوي (Face Oval)",
+        "goal": "الحفاظ على التوازن المثالي مع تفادي مظهر الوجه الغارق"
       },
       "sculpt": {
-        "placement": "تظليل ناعم عند منبت الشعر (أعلى الجبهة) وأسفل الذقن فقط",
-        "purpose": "تقصير الوجه بصرياً"
+        "placement": "استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد",
+        "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد",
+        "arrow_target": "face_contour"
       },
       "blush": {
-        "placement": "على الصدغين وجوانب الجبهة",
-        "purpose": "زيادة عرض الوجه في المنطقة العلوية"
+        "placement": "في مركز الخد بدمج ناعم جداً باتجاه الأذن",
+        "purpose": "إعطاء حجم حيوي للخدود النحيفة",
+        "arrow_target": "cheeks"
       },
       "highlight": {
-        "placement": "وسط الجبهة والذقن فقط",
-        "purpose": "جذب الانتباه للمركز"
+        "placement": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
+        "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد",
+        "arrow_target": "face_highlight"
       },
       "color": {
         "base_color": "خوخي ذهبي",
         "palette": "أساس دافئ"
       },
-      "adjustment": {
-        "rule": "يُختار اللون من المصفوفة بنفس درجة \"حرارة\" ظل العين ولون البشرة",
-        "opacity": 100
-      },
       "texture": {
-        "finish": "مطفأ",
-        "transparency": "شفاف بنسبة 80%",
-        "description": "تورّد طبيعي نابع من الجلد"
+        "finish": "مخملي غني / براق",
+        "transparency": null,
+        "description": "تحديد وصبغة كاملة عالية الدقة مناسبة للتصوير والفلاش"
       },
       "recommendation": {
-        "shape": "Rectangular",
+        "shape": "Oval",
         "color": "خوخي ذهبي",
-        "occasion": "evening",
+        "occasion": "wedding",
         "complete": true
       }
     },
     "foundation": {
       "shade": {
         "range": "فاتحة ذهبية",
-        "descriptor": "درجة فاتحة ذهبية الميل"
+        "descriptor": "درجة فاتحة ذهبية الميل",
+        "hex": "#ce9166",
+        "rgb": [
+          206,
+          145,
+          102
+        ]
       },
       "formula": {
-        "primary": "أساس بودرة / سائل مطفأ",
-        "texture": "مطفأ",
-        "coverage": "متوسطة إلى كاملة",
-        "reason": "تمتص الدهون الزائدة وتثبت لفترة أطول"
+        "primary": "أساس سائل بلمسة ساتان",
+        "texture": "ساتان",
+        "coverage": "متوسطة",
+        "reason": "يمنح مظهراً طبيعياً متوازناً دون الحاجة لتصحيح كبير"
       },
       "concealer": {
         "descriptor": "درجة أفتح من الأساس بدرجة واحدة",
-        "reason": "لتفتيح منطقة تحت العين وتصحيح الهالات"
+        "reason": "لتفتيح منطقة تحت العين وتصحيح الهالات",
+        "hex": "#d59b73",
+        "rgb": [
+          213,
+          155,
+          115
+        ]
       },
       "primer": {
-        "type": "برايمر مطفئ للمعان (أساسه سيليكا)",
-        "function": "تقليل لمعان الدهون وتوسيع ثبات المكياج"
+        "type": "برايمر منعّم ومقلّص للمسام",
+        "function": "تنعيم الملمس وتحضير سطح موحد للأساس"
       },
       "setting": {
-        "method": "بودرة تثبيت + رذاذ تثبيت مطفئ للمعان",
-        "technique": "تثبيت كامل الوجه ببودرة شفافة مع التركيز على منطقة T",
-        "reason": "لإطالة مدة الثبات ومنع ظهور اللمعان خلال اليوم"
+        "method": "بودرة خفيفة + رذاذ تثبيت",
+        "technique": "تثبيت عام متوازن",
+        "reason": "للحفاظ على المظهر الطبيعي طوال اليوم"
       },
       "recommendation": {
         "shade_range": "فاتحة ذهبية",
-        "formula": "أساس بودرة / سائل مطفأ",
+        "formula": "أساس سائل بلمسة ساتان",
         "complete": true
       }
     }
   },
-  "occasion": "evening"
+  "occasion": "wedding",
+  "eyeshadow_palettes": {
+    "Neutral Palette": [
+      {
+        "role": "Highlight",
+        "hex": "#FFF7EB",
+        "rgb": [
+          255,
+          247,
+          235
+        ],
+        "hue": 18
+      },
+      {
+        "role": "Highlight",
+        "hex": "#D2C8AD",
+        "rgb": [
+          210,
+          200,
+          173
+        ],
+        "hue": 22
+      },
+      {
+        "role": "Highlight",
+        "hex": "#C3AE99",
+        "rgb": [
+          195,
+          174,
+          153
+        ],
+        "hue": 15
+      },
+      {
+        "role": "Base",
+        "hex": "#C8AE7A",
+        "rgb": [
+          200,
+          174,
+          122
+        ],
+        "hue": 20
+      },
+      {
+        "role": "Base",
+        "hex": "#B4A24A",
+        "rgb": [
+          180,
+          162,
+          74
+        ],
+        "hue": 25
+      },
+      {
+        "role": "Base",
+        "hex": "#DCDC79",
+        "rgb": [
+          220,
+          220,
+          121
+        ],
+        "hue": 30
+      },
+      {
+        "role": "Sculpt",
+        "hex": "#5A4938",
+        "rgb": [
+          90,
+          73,
+          56
+        ],
+        "hue": 15
+      },
+      {
+        "role": "Sculpt",
+        "hex": "#8C5B3A",
+        "rgb": [
+          140,
+          91,
+          58
+        ],
+        "hue": 12
+      },
+      {
+        "role": "Sculpt",
+        "hex": "#463025",
+        "rgb": [
+          70,
+          48,
+          37
+        ],
+        "hue": 10
+      },
+      {
+        "role": "Accent",
+        "hex": "#E6DA9E",
+        "rgb": [
+          230,
+          218,
+          158
+        ],
+        "hue": 25
+      },
+      {
+        "role": "Accent",
+        "hex": "#B49566",
+        "rgb": [
+          180,
+          149,
+          102
+        ],
+        "hue": 18
+      },
+      {
+        "role": "Accent",
+        "hex": "#BEBE5D",
+        "rgb": [
+          190,
+          190,
+          93
+        ],
+        "hue": 30
+      }
+    ]
+  }
 }
