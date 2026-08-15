@@ -1,0 +1,584 @@
+.user-analysis-details-page {
+    min-height: 100vh;
+    background: #fff7eb;
+    color: #292633;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.user-analysis-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 35px 24px 20px;
+}
+
+
+.back-profile-button {
+    border: none;
+    background: transparent;
+
+    color: #d96b7c;
+
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 25px;
+}
+
+
+.analysis-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+.analysis-header-content h1 {
+    margin: 0 0 8px;
+    font-size: 34px;
+}
+
+
+.analysis-header-content p {
+    margin: 0;
+    color: #777;
+}
+
+
+.analysis-id {
+    background: #ffffff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.user-analysis-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 24px 50px;
+}
+
+
+.user-analysis-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =====================================================
+   SECTION TITLE
+===================================================== */
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 25px;
+}
+
+
+.section-icon {
+    font-size: 27px;
+}
+
+
+.section-title h2 {
+    margin: 0 0 5px;
+    font-size: 23px;
+}
+
+
+.section-title p {
+    margin: 0;
+    color: #888;
+}
+
+
+/* =====================================================
+   BASIC INFO
+===================================================== */
+
+.basic-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+
+.basic-info-grid > div {
+    background: #fff7eb;
+    padding: 18px;
+    border-radius: 12px;
+}
+
+
+.basic-info-grid span,
+.skin-value span,
+.skin-color span,
+.clothing-info span,
+.recommendation-content span {
+    display: block;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 7px;
+}
+
+
+.basic-info-grid strong {
+    font-size: 17px;
+}
+
+
+/* =====================================================
+   IMAGES
+===================================================== */
+
+.uploaded-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+
+.uploaded-image-card {
+    background: #fff7eb;
+    padding: 18px;
+    border-radius: 15px;
+}
+
+
+.uploaded-image-card h3 {
+    margin-top: 0;
+}
+
+
+.uploaded-image-card img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+
+/* =====================================================
+   FACE ANALYSIS
+===================================================== */
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+
+.analysis-box {
+    background: #fff7eb;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+
+.analysis-box h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+
+.analysis-box p {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+.analysis-box p span {
+    color: #888;
+}
+
+
+.big-value {
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+
+/* =====================================================
+   SKIN
+===================================================== */
+
+.skin-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+
+.skin-value,
+.skin-color {
+    background: #fff7eb;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+
+.skin-value strong,
+.skin-color strong {
+    font-size: 16px;
+}
+
+
+.color-preview {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    margin: 10px 0;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =====================================================
+   RECOMMENDATIONS
+===================================================== */
+
+.recommendation-section {
+    border-top: 1px solid #ffb6c1 ;
+    padding: 22px 0;
+}
+
+
+.recommendation-section:first-of-type {
+    border-top: none;
+}
+
+
+.recommendation-section h3 {
+    margin-top: 0;
+}
+
+
+.recommendation-content {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+
+.recommendation-content > div {
+    background: #fff7eb;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+
+.recommendation-content strong {
+    display: block;
+}
+
+
+/* =====================================================
+   COLORS
+===================================================== */
+
+.color-list {
+    margin-top: 20px;
+}
+
+
+.color-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+
+.makeup-color-card {
+    width: 130px;
+    background: #fff7eb;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+
+.makeup-color-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+}
+
+
+.makeup-color-card strong,
+.makeup-color-card span {
+    display: block;
+}
+
+
+.makeup-color-card span {
+    color: #888;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+
+/* =====================================================
+   CLOTHING
+===================================================== */
+
+.clothing-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+
+.clothing-info > div {
+    background: #fff7eb;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+
+.clothing-color {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.clothing-color > div {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+
+/* =====================================================
+   PALETTE
+===================================================== */
+
+.palette-container {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+
+.palette-image {
+    max-width: 500px;
+    width: 100%;
+    border-radius: 15px;
+}
+
+
+.palette-info {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+
+.palette-info span {
+    display: block;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+
+.no-palette {
+    padding: 30px;
+    text-align: center;
+    color: #888;
+}
+
+
+/* =====================================================
+   MAKEUP STEPS
+===================================================== */
+
+.makeup-steps-action {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 35px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
+}
+
+
+.makeup-steps-action h2 {
+    margin-top: 0;
+}
+
+
+.makeup-steps-action p {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+
+.makeup-steps-button {
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+
+    background: #ffb6c1;
+    color: #292633;
+
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.makeup-steps-button:hover {
+    background: #ff9faf;
+    transform: translateY(-1px);
+}
+
+.makeup-steps-button:hover {
+    opacity: 0.9;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.user-analysis-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 50px;
+}
+
+
+.user-analysis-footer button {
+    border: none;
+    background: transparent;
+
+    color: #d96b7c;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   LOADING / ERROR
+===================================================== */
+
+.user-analysis-loading,
+.user-analysis-error {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+}
+
+
+.user-analysis-error h2 {
+    margin-bottom: 10px;
+}
+
+
+.user-analysis-error p {
+    color: #777;
+}
+
+
+.analysis-error-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+
+.analysis-error-buttons button {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+
+.analysis-error-buttons .secondary-button {
+    background: #eee;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .analysis-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .skin-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .recommendation-content {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    .clothing-info {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .analysis-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+
+    .basic-info-grid,
+    .uploaded-images,
+    .analysis-grid,
+    .skin-grid,
+    .recommendation-content {
+        grid-template-columns: 1fr;
+    }
+
+
+    .palette-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+
+    .user-analysis-card {
+        padding: 20px;
+    }
+
+}

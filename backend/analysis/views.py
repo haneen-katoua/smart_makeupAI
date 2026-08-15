@@ -649,6 +649,12 @@ class GenerateMakeupStepsAPIView(APIView):
         # ==================================================
 
         try:
+            
+            # ==================================================
+            # Remove previously generated makeup steps
+            # ==================================================
+
+            makeup_request.step_images.all().delete()
 
             results = generate_makeup_step_images(
                 makeup_request=makeup_request,

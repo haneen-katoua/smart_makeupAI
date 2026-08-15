@@ -1,0 +1,1280 @@
+/* =====================================================
+   PAGE
+===================================================== */
+
+.user-makeup-page {
+
+    min-height: 100vh;
+
+    padding: 30px;
+
+    background: #fff7eb;
+
+    color: #4b3b3f;
+
+}
+
+
+/* =====================================================
+   REQUEST CARD
+===================================================== */
+
+.makeup-request-card {
+
+    max-width: 1100px;
+
+    margin: 0 auto 30px;
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.05);
+
+}
+
+
+.request-header {
+
+    margin-bottom: 30px;
+
+}
+
+
+.request-header h1 {
+
+    margin: 0 0 8px;
+
+    font-size: 32px;
+
+}
+
+
+.request-header p {
+
+    margin: 0;
+
+    color: #8a7478;
+
+    line-height: 1.6;
+
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.makeup-request-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 25px;
+
+}
+
+
+/* =====================================================
+   UPLOAD
+===================================================== */
+
+.upload-section {
+
+    width: 100%;
+
+}
+
+
+.upload-section h2 {
+
+    margin: 0 0 5px;
+
+    font-size: 20px;
+
+}
+
+
+.upload-section > p {
+
+    margin: 0 0 15px;
+
+    color: #927f84;
+
+    font-size: 14px;
+
+}
+
+
+.upload-box {
+
+    display: block;
+
+    width: 100%;
+
+    min-height: 300px;
+
+    border: 2px dashed #f0c5cc;
+
+    border-radius: 20px;
+
+    background: #fff7eb;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition: 0.2s ease;
+
+}
+
+
+.upload-box:hover {
+
+    border-color: #ffb6c1;
+
+    background: #fff3f5;
+
+}
+
+
+.upload-box input {
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   UPLOAD PLACEHOLDER
+===================================================== */
+
+.upload-placeholder {
+
+    min-height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    color: #927f84;
+
+}
+
+
+.upload-placeholder strong {
+
+    color: #4b3b3f;
+
+    font-size: 17px;
+
+}
+
+
+.upload-icon {
+
+    font-size: 45px;
+
+}
+
+
+/* =====================================================
+   IMAGE PREVIEW
+===================================================== */
+
+.preview-container {
+
+    position: relative;
+
+    min-height: 300px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: white;
+
+}
+
+
+.upload-preview {
+
+    width: 100%;
+
+    height: 400px;
+
+    object-fit: contain;
+
+    display: block;
+
+}
+
+
+.preview-container span {
+
+    position: absolute;
+
+    bottom: 15px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    background: rgba(75, 59, 63, 0.8);
+
+    color: white;
+
+    padding: 8px 16px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+
+}
+
+
+/* =====================================================
+   OCCASION
+===================================================== */
+
+.occasion-section {
+
+    width: 100%;
+
+}
+
+
+.occasion-section label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-weight: 600;
+
+}
+
+
+.occasion-section select {
+
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: 1px solid #eadadd;
+
+    border-radius: 12px;
+
+    background: white;
+
+    color: #4b3b3f;
+
+    font-size: 15px;
+
+    outline: none;
+
+}
+
+
+.occasion-section select:focus {
+
+    border-color: #ffb6c1;
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.makeup-request-error {
+
+    padding: 14px 18px;
+
+    border-radius: 12px;
+
+    background: #fff0f3;
+
+    color: #c94f67;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   START BUTTON
+===================================================== */
+
+.start-analysis-button {
+
+    width: 100%;
+
+    border: none;
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 16px 25px;
+
+    border-radius: 14px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+}
+
+
+.start-analysis-button:hover:not(:disabled) {
+
+    background: #ff9faf;
+
+    transform: translateY(-1px);
+
+}
+
+
+.start-analysis-button:disabled {
+
+    opacity: 0.7;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =====================================================
+   BUTTON SPINNER
+===================================================== */
+
+.button-spinner {
+
+    display: inline-block;
+
+    width: 16px;
+
+    height: 16px;
+
+    margin-right: 8px;
+
+    border: 2px solid rgba(255,255,255,0.5);
+
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+.analysis-result {
+
+    max-width: 1300px;
+
+    margin: 0 auto;
+
+}
+
+
+.details-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    margin-bottom: 30px;
+
+}
+
+
+.details-header h1 {
+
+    margin: 12px 0 5px;
+
+    font-size: 32px;
+
+}
+
+
+.details-header p {
+
+    margin: 0;
+
+    color: #8a7478;
+
+}
+
+
+.analysis-id {
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 10px 18px;
+
+    border-radius: 20px;
+
+    font-weight: 600;
+
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.details-card {
+
+    background: white;
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.05);
+
+}
+
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.section-title h2 {
+
+    margin: 0 0 4px;
+
+    font-size: 21px;
+
+}
+
+
+.section-title p {
+
+    margin: 0;
+
+    color: #968589;
+
+    font-size: 14px;
+
+}
+
+
+.section-icon {
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #fff0f3;
+
+    font-size: 21px;
+
+}
+
+
+/* =====================================================
+   IMAGES
+===================================================== */
+
+.uploaded-images {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 25px;
+
+}
+
+
+.uploaded-image-card {
+
+    background: #fff7eb;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+}
+
+
+.uploaded-image-card h3 {
+
+    margin-top: 0;
+
+}
+
+
+.uploaded-image-card img {
+
+    width: 100%;
+
+    max-height: 500px;
+
+    object-fit: contain;
+
+    border-radius: 15px;
+
+    background: white;
+
+}
+
+
+/* =====================================================
+   ANALYSIS GRID
+===================================================== */
+
+.analysis-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+}
+
+
+.analysis-box {
+
+    background: #fff7eb;
+
+    border-radius: 17px;
+
+    padding: 20px;
+
+}
+
+
+.analysis-box h3 {
+
+    margin-top: 0;
+
+    margin-bottom: 18px;
+
+}
+
+
+.analysis-box p {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin: 10px 0;
+
+}
+
+
+.analysis-box p span {
+
+    color: #927f84;
+
+}
+
+
+.big-value {
+
+    font-size: 26px;
+
+    font-weight: 700;
+
+    color: #d96f82;
+
+}
+
+
+.analysis-box > p {
+
+    color: #927f84;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   SKIN
+===================================================== */
+
+.skin-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.skin-value {
+
+    background: #fff7eb;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+}
+
+
+.skin-value span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.skin-value strong {
+
+    font-size: 17px;
+
+}
+
+
+.skin-color {
+
+    background: #fff7eb;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+}
+
+
+.skin-color > span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.color-preview {
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 50%;
+
+    border: 4px solid white;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.1);
+
+    margin-bottom: 8px;
+
+}
+
+
+/* =====================================================
+   RECOMMENDATIONS
+===================================================== */
+
+.recommendation-section {
+
+    border-top: 1px solid #f1e5e7;
+
+    padding: 22px 0;
+
+}
+
+
+.recommendation-section:first-of-type {
+
+    border-top: none;
+
+}
+
+
+.recommendation-section h3 {
+
+    color: #d96f82;
+
+    margin-top: 0;
+
+}
+
+
+.recommendation-content {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.recommendation-content > div {
+
+    background: #fff7eb;
+
+    padding: 16px;
+
+    border-radius: 14px;
+
+}
+
+
+.recommendation-content span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+
+}
+
+
+.recommendation-content strong {
+
+    line-height: 1.6;
+
+}
+
+
+/* =====================================================
+   COLORS
+===================================================== */
+
+.color-list {
+
+    margin-top: 20px;
+
+}
+
+
+.color-list h4 {
+
+    margin-bottom: 15px;
+
+}
+
+
+.color-cards {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+}
+
+
+.makeup-color-card {
+
+    background: white;
+
+    border: 1px solid #f0dfe2;
+
+    border-radius: 15px;
+
+    padding: 15px;
+
+    width: 170px;
+
+}
+
+
+.makeup-color-circle {
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 50%;
+
+    margin-bottom: 10px;
+
+}
+
+
+.makeup-color-card strong {
+
+    display: block;
+
+    font-size: 13px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.makeup-color-card span {
+
+    color: #927f84;
+
+    font-size: 12px;
+
+}
+
+
+/* =====================================================
+   CLOTHING
+===================================================== */
+
+.clothing-info {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+
+}
+
+
+.clothing-info > div {
+
+    background: #fff7eb;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+}
+
+
+.clothing-info span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.clothing-color {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.clothing-color div {
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 50%;
+
+}
+
+
+/* =====================================================
+   PALETTE
+===================================================== */
+
+.palette-container {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 30px;
+
+}
+
+
+.palette-image {
+
+    width: 450px;
+
+    max-width: 100%;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.1);
+
+}
+
+
+.palette-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    flex: 1;
+
+}
+
+
+.palette-info > div {
+
+    background: #fff7eb;
+
+    padding: 18px;
+
+    border-radius: 15px;
+
+}
+
+
+.palette-info span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.no-palette {
+
+    padding: 30px;
+
+    text-align: center;
+
+    background: #fff7eb;
+
+    border-radius: 15px;
+
+    color: #927f84;
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.analysis-loading {
+
+    min-height: 50vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+}
+
+
+.loading-spinner {
+
+    width: 45px;
+
+    height: 45px;
+
+    border: 4px solid #ffe0e6;
+
+    border-top-color: #ffb6c1;
+
+    border-radius: 50%;
+
+    animation:
+        spin 1s linear infinite;
+
+}
+
+
+.analysis-loading h2 {
+
+    margin: 20px 0 8px;
+
+}
+
+
+.analysis-loading p {
+
+    color: #927f84;
+
+}
+
+
+@keyframes spin {
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .analysis-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .skin-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .user-makeup-page {
+
+        padding: 15px;
+
+    }
+
+
+    .makeup-request-card {
+
+        padding: 20px;
+
+    }
+
+
+    .details-header {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+
+    .uploaded-images {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .analysis-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .skin-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .recommendation-content {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .clothing-info {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .palette-container {
+
+        flex-direction: column;
+
+    }
+
+
+    .palette-image {
+
+        width: 100%;
+
+    }
+
+
+    .upload-preview {
+
+        height: 300px;
+
+    }
+
+}
+
+/* =====================================================
+   MAKEUP STEPS BUTTON
+===================================================== */
+
+.makeup-steps-action {
+
+    margin-top: 30px;
+
+    padding: 35px;
+
+    background: white;
+
+    border-radius: 22px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.05);
+
+}
+
+
+.makeup-steps-action h2 {
+
+    margin: 0 0 10px;
+
+    color: #4b3b3f;
+
+    font-size: 24px;
+
+}
+
+
+.makeup-steps-action p {
+
+    margin: 0 auto 25px;
+
+    max-width: 600px;
+
+    color: #927f84;
+
+    line-height: 1.7;
+
+}
+
+
+.makeup-steps-button {
+
+    border: none;
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 14px 30px;
+
+    border-radius: 14px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.makeup-steps-button:hover {
+
+    background: #d96f82;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 18px rgba(217, 111, 130, 0.25);
+
+}

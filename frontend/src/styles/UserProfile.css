@@ -1,0 +1,569 @@
+.user-profile-page {
+    min-height: 100vh;
+    background: #fff7eb;
+}
+
+
+.user-profile-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 70px;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.user-profile-loading {
+    min-height: 70vh;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+}
+
+
+.profile-loading-spinner {
+    width: 42px;
+    height: 42px;
+
+    border: 4px solid #eeeeee;
+    border-top-color: #ffb6c1;
+
+    border-radius: 50%;
+
+    animation: profileSpin 0.8s linear infinite;
+}
+
+
+@keyframes profileSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.user-profile-error {
+    max-width: 600px;
+    margin: 100px auto;
+    padding: 30px;
+
+    text-align: center;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+
+.user-profile-error button {
+    margin-top: 15px;
+
+    padding: 11px 22px;
+
+    border: none;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    background: #ffb6c1;
+    color: #292633;
+}
+
+
+/* =====================================================
+   PROFILE CARD
+===================================================== */
+
+.profile-card {
+    display: flex;
+    align-items: center;
+
+    gap: 24px;
+
+    padding: 30px;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.06);
+
+    margin-bottom: 24px;
+}
+
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #ffb6c1;
+
+    font-size: 42px;
+}
+
+
+.profile-main-info h1 {
+    margin: 0 0 6px;
+
+    font-size: 28px;
+}
+
+
+.profile-username,
+.profile-email {
+    margin: 5px 0;
+}
+
+
+.profile-username {
+    color: #777777;
+}
+
+
+.profile-email {
+    color: #555555;
+}
+
+
+/* =====================================================
+   COMMON SECTION
+===================================================== */
+
+.profile-information-card,
+.profile-analyses-section {
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 28px;
+
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+
+.profile-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+
+.profile-section-title h2 {
+    margin: 0 0 6px;
+}
+
+
+.profile-section-title p {
+    margin: 0;
+
+    color: #777777;
+}
+
+
+/* =====================================================
+   PROFILE INFORMATION
+===================================================== */
+
+.profile-information-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+.profile-information-item {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    padding: 18px;
+
+    background: #fafafa;
+
+    border-radius: 12px;
+}
+
+
+.profile-information-item span {
+    color: #777777;
+
+    font-size: 13px;
+}
+
+
+.profile-information-item strong {
+    font-size: 15px;
+}
+
+
+/* =====================================================
+   ANALYSIS COUNT
+===================================================== */
+
+.analysis-total {
+    min-width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ffb6c1;
+
+    color: #292633;
+
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   ANALYSIS LIST
+===================================================== */
+
+.analyses-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.analysis-history-card {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 16px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 16px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+
+    background: #ffffff;
+}
+
+
+.analysis-history-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #ffb6c1;
+
+    box-shadow:
+        0 8px 25px rgba(255, 182, 193, 0.25);
+}
+
+
+.analysis-history-image {
+    width: 80px;
+    height: 80px;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background: #f3f3f3;
+}
+
+
+.analysis-history-image img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+.analysis-no-image {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+}
+
+
+.analysis-history-content {
+    flex: 1;
+}
+
+
+.analysis-history-top {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 7px;
+}
+
+
+.analysis-history-id {
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.analysis-history-date {
+    font-size: 13px;
+
+    color: #888888;
+}
+
+
+.analysis-history-content h3 {
+    margin: 0 0 7px;
+
+    font-size: 18px;
+}
+
+
+.analysis-history-content p {
+    margin: 0;
+
+    color: #666666;
+
+    font-size: 14px;
+}
+
+
+.analysis-history-arrow {
+    font-size: 26px;
+
+    color: #ff8fa3;
+
+    padding: 10px;
+}
+
+
+/* =====================================================
+   NO ANALYSES
+===================================================== */
+
+.no-analyses {
+    padding: 50px 20px;
+
+    text-align: center;
+
+    border: 1px dashed #dddddd;
+
+    border-radius: 16px;
+}
+
+
+.no-analyses-icon {
+    font-size: 45px;
+
+    margin-bottom: 12px;
+}
+
+
+.no-analyses h3 {
+    margin-bottom: 8px;
+}
+
+
+.no-analyses p {
+    color: #777777;
+}
+
+
+.no-analyses button {
+    margin-top: 15px;
+
+    padding: 11px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+
+@media (max-width: 700px) {
+
+    .user-profile-container {
+        padding: 25px 15px 50px;
+    }
+
+
+    .profile-card {
+        padding: 22px;
+
+        flex-direction: column;
+
+        text-align: center;
+    }
+
+
+    .profile-information-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .analysis-history-card {
+        gap: 12px;
+    }
+
+
+    .analysis-history-image {
+        width: 65px;
+        height: 65px;
+    }
+
+
+    .analysis-history-top {
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+
+    .analysis-history-arrow {
+        font-size: 20px;
+    }
+
+}
+
+/* =====================================================
+   EDIT PROFILE
+===================================================== */
+
+.edit-profile-button {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: #ffb6c1;
+    color: #4a3035;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+
+.edit-profile-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+
+.profile-information-item input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 10px 12px;
+
+    border: 1px solid #ffb6c1;
+    border-radius: 8px;
+
+    background: #fff7eb;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+
+.profile-information-item input:focus {
+    border-color: #ffb6c1;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 182, 193, 0.2);
+}
+
+
+.profile-edit-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+
+.save-profile-button {
+    border: none;
+
+    padding: 11px 22px;
+
+    border-radius: 10px;
+
+    background: #ffb6c1;
+
+    color: #4a3035;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.save-profile-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+.cancel-profile-button {
+    border: 1px solid #dddddd;
+
+    padding: 11px 22px;
+
+    border-radius: 10px;
+
+    background: #fff7eb;
+
+    color: #555555;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}

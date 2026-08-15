@@ -8,17 +8,15 @@ import "../styles/Sidebar.css";
 import "../styles/AdminLayout.css";
 
 
-function AdminLayout(){
-
+function AdminLayout() {
 
     return (
 
-        <>
+        <div className="admin-layout">
 
             <Navbar />
 
             <Sidebar />
-
 
             <main className="admin-content">
 
@@ -26,8 +24,7 @@ function AdminLayout(){
 
             </main>
 
-
-        </>
+        </div>
 
     );
 

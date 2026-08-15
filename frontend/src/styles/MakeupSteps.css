@@ -1,0 +1,650 @@
+/* =====================================================
+   PAGE
+===================================================== */
+
+.makeup-steps-page {
+
+    min-height: 100vh;
+
+    background: #fff7eb;
+
+    padding: 35px;
+
+    color: #4b3b3f;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.makeup-steps-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    margin-bottom: 35px;
+
+}
+
+
+.steps-back-button {
+
+    border: none;
+
+    background: transparent;
+
+    color: #d96f82;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    padding: 0;
+
+    margin-bottom: 15px;
+
+}
+
+
+.steps-back-button:hover {
+
+    text-decoration: underline;
+
+}
+
+
+.makeup-steps-header h1 {
+
+    margin: 0 0 8px;
+
+    font-size: 32px;
+
+}
+
+
+.makeup-steps-header p {
+
+    margin: 0;
+
+    color: #927f84;
+
+    font-size: 15px;
+
+}
+
+
+.steps-count {
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 10px 20px;
+
+    border-radius: 20px;
+
+    font-weight: 600;
+
+}
+
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.makeup-steps-container {
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+}
+
+
+/* =====================================================
+   STEP CARD
+===================================================== */
+
+.makeup-step-card {
+
+    background: white;
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    margin-bottom: 30px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.05);
+
+}
+
+
+/* =====================================================
+   STEP HEADER
+===================================================== */
+
+.makeup-step-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.step-number {
+
+    width: 52px;
+
+    height: 52px;
+
+    min-width: 52px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #ffb6c1;
+
+    color: white;
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+}
+
+
+.step-heading {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.step-category {
+
+    color: #d96f82;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    margin-bottom: 5px;
+
+}
+
+
+.step-heading h2 {
+
+    margin: 0;
+
+    font-size: 23px;
+
+}
+
+
+/* =====================================================
+   IMAGE
+===================================================== */
+
+.makeup-step-image-wrapper {
+
+    width: 100%;
+
+    background: #fff7eb;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin-bottom: 22px;
+
+}
+
+
+.makeup-step-image {
+
+    display: block;
+
+    width: 100%;
+
+    max-width: 850px;
+
+    max-height: 650px;
+
+    object-fit: contain;
+
+    border-radius: 14px;
+
+    background: white;
+
+}
+
+
+/* =====================================================
+   INFORMATION
+===================================================== */
+
+.makeup-step-information {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
+
+/* =====================================================
+   PRODUCT
+===================================================== */
+
+.step-info-box {
+
+    background: #fff7eb;
+
+    border-radius: 15px;
+
+    padding: 17px 20px;
+
+}
+
+
+.step-info-box span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+
+}
+
+
+.step-info-box strong {
+
+    font-size: 15px;
+
+}
+
+
+/* =====================================================
+   INSTRUCTION
+===================================================== */
+
+.step-instruction {
+
+    background: #fff7eb;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+}
+
+
+.step-instruction h3 {
+
+    margin: 0 0 10px;
+
+    color: #d96f82;
+
+    font-size: 17px;
+
+}
+
+
+.step-instruction p {
+
+    margin: 0;
+
+    color: #5d4d51;
+
+    line-height: 1.8;
+
+    font-size: 15px;
+
+}
+
+
+/* =====================================================
+   TARGET
+===================================================== */
+
+.step-target {
+
+    background: #fff0f3;
+
+    border-radius: 15px;
+
+    padding: 15px 18px;
+
+}
+
+
+.step-target span {
+
+    display: block;
+
+    color: #927f84;
+
+    font-size: 13px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.step-target strong {
+
+    color: #d96f82;
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.makeup-steps-footer {
+
+    max-width: 1100px;
+
+    margin: 10px auto 30px;
+
+    text-align: center;
+
+}
+
+
+.makeup-steps-footer button {
+
+    border: none;
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 13px 25px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+
+.makeup-steps-footer button:hover {
+
+    background: #d96f82;
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.makeup-steps-loading {
+
+    min-height: 100vh;
+
+    background: #fff7eb;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    color: #4b3b3f;
+
+}
+
+
+.makeup-steps-loading h2 {
+
+    margin-top: 20px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.makeup-steps-loading p {
+
+    color: #927f84;
+
+}
+
+
+/* =====================================================
+   SPINNER
+===================================================== */
+
+.loading-spinner {
+
+    width: 48px;
+
+    height: 48px;
+
+    border: 4px solid #ffe0e6;
+
+    border-top-color: #ffb6c1;
+
+    border-radius: 50%;
+
+    animation: makeupStepsSpin 1s linear infinite;
+
+}
+
+
+@keyframes makeupStepsSpin {
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.makeup-steps-error {
+
+    min-height: 100vh;
+
+    background: #fff7eb;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    padding: 30px;
+
+}
+
+
+.makeup-steps-error h2 {
+
+    color: #4b3b3f;
+
+}
+
+
+.makeup-steps-error p {
+
+    color: #927f84;
+
+    margin-bottom: 25px;
+
+}
+
+
+.makeup-error-buttons {
+
+    display: flex;
+
+    gap: 12px;
+
+}
+
+
+.makeup-error-buttons button {
+
+    border: none;
+
+    background: #ffb6c1;
+
+    color: white;
+
+    padding: 12px 22px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+}
+
+
+.makeup-error-buttons .secondary-button {
+
+    background: white;
+
+    color: #d96f82;
+
+    border: 1px solid #f0dfe2;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .makeup-steps-page {
+
+        padding: 15px;
+
+    }
+
+
+    .makeup-steps-header {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+
+    .makeup-steps-header h1 {
+
+        font-size: 26px;
+
+    }
+
+
+    .makeup-step-card {
+
+        padding: 17px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .makeup-step-image-wrapper {
+
+        padding: 10px;
+
+    }
+
+
+    .makeup-step-header {
+
+        gap: 12px;
+
+    }
+
+
+    .step-number {
+
+        width: 45px;
+
+        height: 45px;
+
+        min-width: 45px;
+
+    }
+
+
+    .step-heading h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    .makeup-error-buttons {
+
+        flex-direction: column;
+
+        width: 100%;
+
+        max-width: 250px;
+
+    }
+
+}

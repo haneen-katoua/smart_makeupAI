@@ -1,9 +1,15 @@
 import axios from "axios";
 
 
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000",
+
+    baseURL: API_BASE_URL,
+
 });
+
 
 
 // =====================================================
@@ -11,10 +17,12 @@ const api = axios.create({
 // =====================================================
 
 api.interceptors.request.use(
+
     (config) => {
 
         const accessToken =
             localStorage.getItem("access_token");
+
 
         if (accessToken) {
 
@@ -22,6 +30,7 @@ api.interceptors.request.use(
                 `Bearer ${accessToken}`;
 
         }
+
 
         return config;
 
@@ -32,7 +41,9 @@ api.interceptors.request.use(
         return Promise.reject(error);
 
     }
+
 );
+
 
 
 // =====================================================
@@ -41,11 +52,20 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
 
+    // -----------------------------------------------
+    // SUCCESS
+    // -----------------------------------------------
+
     (response) => {
 
         return response;
 
     },
+
+
+    // -----------------------------------------------
+    // ERROR
+    // -----------------------------------------------
 
     async (error) => {
 
@@ -53,16 +73,26 @@ api.interceptors.response.use(
             error.config;
 
 
+        // -------------------------------------------
         // إذا الخطأ ليس 401
-        if (error.response?.status !== 401) {
+        // -------------------------------------------
+
+        if (
+            error.response?.status !== 401
+        ) {
 
             return Promise.reject(error);
 
         }
 
 
-        // منع محاولة refresh لنفس الطلب أكثر من مرة
-        if (originalRequest._retry) {
+        // -------------------------------------------
+        // منع Loop لا نهائي
+        // -------------------------------------------
+
+        if (
+            originalRequest?._retry
+        ) {
 
             return Promise.reject(error);
 
@@ -72,66 +102,24 @@ api.interceptors.response.use(
         originalRequest._retry = true;
 
 
+
+        // -------------------------------------------
+        // Refresh Token
+        // -------------------------------------------
+
         const refreshToken =
-            localStorage.getItem("refresh_token");
+            localStorage.getItem(
+                "refresh_token"
+            );
 
 
+
+        // -------------------------------------------
         // لا يوجد Refresh Token
+        // -------------------------------------------
+
         if (!refreshToken) {
 
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-
-            window.location.href =
-                "/admin/login";
-
-            return Promise.reject(error);
-
-        }
-
-
-        try {
-
-            // طلب Access Token جديد
-            const response = await axios.post(
-
-                "http://127.0.0.1:8000/api/token/refresh/",
-
-                {
-                    refresh: refreshToken
-                }
-
-            );
-
-
-            const newAccessToken =
-                response.data.access;
-
-
-            // حفظ التوكن الجديد
-            localStorage.setItem(
-                "access_token",
-                newAccessToken
-            );
-
-
-            // تحديث Authorization للطلب الأصلي
-            originalRequest.headers.Authorization =
-                `Bearer ${newAccessToken}`;
-
-
-            // إعادة تنفيذ الطلب الذي فشل
-            return api(originalRequest);
-
-
-        } catch (refreshError) {
-
-            console.log(
-                "Refresh token expired."
-            );
-
-
-            // انتهت جلسة الدخول بالكامل
             localStorage.removeItem(
                 "access_token"
             );
@@ -141,8 +129,95 @@ api.interceptors.response.use(
             );
 
 
-            window.location.href =
-                "/admin/login";
+            redirectToLogin();
+
+
+            return Promise.reject(error);
+
+        }
+
+
+
+        try {
+
+            // ---------------------------------------
+            // الحصول على Access Token جديد
+            // ---------------------------------------
+
+            const refreshResponse =
+                await axios.post(
+
+                    `${API_BASE_URL}/api/token/refresh/`,
+
+                    {
+                        refresh: refreshToken
+                    }
+
+                );
+
+
+            const newAccessToken =
+                refreshResponse.data.access;
+
+
+
+            // ---------------------------------------
+            // حفظ Access Token الجديد
+            // ---------------------------------------
+
+            localStorage.setItem(
+
+                "access_token",
+
+                newAccessToken
+
+            );
+
+
+
+            // ---------------------------------------
+            // تحديث الطلب الأصلي
+            // ---------------------------------------
+
+            originalRequest.headers =
+                originalRequest.headers || {};
+
+
+            originalRequest.headers.Authorization =
+                `Bearer ${newAccessToken}`;
+
+
+
+            // ---------------------------------------
+            // إعادة تنفيذ الطلب
+            // ---------------------------------------
+
+            return api(
+                originalRequest
+            );
+
+
+        } catch (refreshError) {
+
+            console.log(
+                "Refresh token expired."
+            );
+
+
+            // ---------------------------------------
+            // حذف Tokens
+            // ---------------------------------------
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            localStorage.removeItem(
+                "refresh_token"
+            );
+
+
+            redirectToLogin();
 
 
             return Promise.reject(
@@ -155,5 +230,47 @@ api.interceptors.response.use(
 
 );
 
+
+
+// =====================================================
+// LOGIN REDIRECT
+// =====================================================
+
+function redirectToLogin() {
+
+    const currentPath =
+        window.location.pathname;
+
+
+    // -----------------------------------------------
+    // ADMIN
+    // -----------------------------------------------
+
+    if (
+        currentPath.startsWith("/admin")
+    ) {
+
+        window.location.href =
+            "/admin/login";
+
+        return;
+
+    }
+
+
+    // -----------------------------------------------
+    // USER
+    // -----------------------------------------------
+
+    window.location.href =
+        "/login";
+
+}
+
+
+
+// =====================================================
+// EXPORT
+// =====================================================
 
 export default api;
