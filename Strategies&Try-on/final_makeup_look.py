@@ -5,7 +5,11 @@ import collections.abc
 import os
 import json
 import sys
+import tempfile
 import traceback
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from complete_makeup_pipline import analyze_image
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -983,18 +987,14 @@ p {
 }
 
 /* ===== إصلاح لون نصوص التبويبات (Tabs) ===== */
-div.tabs button,
-.gradio-container .tabs button,
-.tabs button {
+div.tabs button, .gradio-container .tabs button, .tabs button {
     color: #222222 !important; /* أسود غامق وواضح */
     opacity: 1 !important;
     font-size: 14px !important;
     font-weight: 600 !important;
 }
 
-div.tabs button.selected,
-.gradio-container .tabs button.selected,
-.tabs button.selected {
+div.tabs button.selected, .gradio-container .tabs button.selected, .tabs button.selected {
     color: #d87093 !important; /* زهر عند التحديد */
     border-bottom: 3px solid #d87093 !important;
     font-weight: 800 !important;
@@ -1144,49 +1144,88 @@ footer {
 }
 """
 
-DEFAULT_JSON_PATH = "makeup_analysis.json"
 
+def process_new_inputs_and_get_json(face_image_rgb, clothes_image_rgb, occasion):
+    """
+    تحفظ الصورة المؤقتة للوجه والملابس وتنفذ السكريبت بالكامل من البداية
+    """
+    temp_dir = tempfile.gettempdir()
+    
+    # 1. حفظ صورة الوجه المؤقتة
+    temp_face_path = os.path.join(temp_dir, "temp_face_input.jpg")
+    img_face_bgr = cv2.cvtColor(face_image_rgb, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(temp_face_path, img_face_bgr)
+    
+    # 2. حفظ صورة الملابس المؤقتة (إذا تم إرفاقها)
+    temp_clothes_path = None
+    if clothes_image_rgb is not None:
+        temp_clothes_path = os.path.join(temp_dir, "temp_clothes_input.jpg")
+        img_clothes_bgr = cv2.cvtColor(clothes_image_rgb, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(temp_clothes_path, img_clothes_bgr)
 
-def _load_json_data():
-    if os.path.exists(DEFAULT_JSON_PATH):
-        with open(DEFAULT_JSON_PATH, "r", encoding="utf-8") as f:
-            return json.load(f), f" نجح التطبيق حسب التوصية"
-    return {}, " لا يوجد ملف JSON افتراضي —  نستخدم قيم افتراضية بسيطة."
+    # 3. تشغيل سكريبت التحليل (Pipeline) مع تمرير صورة الملابس والمناسبة
+    output_json_path = os.path.join(temp_dir, "temp_makeup_analysis.json")
+    
+    # استدعاء دالة التحليل مع المناسبة والصور
+    results = analyze_image(
+        face_image_path=temp_face_path,
+        occasion=occasion,
+        output_json=output_json_path,
+        print_report=False
+        # ملاحظة: يمكنك فك التعليق إذا كانت analyze_image تأخذ مسار الملابس مباشرة:
+        # clothes_image_path=temp_clothes_path 
+    )
+    
+    return results, output_json_path
 
-
-def handle_apply(image_rgb):
-    if image_rgb is None:
+def handle_apply(face_image_rgb, clothes_image_rgb, occasion_input):
+    if face_image_rgb is None:
         return (
-            None,
-            None,
-            "الرجاء رفع صورة أولاً! 🌸",
-            None,
-            None,
-            "",
-            gr.update(visible=False),
+            None, None, "الرجاء رفع صورة الوجه أولاً! 🌸", 
+            None, None, "", gr.update(visible=False)
         )
 
-    img_bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
-    makeup_json_data, json_msg = _load_json_data()
+    try:
+        makeup_json_data, json_path = process_new_inputs_and_get_json(
+            face_image_rgb, clothes_image_rgb, occasion_input
+        )
+        
+        if not makeup_json_data:
+            return (
+                face_image_rgb, None, 
+                "❌ فشل تحليل الوجه! تأكدي من أن الوجه واضح في الصورة.", 
+                None, None, "", gr.update(visible=False)
+            )
+        json_msg = f"✓ تم تحليل صورة الوجه والملابس لمناسبة ({occasion_input}) بنجاح!"
+    except Exception as e:
+        return (
+            face_image_rgb, None, 
+            f"❌ خطأ أثناء تشغيل السكريبت: {str(e)}", 
+            None, None, "", gr.update(visible=False)
+        )
+
+    img_bgr = cv2.cvtColor(face_image_rgb, cv2.COLOR_RGB2BGR)
+    
     final_bgr, landmarks, face_scale, status = run_full_makeup(
         img_bgr, makeup_json_data
     )
-    if final_bgr is None:
-        return image_rgb, None, status, None, None, "", gr.update(visible=False)
 
-    before_rgb = image_rgb
+    if final_bgr is None:
+        return face_image_rgb, None, status, None, None, "", gr.update(visible=False)
+
+    before_rgb = face_image_rgb
     after_rgb = cv2.cvtColor(final_bgr, cv2.COLOR_BGR2RGB)
     full_status = f"{status}\n{json_msg}"
 
-    json_path = DEFAULT_JSON_PATH
-
-    matcher = DynamicMakeupMatcher(
-        analysis_json_path=json_path, dataset_json_path="makeup_data.json"
-    )
-
-    results = matcher.get_recommendations(top_n_per_category=3)
-
-    recom_html = generate_recommendations_html(results)
+    try:
+        matcher = DynamicMakeupMatcher(
+            analysis_json_path=json_path,
+            dataset_json_path="makeup_data.json"
+        )
+        results = matcher.get_recommendations(top_n_per_category=3)
+        recom_html = generate_recommendations_html(results)
+    except Exception as e:
+        recom_html = f"<p>تعذر تحميل المنتجات: {e}</p>"
 
     return (
         before_rgb,
@@ -1198,24 +1237,24 @@ def handle_apply(image_rgb):
         gr.update(visible=True),
     )
 
-
 def handle_catalog(img_bgr_state, json_state):
     n = len(CATEGORY_LABELS)
     if img_bgr_state is None:
         yield (
             gr.update(visible=True),
             *[gr.update() for _ in range(n)],
-            "🌸ارفعي صورتك وقومي بتطبيق المكياج اولا !",
+            "🌸 ارفعي صورتك وقومي بتطبيق المكياج أولاً!",
         )
         return
 
     makeup_json_data = json_state or {}
     landmarks, face_scale, h, w = get_landmarks(img_bgr_state)
+    
     if landmarks is None:
         yield (
             gr.update(visible=True),
             *[gr.update() for _ in range(n)],
-            " تعذر إيجاد الوجه لتوليد الكاتالوج.",
+            "❌ تعذر إيجاد معالم الوجه لتوليد الكاتالوج.",
         )
         return
 
@@ -1224,82 +1263,45 @@ def handle_catalog(img_bgr_state, json_state):
         or makeup_json_data.get("expert_recommendations")
         or makeup_json_data
     )
+    
     foundation_json = expert_output.get("foundation", {})
     face_json = expert_output.get("face", {})
     lips_json = expert_output.get("lips", {})
 
     generators = [
-        (
-            "فاونديشن",
-            lambda: catalog_foundation(
-                img_bgr_state, landmarks, face_scale, foundation_json
-            ),
-        ),
-        (
-            "كونسيلر",
-            lambda: catalog_concealer(img_bgr_state, landmarks, face_scale),
-        ),
-        (
-            "نحت الوجه",
-            lambda: catalog_contour(
-                img_bgr_state, landmarks, face_scale, face_json.get("sculpt", {})
-            ),
-        ),
-        (
-            "هايلايتر",
-            lambda: catalog_highlight(
-                img_bgr_state,
-                landmarks,
-                face_scale,
-                face_json.get("highlight", {}),
-            ),
-        ),
+        ("الفاونديشن", lambda: catalog_foundation(img_bgr_state, landmarks, face_scale, foundation_json)),
+        ("الكونسيلر", lambda: catalog_concealer(img_bgr_state, landmarks, face_scale)),
+        ("نحت الوجه", lambda: catalog_contour(img_bgr_state, landmarks, face_scale, face_json.get("sculpt", {}))),
+        ("الهايلايتر", lambda: catalog_highlight(img_bgr_state, landmarks, face_scale, face_json.get("highlight", {}))),
         ("الأنف", lambda: catalog_nose(img_bgr_state, landmarks, face_scale)),
-        ("بلاش", lambda: catalog_blush(img_bgr_state, landmarks, face_scale)),
-        ("حواجب", lambda: catalog_brows(img_bgr_state, landmarks, face_scale)),
-        (
-            "ظلال العيون",
-            lambda: catalog_eyeshadow(
-                img_bgr_state, landmarks, face_scale, makeup_json_data
-            ),
-        ),
-        (
-            "آيلاينر",
-            lambda: catalog_eyeliner(img_bgr_state, landmarks, face_scale),
-        ),
-        ("رموش", lambda: catalog_lashes(img_bgr_state, landmarks, face_scale)),
-        (
-            "شفاه",
-            lambda: catalog_lips(
-                img_bgr_state, landmarks, face_scale, lips_json
-            ),
-        ),
+        ("البلاش", lambda: catalog_blush(img_bgr_state, landmarks, face_scale)),
+        ("الحواجب", lambda: catalog_brows(img_bgr_state, landmarks, face_scale)),
+        ("ظلال العيون", lambda: catalog_eyeshadow(img_bgr_state, landmarks, face_scale, makeup_json_data)),
+        ("الآيلاينر", lambda: catalog_eyeliner(img_bgr_state, landmarks, face_scale)),
+        ("الرموش", lambda: catalog_lashes(img_bgr_state, landmarks, face_scale)),
+        ("الشفاه", lambda: catalog_lips(img_bgr_state, landmarks, face_scale, lips_json)),
     ]
 
     results = [gr.update() for _ in range(n)]
     yield (
         gr.update(visible=True),
         *results,
-        "⏳ جاري تحضير الكاتالوج بالكامل...",
+        "⏳ جاري تحضير الكاتالوج التعليمي بالكامل...",
     )
 
     for idx, (name, fn) in enumerate(generators):
         grid = fn()
-        results[idx] = (
-            gr.update(value=grid) if grid is not None else gr.update()
-        )
-        status_msg = f"⏳ تم توليد: {name}  ({idx + 1}/{n})...."
+        results[idx] = gr.update(value=grid) if grid is not None else gr.update()
+        status_msg = f"⏳ تم توليد: {name} ({idx + 1}/{n})..."
         yield (gr.update(visible=True), *results, status_msg)
 
-    yield (gr.update(visible=True), *results, " الكاتالوج جاهز بالكامل")
-
+    yield (gr.update(visible=True), *results, "✨ الكاتالوج جاهز بالكامل للتصفح!")
 
 with gr.Blocks(title="تطبيق المكياج من نتيجة التوصية", css=CUSTOM_CSS) as demo:
-    gr.Markdown("<h1>تطبيق المكياج من نتيجة التوصية</h1>")
+    gr.Markdown("<h1>تطبيق المكياج الذكي والتوصيات الشخصية</h1>")
     gr.Markdown(
         "<p style='text-align:center; color:#666;'>"
-        "قومي برفع صورتك لتجريب مكياج التوصية الكامل "
-        "وتصفح المنتجات الموصى بها وفتح الكاتالوج التعليمي"
+        "قومي برفع صورة وجهك وصورة ملابسك واختاري المناسبة للحصول على تحليل كامل ومكياج مخصص!"
         "</p>"
     )
 
@@ -1307,64 +1309,74 @@ with gr.Blocks(title="تطبيق المكياج من نتيجة التوصية",
     json_state = gr.State(None)
 
     with gr.Row():
+      
         with gr.Column(scale=1):
-            img_input = gr.Image(type="numpy", label=" صورة الوجه")
-
+            img_input = gr.Image(type="numpy", label="📷 صورة الوجه")
+            clothes_input = gr.Image(type="numpy", label="👗 صورة الملابس (اختياري)")
+            
+            occasion_dropdown = gr.Dropdown(
+                choices=[
+                    ("سهرة / عشاء", "evening"),
+                    ("جامعة / دراسة", "university"),
+                    ("عمل / دوام", "work"),
+                    ("حفلة", "party"),
+                    ("زفاف / عرس", "wedding"),
+                    ("جلسة تصوير", "photo"),
+                ],
+                value="evening",
+                label="🎉 المناسبة",
+                interactive=True
+            )
+            
             btn_apply = gr.Button(
-                " طبّقي المكياج الكامل",
-                variant="primary",
-                elem_classes=["primary-btn"],
+                "✨ طبّقي المكياج الكامل", 
+                variant="primary", 
+                elem_classes=["primary-btn"]
             )
-            status_box = gr.Textbox(label=" الحالة", interactive=False, lines=3)
-            btn_catalog = gr.Button(
-                "📖 افتحي الكاتالوج التعليمي", elem_classes=["primary-btn"]
-            )
+            status_box = gr.Textbox(label="الحالة", interactive=False, lines=3)
+            btn_catalog = gr.Button("📖 افتحي الكاتالوج التعليمي", elem_classes=["primary-btn"])
 
+        # ── العمود الأيمن: العرض والنتائج ──
         with gr.Column(scale=2):
             with gr.Row():
-                img_before = gr.Image(label="قبل ")
-                img_after = gr.Image(label="بعد ")
-            with gr.Column(
-                visible=False, elem_classes=["notebook-page"]
-            ) as recom_section:
+                img_before = gr.Image(label="قبل")
+                img_after = gr.Image(label="بعد")
+
+            with gr.Column(visible=False, elem_classes=["notebook-page"]) as recom_section:
                 gr.Markdown("## 🛍️ المنتجات الموصى بها لإطلالتك")
                 recom_html_box = gr.HTML()
 
-    with gr.Column(
-        visible=False, elem_classes=["notebook-page"]
-    ) as catalog_section:
-        gr.Markdown("## 📖 الكاتالوج التعليمي — كل قسم باستراتيجياته")
-        catalog_status = gr.Textbox(
-            label="", interactive=False, show_label=False
-        )
-
-        with gr.Tabs():
-            with gr.Tab(CATEGORY_LABELS[0]):
-                grid_foundation = gr.Image(label="Foundation Strategies")
-            with gr.Tab(CATEGORY_LABELS[1]):
-                grid_concealer = gr.Image(label="Concealer Strategies")
-            with gr.Tab(CATEGORY_LABELS[2]):
-                grid_contour = gr.Image(label="Contour / Sculpt Strategies")
-            with gr.Tab(CATEGORY_LABELS[3]):
-                grid_highlight = gr.Image(label="Highlight Strategies")
-            with gr.Tab(CATEGORY_LABELS[4]):
-                grid_nose = gr.Image(label="Nose Contour Strategies")
-            with gr.Tab(CATEGORY_LABELS[5]):
-                grid_blush = gr.Image(label="Blush Strategies")
-            with gr.Tab(CATEGORY_LABELS[6]):
-                grid_brows = gr.Image(label="Brow Strategies")
-            with gr.Tab(CATEGORY_LABELS[7]):
-                grid_eyeshadow = gr.Image(label="Eyeshadow Strategies")
-            with gr.Tab(CATEGORY_LABELS[8]):
-                grid_eyeliner = gr.Image(label="Eyeliner Strategies")
-            with gr.Tab(CATEGORY_LABELS[9]):
-                grid_lashes = gr.Image(label="Lashes Strategies")
-            with gr.Tab(CATEGORY_LABELS[10]):
-                grid_lips = gr.Image(label="Lips Strategies")
+            with gr.Column(visible=False, elem_classes=["notebook-page"]) as catalog_section:
+                gr.Markdown("## 📖 الكاتالوج التعليمي — كل قسم باستراتيجياته")
+                catalog_status = gr.Textbox(label="", interactive=False, show_label=False)
+                
+                with gr.Tabs():
+                    with gr.Tab(CATEGORY_LABELS[0]):
+                        grid_foundation = gr.Image(label="Foundation Strategies")
+                    with gr.Tab(CATEGORY_LABELS[1]):
+                        grid_concealer = gr.Image(label="Concealer Strategies")
+                    with gr.Tab(CATEGORY_LABELS[2]):
+                        grid_contour = gr.Image(label="Contour / Sculpt Strategies")
+                    with gr.Tab(CATEGORY_LABELS[3]):
+                        grid_highlight = gr.Image(label="Highlight Strategies")
+                    with gr.Tab(CATEGORY_LABELS[4]):
+                        grid_nose = gr.Image(label="Nose Contour Strategies")
+                    with gr.Tab(CATEGORY_LABELS[5]):
+                        grid_blush = gr.Image(label="Blush Strategies")
+                    with gr.Tab(CATEGORY_LABELS[6]):
+                        grid_brows = gr.Image(label="Brow Strategies")
+                    with gr.Tab(CATEGORY_LABELS[7]):
+                        grid_eyeshadow = gr.Image(label="Eyeshadow Strategies")
+                    with gr.Tab(CATEGORY_LABELS[8]):
+                        grid_eyeliner = gr.Image(label="Eyeliner Strategies")
+                    with gr.Tab(CATEGORY_LABELS[9]):
+                        grid_lashes = gr.Image(label="Lashes Strategies")
+                    with gr.Tab(CATEGORY_LABELS[10]):
+                        grid_lips = gr.Image(label="Lips Strategies")
 
     btn_apply.click(
         fn=handle_apply,
-        inputs=[img_input],
+        inputs=[img_input, clothes_input, occasion_dropdown],
         outputs=[
             img_before,
             img_after,
@@ -1398,9 +1410,8 @@ with gr.Blocks(title="تطبيق المكياج من نتيجة التوصية",
 
 if __name__ == "__main__":
     demo.launch(
-        server_name="127.0.0.1", 
-        server_port=7860, 
-        share=False, 
-        css=CUSTOM_CSS, 
+        server_name="127.0.0.1",
+        server_port=7860,
+        share=False,
         theme=gr.themes.Soft()
     )
