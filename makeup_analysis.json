@@ -3,92 +3,122 @@
     "success": true,
     "face_detected": true,
     "face_shape": {
-      "shape": "Oval",
-      "votes": {},
-      "ratios": {
-        "face_length_to_width": 0.7698029236023052,
-        "jaw_to_cheekbone_ratio": 0.5573227686463619,
-        "forehead_to_jaw_ratio": 1.7992901509023242
+      "shape": "Round",
+      "votes": {
+        "Round": 10
       },
-      "confidence": 0.4
+      "ratios": {
+        "face_length_to_width": 1.1691610091975932,
+        "jaw_to_cheekbone_ratio": 0.5327540096779685,
+        "forehead_to_jaw_ratio": 1.8989977055105962
+      },
+      "confidence": 1.0
     },
     "eyes": {
       "left_eye": {
         "geo_shape": "Almond",
-        "eye_type": "Hooded",
-        "size": "Small",
+        "eye_type": "Deep-set",
+        "size": "Normal",
         "corner_direction": "Neutral",
-        "opening": 0.22340464132958687,
-        "width": 0.13384354570388063,
-        "height": 0.02990126932225562
+        "opening": 0.3534093654629265,
+        "width": 0.11641595610570923,
+        "height": 0.041142489177078606
       },
       "right_eye": {
         "geo_shape": "Almond",
-        "eye_type": "Hooded",
-        "size": "Small",
+        "eye_type": "Deep-set",
+        "size": "Normal",
         "corner_direction": "Upturned",
-        "opening": 0.23594345677044282,
-        "width": 0.13500119218088222,
-        "height": 0.03185264795128823
+        "opening": 0.3097954845194619,
+        "width": 0.12862041388831347,
+        "height": 0.0398460234396238
       },
-      "inter_eye_ratio": 1.250806584963411,
-      "symmetry": "Symmetrical"
+      "inter_eye_ratio": 1.3205707387774035,
+      "symmetry": "Symmetrical",
+      "measurements": {
+        "left_eye_aspect_ratio": 0.3534093654629265,
+        "right_eye_aspect_ratio": 0.3097954845194619,
+        "inter_eye_distance": 0.16179393007516987
+      }
     },
     "brows": {
       "thickness": "Thick",
       "length": "Short",
       "shape": "Soft Arch",
-      "position": "Normal",
+      "position": "High",
       "spacing": "Wide",
-      "symmetry": "Symmetrical"
+      "symmetry": "Slightly Asymmetrical",
+      "measurements": {
+        "left_length": 0.02666299713661177,
+        "right_length": 0.03391385873647109,
+        "avg_arch_depth": 0.016058064997196198,
+        "avg_thickness_ratio": 2.0528709458213887,
+        "face_scale": 0.6168409688019698,
+        "brow_length_ratio": 0.049102490704156204
+      }
     },
     "lips": {
-      "volume": "Medium",
+      "volume": "Full",
       "balance": "Lower Fuller",
       "width": "Narrow",
       "symmetry": "Symmetrical",
       "cupid_bow": "Soft",
-      "corners": "Upturned"
+      "corners": "Neutral",
+      "measurements": {
+        "upper_thickness": 0.025801107675946785,
+        "lower_thickness": 0.05368858437834493,
+        "thickness_ratio": 0.4805697146738992,
+        "width": 0.1976738432272965,
+        "face_scale": 0.6168409688019698,
+        "thickness_ratio_to_face": 0.1288657791467334,
+        "width_ratio_to_face": 0.32046159905886146
+      }
     },
     "nose": {
       "shape": "Short",
-      "width": "Wide",
-      "bridge": "Straight"
+      "width": "Normal",
+      "bridge": "Straight",
+      "measurements": {
+        "length": 0.13061340725796539,
+        "width_sides": 0.13267065238801495,
+        "nostril_width": 0.17393996182448226,
+        "length_to_width_ratio": 0.7509108653810305
+      }
     },
     "measurements": {
-      "image_width": 736,
-      "image_height": 1177
+      "image_width": 627,
+      "image_height": 656
     },
     "error": null
   },
   "skin_analysis": {
     "success": true,
     "skin_depth": "Fair",
-    "undertone": "Warm",
+    "undertone": "Cool",
     "skin_type": "Normal",
     "color_lab": {
       "L": 68.23529411764706,
-      "a": 11.0,
-      "b": 15.0
+      "a": 20.0,
+      "b": 17.0
     },
     "color_rgb": [
-      196,
-      159,
-      140
+      211,
+      152,
+      137
     ],
-    "color_hex": "#c49f8c",
+    "color_hex": "#d39889",
     "confidence": 0.8500000000000001
   },
   "expert_output": {
     "eyes": {
       "left": {
         "category": {
-          "category": "Hooded",
-          "name_ar": "العين المبطّنة (Hooded)",
-          "goal": "تم اختيار تقنية الكات كريز الوهمي (Floating/Illusion Crease) برسم ظل اصطناعي فوق الطية الطبيعية للجفن، لخلق عمق بصري يقلل من بروز التبطينة ويجعل الجفن الثابت يبدو كجفن متحرك واسع، مع استبعاد الآيلاينر الكلاسيكي لأنه ينكسر تحت الجلد المترهل"
+          "category": "Deep-set",
+          "name_ar": "العين الغائرة (Deep-set)",
+          "goal": "تم اعتماد تقنية التقديم البصري (Advancing) بوضع ألوان فاتحة ومشرقة على كامل الجفن المتحرك لسحب العين للخارج بصرياً، مع استخدام ألوان متوسطة (وليست داكنة) في الكسرة، ومنع الألوان الداكنة جداً لأنها تزيد من عمق التجويف وتجعل العين تبدو غارقة"
         },
         "plan": {
-          "style": "كت كريز فاخر بتقنية جناح حريري دقيق",
+          "style": "نص كت كريز فاخر",
           "texture": "لمسة ساتان / لامعة",
           "lashes": "رموش طويلة وكثيفة فاخرة",
           "eyeliner": "آيلاينر حريري",
@@ -99,12 +129,12 @@
       },
       "right": {
         "category": {
-          "category": "Hooded",
-          "name_ar": "العين المبطّنة (Hooded)",
-          "goal": "تم اختيار تقنية الكات كريز الوهمي (Floating/Illusion Crease) برسم ظل اصطناعي فوق الطية الطبيعية للجفن، لخلق عمق بصري يقلل من بروز التبطينة ويجعل الجفن الثابت يبدو كجفن متحرك واسع، مع استبعاد الآيلاينر الكلاسيكي لأنه ينكسر تحت الجلد المترهل"
+          "category": "Deep-set",
+          "name_ar": "العين الغائرة (Deep-set)",
+          "goal": "تم اعتماد تقنية التقديم البصري (Advancing) بوضع ألوان فاتحة ومشرقة على كامل الجفن المتحرك لسحب العين للخارج بصرياً، مع استخدام ألوان متوسطة (وليست داكنة) في الكسرة، ومنع الألوان الداكنة جداً لأنها تزيد من عمق التجويف وتجعل العين تبدو غارقة"
         },
         "plan": {
-          "style": "كت كريز فاخر بتقنية جناح حريري دقيق",
+          "style": "نص كت كريز فاخر",
           "texture": "لمسة ساتان / لامعة",
           "lashes": "رموش طويلة وكثيفة فاخرة",
           "eyeliner": "آيلاينر حريري",
@@ -116,11 +146,11 @@
     },
     "brows": {
       "correction": {
-        "arch_type": "قوس طبيعي",
-        "arch_position": "وضعية طبيعية",
-        "tail_direction": "طبيعي",
-        "tail_weight": "طبيعي",
-        "visual_purpose": "متوازن تشريحياً ولا يحتاج تصحيح"
+        "arch_type": "قوس مرتفع",
+        "arch_position": "مرفوع",
+        "tail_direction": "ممتد للخارج",
+        "tail_weight": "ثقيل",
+        "visual_purpose": "كسر الاستدارة وإعطاء إيحاء بالطول والحدة"
       },
       "style": {
         "style": "فخامة وجرأة",
@@ -134,64 +164,57 @@
       "recommendation": null
     },
     "lips": {
-      "shape": {
-        "category": "Lower Thin",
-        "name_ar": "شفة سفلى أرق نسبياً",
-        "correction": "موازنة النسبة",
-        "technique": "رسم الخط أسفل الحد الطبيعي للشفة السفلى",
-        "reason": "لضمان التماثل بين الشفتين",
-        "arrow_target": "lip_border"
-      },
+      "shape": null,
       "color": {
-        "undertone": "Warm",
-        "palette": "أساس ذهبي/خوخي",
-        "colors_summary": "درجات مرجانية وخوخية",
+        "undertone": "Cool",
+        "palette": "أساس بارد",
+        "colors_summary": "درجات التوت والوردي المائل للأزرق (ماوف/راسبيري)",
         "lipstick_shades": [
           {
-            "name": "خوخي ناعم (Soft Peach)",
-            "hex": "#FFB7B2",
+            "name": "وردي بارد ناعم (Cool Soft Pink)",
+            "hex": "#F8C8DC",
             "rgb": [
-              255,
-              183,
-              178
+              248,
+              200,
+              220
             ]
           },
           {
-            "name": "مرجاني مشرق (Bright Coral)",
-            "hex": "#FF7F50",
+            "name": "موف فاتح (Light Mauve)",
+            "hex": "#E0B0FF",
             "rgb": [
-              255,
-              127,
-              80
+              224,
+              176,
+              255
             ]
           },
           {
-            "name": "مشمشي دافئ (Warm Apricot)",
-            "hex": "#FBCEB1",
+            "name": "توتي خفيف (Berry Tint)",
+            "hex": "#C71585",
             "rgb": [
-              251,
-              206,
-              177
+              199,
+              21,
+              133
             ]
           }
         ],
         "lip_liners": [
           {
-            "name": "محدد خوخي بني (Peach Nude Liner)",
-            "hex": "#D18B70",
+            "name": "محدد وردي ترابي (Dusty Rose Liner)",
+            "hex": "#C87D85",
             "rgb": [
-              209,
-              139,
-              112
+              200,
+              125,
+              133
             ]
           },
           {
-            "name": "محدد مرجاني غامق (Deep Coral Liner)",
-            "hex": "#C85A32",
+            "name": "محدد موف متوسط (Medium Mauve Liner)",
+            "hex": "#9B51E0",
             "rgb": [
-              200,
-              90,
-              50
+              155,
+              81,
+              224
             ]
           }
         ]
@@ -203,12 +226,7 @@
         "texture": "لامع (بالمنتصف فقط، فوق طبقة أساس غنية)",
         "opacity": 100
       },
-      "recommendation": {
-        "shape": "Lower Thin",
-        "colors": "درجات مرجانية وخوخية",
-        "occasion": "wedding",
-        "complete": true
-      }
+      "recommendation": null
     },
     "nose": {
       "shape": {
@@ -230,66 +248,56 @@
         "tip_arrow_target": "nose_tip"
       },
       "contour": {
-        "product": "بيج ذهبي فاتح",
-        "reason": "يميل للذهبي الفاتح، يمنح نحتاً طبيعياً"
+        "product": "بني تاوب رمادي فاتح",
+        "reason": "بني مائل للرمادي الفاتح جداً، يحاكي الظل الطبيعي"
       },
       "highlight": {
-        "tone": "عاجي",
+        "tone": "وردي لؤلؤي",
         "method": "يُنتج بالمزج بين لون البشرة الأساسي والأبيض"
       },
       "recommendation": {
         "shape": "Short",
-        "product": "بيج ذهبي فاتح",
-        "highlight": "عاجي",
+        "product": "بني تاوب رمادي فاتح",
+        "highlight": "وردي لؤلؤي",
         "complete": true
       }
     },
     "face": {
-      "shape": {
-        "shape": "Oval",
-        "name_ar": "الوجه البيضاوي (Face Oval)",
-        "goal": "الحفاظ على التوازن المثالي مع تفادي مظهر الوجه الغارق"
-      },
+      "shape": null,
       "sculpt": {
-        "placement": "استبدال الكونتور الداكن ببرونز دافئ خفيف جداً، بدمج دائري في مركز الخد",
-        "purpose": "منع ظهور \"الوجه الغارق\" وإعطاء حيوية بدل النحت الحاد",
-        "arrow_target": "face_contour"
+        "placement": null,
+        "purpose": null,
+        "shade_descriptor": "كونتور رمادي بارد فاتح",
+        "hex": "#B0A8A6",
+        "rgb": [
+          176,
+          168,
+          166
+        ],
+        "opacity": 85
       },
-      "blush": {
-        "placement": "في مركز الخد بدمج ناعم جداً باتجاه الأذن",
-        "purpose": "إعطاء حجم حيوي للخدود النحيفة",
-        "arrow_target": "cheeks"
-      },
-      "highlight": {
-        "placement": "لمسة بسيطة جداً على جسر الأنف بنفس لون البلاشر",
-        "purpose": "توحيد الإضاءة وتفادي مظهر النحول الزائد",
-        "arrow_target": "face_highlight"
-      },
+      "blush": null,
+      "highlight": null,
       "color": {
-        "base_color": "خوخي ذهبي",
-        "palette": "أساس دافئ"
+        "base_color": "موف فاتح",
+        "palette": "أساس بارد"
       },
       "texture": {
         "finish": "مخملي غني / براق",
         "transparency": null,
         "description": "تحديد وصبغة كاملة عالية الدقة مناسبة للتصوير والفلاش"
       },
-      "recommendation": {
-        "shape": "Oval",
-        "color": "خوخي ذهبي",
-        "occasion": "wedding",
-        "complete": true
-      }
+      "recommendation": null
     },
     "foundation": {
       "shade": {
-        "range": "فاتحة ذهبية",
-        "descriptor": "درجة فاتحة ذهبية الميل",
-        "hex": "#ce9166",
+        "range": "فاتحة وردية/محايدة",
+        "descriptor": "درجة فاتحة وردية/محايدة",
+        "hex": "#c8916c",
         "rgb": [
-          206,
+          200,
           145,
-          102
+          108
         ]
       },
       "formula": {
@@ -318,7 +326,7 @@
         "reason": "للحفاظ على المظهر الطبيعي طوال اليوم"
       },
       "recommendation": {
-        "shade_range": "فاتحة ذهبية",
+        "shade_range": "فاتحة وردية/محايدة",
         "formula": "أساس سائل بلمسة ساتان",
         "complete": true
       }
@@ -326,126 +334,164 @@
   },
   "occasion": "wedding",
   "eyeshadow_palettes": {
-    "Neutral Palette": [
+    "Monochromatic": [
+      {
+        "role": "Base",
+        "hex": "#5E8CA0",
+        "rgb": [
+          94,
+          140,
+          160
+        ],
+        "hue": 99
+      },
       {
         "role": "Highlight",
-        "hex": "#FFF7EB",
+        "hex": "#AFD9EB",
         "rgb": [
-          255,
-          247,
+          175,
+          217,
           235
         ],
-        "hue": 18
-      },
-      {
-        "role": "Highlight",
-        "hex": "#D2C8AD",
-        "rgb": [
-          210,
-          200,
-          173
-        ],
-        "hue": 22
-      },
-      {
-        "role": "Highlight",
-        "hex": "#C3AE99",
-        "rgb": [
-          195,
-          174,
-          153
-        ],
-        "hue": 15
-      },
-      {
-        "role": "Base",
-        "hex": "#C8AE7A",
-        "rgb": [
-          200,
-          174,
-          122
-        ],
-        "hue": 20
-      },
-      {
-        "role": "Base",
-        "hex": "#B4A24A",
-        "rgb": [
-          180,
-          162,
-          74
-        ],
-        "hue": 25
-      },
-      {
-        "role": "Base",
-        "hex": "#DCDC79",
-        "rgb": [
-          220,
-          220,
-          121
-        ],
-        "hue": 30
+        "hue": 99
       },
       {
         "role": "Sculpt",
-        "hex": "#5A4938",
+        "hex": "#223B46",
         "rgb": [
-          90,
-          73,
-          56
+          34,
+          59,
+          70
         ],
-        "hue": 15
+        "hue": 99
+      }
+    ],
+    "Analogous": [
+      {
+        "role": "Base",
+        "hex": "#677AC3",
+        "rgb": [
+          103,
+          122,
+          195
+        ],
+        "hue": 114
+      },
+      {
+        "role": "Highlight",
+        "hex": "#85CDCB",
+        "rgb": [
+          133,
+          205,
+          203
+        ],
+        "hue": 89
       },
       {
         "role": "Sculpt",
-        "hex": "#8C5B3A",
+        "hex": "#2D203C",
+        "rgb": [
+          45,
+          32,
+          60
+        ],
+        "hue": 134
+      }
+    ],
+    "Split-Complementary": [
+      {
+        "role": "Base",
+        "hex": "#AA6B77",
+        "rgb": [
+          170,
+          107,
+          119
+        ],
+        "hue": 174
+      },
+      {
+        "role": "Highlight",
+        "hex": "#6DB0CD",
+        "rgb": [
+          109,
+          176,
+          205
+        ],
+        "hue": 99
+      },
+      {
+        "role": "Sculpt",
+        "hex": "#322D19",
+        "rgb": [
+          50,
+          45,
+          25
+        ],
+        "hue": 24
+      }
+    ],
+    "Triadic": [
+      {
+        "role": "Base",
+        "hex": "#B969A1",
+        "rgb": [
+          185,
+          105,
+          161
+        ],
+        "hue": 159
+      },
+      {
+        "role": "Highlight",
+        "hex": "#EBC6B8",
+        "rgb": [
+          235,
+          198,
+          184
+        ],
+        "hue": 8
+      },
+      {
+        "role": "Sculpt",
+        "hex": "#475526",
+        "rgb": [
+          71,
+          85,
+          38
+        ],
+        "hue": 39
+      }
+    ],
+    "Earth Colors": [
+      {
+        "role": "Base",
+        "hex": "#8C5B55",
         "rgb": [
           140,
           91,
-          58
+          85
         ],
-        "hue": 12
+        "hue": 3
+      },
+      {
+        "role": "Highlight",
+        "hex": "#C39686",
+        "rgb": [
+          195,
+          150,
+          134
+        ],
+        "hue": 8
       },
       {
         "role": "Sculpt",
-        "hex": "#463025",
+        "hex": "#642121",
         "rgb": [
-          70,
-          48,
-          37
+          100,
+          33,
+          33
         ],
-        "hue": 10
-      },
-      {
-        "role": "Accent",
-        "hex": "#E6DA9E",
-        "rgb": [
-          230,
-          218,
-          158
-        ],
-        "hue": 25
-      },
-      {
-        "role": "Accent",
-        "hex": "#B49566",
-        "rgb": [
-          180,
-          149,
-          102
-        ],
-        "hue": 18
-      },
-      {
-        "role": "Accent",
-        "hex": "#BEBE5D",
-        "rgb": [
-          190,
-          190,
-          93
-        ],
-        "hue": 30
+        "hue": 0
       }
     ]
   }
