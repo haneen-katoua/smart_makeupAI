@@ -1146,16 +1146,14 @@ footer {
 
 
 def process_new_inputs_and_get_json(face_image_rgb, clothes_image_rgb, occasion):
-    """
-    تحفظ الصورة المؤقتة للوجه والملابس وتنفذ السكريبت بالكامل من البداية
-    """
+    """تحفظ الصورة المؤقتة للوجه والملابس وتنفذ السكريبت بالكامل من البداية"""
     temp_dir = tempfile.gettempdir()
-    
+
     # 1. حفظ صورة الوجه المؤقتة
     temp_face_path = os.path.join(temp_dir, "temp_face_input.jpg")
     img_face_bgr = cv2.cvtColor(face_image_rgb, cv2.COLOR_RGB2BGR)
     cv2.imwrite(temp_face_path, img_face_bgr)
-    
+
     # 2. حفظ صورة الملابس المؤقتة (إذا تم إرفاقها)
     temp_clothes_path = None
     if clothes_image_rgb is not None:
@@ -1163,17 +1161,14 @@ def process_new_inputs_and_get_json(face_image_rgb, clothes_image_rgb, occasion)
         img_clothes_bgr = cv2.cvtColor(clothes_image_rgb, cv2.COLOR_RGB2BGR)
         cv2.imwrite(temp_clothes_path, img_clothes_bgr)
 
-    # 3. تشغيل سكريبت التحليل (Pipeline) مع تمرير صورة الملابس والمناسبة
+    # 3. تشغيل سكريبت التحليل مع تمرير البرامترات بأسمائها الصحيحة
     output_json_path = os.path.join(temp_dir, "temp_makeup_analysis.json")
-    
-    # استدعاء دالة التحليل مع المناسبة والصور
     results = analyze_image(
         face_image_path=temp_face_path,
+        clothing_image_path=temp_clothes_path, # 👈 الاسم الموحد
         occasion=occasion,
         output_json=output_json_path,
         print_report=False
-        # ملاحظة: يمكنك فك التعليق إذا كانت analyze_image تأخذ مسار الملابس مباشرة:
-        # clothes_image_path=temp_clothes_path 
     )
     
     return results, output_json_path
