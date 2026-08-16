@@ -116,7 +116,7 @@ class DynamicMakeupMatcher:
                 price_sign = product.get('price_sign') or '$'
                 
                 if price_val in [None, '', 0, '0', '0.0', 0.0]:
-                    formatted_price = "غير متوفر"
+                    formatted_price = "Not available"
                 else:
                     formatted_price = f"{price_val} {price_sign}".strip()
 

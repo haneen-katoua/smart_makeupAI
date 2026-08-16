@@ -302,35 +302,35 @@ def process_foundation_web(input_image_rgb, selected_shade, json_path="makeup_an
         final_grid = np.vstack([row1, row2])
 
         info_msg = (
-            f" تم تطبيق الدرجة المختارة: {selected_shade} ({shade_hex})\n"
-            f" الاستراتيجية الموصى بها: {rec_tex} بتغطية {rec_cov}\n"
-            f" الدرجة الموصى بها في التقرير: {rec_hex}"
-        )
+    f" Selected shade applied: {selected_shade} ({shade_hex})\n"
+    f" Recommended strategy: {rec_tex} with coverage {rec_cov}\n"
+    f" Recommended shade in report: {rec_hex}"
+)
         return final_grid, recommended_swatch_img, info_msg
 
 def generate_pink_swatch_css(swatches_dict):
     css_rules = """
-    /* خلفية الصفحة كاملة بالأبيض الناعم والوردي الخفيف */
+    /* Full page background in soft white and light pink */
     body, .gradio-container {
         background: linear-gradient(135deg, #fffafc 0%, #fef5f8 100%) !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     }
     
-    /* تنسيق العناوين والـ Markdown */
+    /* Headers and Markdown styling */
     h1 {
         color: #d87093 !important;
         text-align: center !important;
         font-weight: 800 !important;
     }
     
-    /* شبكة خيارات الألوان */
+    /* Color options grid */
     .swatch-radio .wrap {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 6px !important;
     }
     
-    /* أزرار الألوان المصممة بالوردي والأبيض */
+    /* Color swatch buttons designed in pink and white */
     .swatch-radio label {
         display: flex !important;
         flex-direction: column !important;
@@ -365,7 +365,7 @@ def generate_pink_swatch_css(swatches_dict):
         display: none !important;
     }
 
-    /* زر المحاكاة البينك الوردي الجذاب */
+    /* Stylish pink simulation button */
     button.primary-btn, .primary {
         background: linear-gradient(45deg, #ff8da1, #d87093) !important;
         border: none !important;
@@ -403,12 +403,12 @@ def generate_pink_swatch_css(swatches_dict):
 custom_pink_css = generate_pink_swatch_css(REAL_FOUNDATION_SWATCHES)
 
 with gr.Blocks(title="Real Foundation Swatches Engine", css=custom_pink_css, theme=gr.themes.Soft()) as demo:
-    gr.Markdown("#  Foundation Swatches Engine")
-    gr.Markdown("<p style='text-align: center; color: #888;'>قومي برفع صورتك واختيار درجة الفاونديشن المفضلة من اللوحة التفاعلية </p>")
+    gr.Markdown("# Foundation Swatches Engine")
+    gr.Markdown("<p style='text-align: center; color: #888;'>Upload your face photo and select your preferred foundation shade from the interactive palette.</p>")
 
     with gr.Row():
         with gr.Column(scale=1):
-            img_input = gr.Image(type="numpy", label=" رفع صورة الوجه")
+            img_input = gr.Image(type="numpy", label="Upload Face Image")
             
             shade_radio = gr.Radio(
                 choices=list(REAL_FOUNDATION_SWATCHES.keys()),
@@ -417,19 +417,19 @@ with gr.Blocks(title="Real Foundation Swatches Engine", css=custom_pink_css, the
                 elem_classes=["swatch-radio"]
             )
             
-            btn_run = gr.Button("تطبيق المحاكاة ", variant="primary", elem_classes=["primary-btn"])
+            btn_run = gr.Button("Apply Simulation", variant="primary", elem_classes=["primary-btn"])
             
             recommended_swatch_display = gr.Image(
-                label="عينة التوصية (JSON Swatch)",
+                label="Recommendation Sample (JSON Swatch)",
                 interactive=False,
                 width=160,
                 height=160
             )
             
-            status_output = gr.Textbox(label="  النتيجة والاستراتيجية", interactive=False, lines=3)
+            status_output = gr.Textbox(label="Result & Strategy", interactive=False, lines=3)
 
         with gr.Column(scale=2):
-            img_output = gr.Image(label=" شبكة الاستراتيجيات")
+            img_output = gr.Image(label="Strategies Grid")
 
     btn_run.click(
         fn=process_foundation_web,
@@ -438,4 +438,10 @@ with gr.Blocks(title="Real Foundation Swatches Engine", css=custom_pink_css, the
     )
 
 if __name__ == "__main__":
-   demo.launch(server_name="127.0.0.1", server_port=7861, share=True)
+    demo.launch(
+        server_name="127.0.0.1",  
+        server_port=7862,          
+        share=False,                
+        inbrowser=True,            
+        show_error=True
+    )
